@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -130,15 +130,10 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletPosition.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bullet.h" />
-    <ClInclude Include="BulletPosition.h" />
-    <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="TileType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
