@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
+#include"Level.h"
 
-Player::Player(int startX, int startY, int health)
+Player::Player(int startX, int startY, int health,const Level& level)
     : m_x(startX), m_y(startY), initialX(startX), initialY(startY), health(health), direction(Direction::Up) {}
 
 void Player::move(Direction dir) {

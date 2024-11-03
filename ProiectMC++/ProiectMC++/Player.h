@@ -1,6 +1,7 @@
 ﻿#pragma once
 #ifndef PLAYER_H
 #define PLAYER_H
+#include"Level.h"
 
 #include <vector>
 
@@ -14,7 +15,7 @@ public:
         Right
     };
 
-    Player(int startX, int startY, int health = 3);
+    Player(int startX, int startY, int health = 3, const Level& level);
 
     void move(Direction dir);
     void takeDamage();
