@@ -1,8 +1,24 @@
-#include <iostream>
+#include "Game.h"
 
-#include "Bullet.h"
-
-int main()
+Game::Game()
 {
-	return 0;
+
 }
+
+void Game::start()
+{
+}
+
+void Game::update()
+{
+}
+
+void Game::handleInput()
+{
+}
+
+void Game::render()
+{
+
+}
+
