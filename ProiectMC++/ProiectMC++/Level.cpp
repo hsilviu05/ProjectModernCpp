@@ -1,18 +1,30 @@
-﻿//#include "Level.h"
-//#include "Player.h"
-//
-//
-//// Restul metodelor rămân la fel
-//void Player::move(Direction dir) {
-//    direction = dir;
-//    switch (dir) {
-//    case Direction::Up:    m_y -= 1; break;
-//    case Direction::Down:  m_y += 1; break;
-//    case Direction::Left:  m_x -= 1; break;
-//    case Direction::Right: m_x += 1; break;
-//    }
-//}
-//
-//int Player::getX() const { return m_x; }
-//
-//int Player::getY() const { return m_y; }
+#include "Level.h"
+
+Level::Level(Difficulty difficulty) : difficulty(difficulty) {
+    configureDifficulty();
+}
+
+void Level::configureDifficulty() {
+    switch (difficulty) {
+    case Difficulty::EASY:
+        playerHealth = 3;
+        bulletSpeed = 1;
+        break;
+    case Difficulty::MEDIUM:
+        playerHealth = 3;
+        bulletSpeed = 2;
+        break;
+    case Difficulty::HARD:
+        playerHealth = 1;
+        bulletSpeed = 3;
+        break;
+    }
+}
+
+int Level::getPlayerHealth() const {
+    return playerHealth;
+}
+
+int Level::getBulletSpeed() const {
+    return bulletSpeed;
+}
