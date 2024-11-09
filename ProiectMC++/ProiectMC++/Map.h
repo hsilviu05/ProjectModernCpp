@@ -16,4 +16,6 @@ class Map
 		void setHeight(uint16_t height);
 		uint16_t getWidth() const;
 		void setWidth(uint16_t width);
+		TileType getTile(int x, int y) const;
+		void destroyTile(int x, int y);
 };
