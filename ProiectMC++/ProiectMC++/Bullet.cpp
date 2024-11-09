@@ -6,8 +6,10 @@ Bullet::Bullet(const BulletPosition& start_position, const BulletPosition& direc
 void Bullet::moveBullet()
 {
 	if (active) {
-		b_position.cord_x += b_direction.cord_x * b_speed;
-		b_position.cord_x += b_direction.cord_x * b_speed;
+		std::pair<int, int> current_pos = b_position.getPosition();
+		b_position.SetPosition(current_pos.first + b_direction.getPosition().first * b_speed,
+			current_pos.second + b_direction.getPosition().second * b_speed);
+
 	}
 }
 

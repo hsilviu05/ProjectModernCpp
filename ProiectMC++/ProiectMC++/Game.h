@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Map.h"
 #include "Wall.h"
+#include "Level.h"
 
 class Game
 {
