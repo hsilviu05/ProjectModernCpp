@@ -27,3 +27,37 @@ void Bullet::deactivateBullet()
 {
 	active = false;
 }
+
+
+bool Bullet::checkBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap)
+{
+		if (!active) {
+		return false;
+	}
+
+	for (const auto& wall : walls)
+	{
+		if (wall.getPosition() == b_position.getPosition() && !wall.getIsDestroyed())
+		{
+			if (wall.getIsDestructible())
+			{
+				gameMap.destroyTile(wall.getPosition().first, wall.getPosition().second);
+			}
+			deactivateBullet();
+			return true;
+		}
+	}
+	return false;
+}
+
+void Bullet::checkBulletPlayersCollisions(std::vector<Player>& players)
+{
+	for (auto& player : players)
+	{
+		if (b_position.getPosition() == player.getPosition()) 
+		{
+			player.takeDamage();
+			deactivateBullet();
+		}
+	}
+}

@@ -25,6 +25,7 @@ public:
     int getX() const;
     int getY() const;
     bool isEliminated() const;
+    std::pair<int, int> getPosition() const;
 
 private:
     uint8_t m_x, m_y;

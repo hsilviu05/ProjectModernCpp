@@ -31,6 +31,11 @@ bool Player::isEliminated() const {
     return health <= 0;
 }
 
+std::pair<int, int> Player::getPosition() const
+{
+    return std::pair<int, int>();
+}
+
 void Player::respawn() {
     m_x = initialX;
     m_y = initialY;

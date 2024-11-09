@@ -1,6 +1,10 @@
 #pragma once
 
 #include "BulletPosition.h"
+#include <vector>
+#include "Wall.h"
+#include "Player.h"
+#include "Map.h"
 
 class Bullet
 {
@@ -14,6 +18,8 @@ public:
 
 	static const int DEFAULT_BULLET_SPEED = 5 ;
 
+	bool checkBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap);
+	void checkBulletPlayersCollisions(std::vector<Player>& players);
 private:
 
 	BulletPosition b_position;	
