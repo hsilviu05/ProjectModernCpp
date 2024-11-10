@@ -1,5 +1,6 @@
 #include "Map.h"
 
+
 uint16_t Map::getHeight() const{
 	return m_height;
 }
@@ -30,5 +31,16 @@ void Map::destroyTile(int x, int y)
 		if (m_gameArea[y][x] == TileType::DestrucitbleWall) {
 			m_gameArea[y][x] = TileType::EmptySpace;
 		}
+	}
+}
+
+void Map::draw() const
+{
+	for (const auto& row : m_gameArea) {
+		for (const auto& tile : row)
+		{
+			std::cout << static_cast<int>(tile) << ' ';
+		}
+		std::cout << '\n';
 	}
 }

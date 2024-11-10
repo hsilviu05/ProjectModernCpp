@@ -3,6 +3,7 @@
 #include<vector>
 #include<array>
 #include<cstdint>
+#include<iostream>
 
 class Map
 {
@@ -18,4 +19,5 @@ class Map
 		void setWidth(uint16_t width);
 		TileType getTile(int x, int y) const;
 		void destroyTile(int x, int y);
+		void draw() const;
 };
