@@ -1,8 +1,9 @@
 #include "Bullet.h"
 
-Bullet::Bullet(const BulletPosition& start_position, const BulletPosition& direction, int speed)
+Bullet::Bullet(const BulletPosition& start_position, Direction& direction, int speed)
 : b_position(start_position), b_direction(direction), b_speed(speed), active(true){}
 
+/*
 void Bullet::moveBullet()
 {
 	if (active) {
@@ -12,6 +13,7 @@ void Bullet::moveBullet()
 
 	}
 }
+*/
 
 const BulletPosition& Bullet::getBulletPosition() const
 {

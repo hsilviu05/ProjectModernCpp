@@ -5,11 +5,12 @@
 #include "Wall.h"
 #include "Player.h"
 #include "Map.h"
+#include "Direction.h"
 
 class Bullet
 {
 public:
-	Bullet(const BulletPosition& b_start_position, const BulletPosition& direction,int b_speed = DEFAULT_BULLET_SPEED);
+	Bullet(const BulletPosition& b_start_position, Direction& direction,int b_speed = DEFAULT_BULLET_SPEED);
 
 	void moveBullet();
 	const BulletPosition& getBulletPosition() const;
@@ -23,7 +24,7 @@ public:
 private:
 
 	BulletPosition b_position;	
-	BulletPosition b_direction;
+	Direction b_direction;
 	int b_speed;
 	bool active;
 };

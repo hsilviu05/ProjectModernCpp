@@ -2,18 +2,13 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include"Level.h"
+#include "Direction.h"
 
 #include <vector>
 
 class Player {
 public:
-    enum class Direction
-    {
-        Up,
-        Down,
-        Left,
-        Right
-    };
+    
 
     Player(int startX, int startY, const Level& level);
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#ifndef LEVEL_H
-#define LEVEL_H
+
 
 enum class Difficulty { EASY, MEDIUM, HARD };
 
@@ -20,5 +19,4 @@ private:
     void configureDifficulty();
 };
 
-#endif // LEVEL_H
 
