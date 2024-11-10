@@ -13,11 +13,13 @@ public:
 	void start();
 	void update();
 	void handleInput(Player& player);
+	void handleExplosion(Wall& wall);
 	void render();
 
 private:
 	Map m_map;
 	std::vector<Bullet> m_bullets;
+	std::vector<Player> m_players;
 	std::vector<Wall> m_walls;
 
 };

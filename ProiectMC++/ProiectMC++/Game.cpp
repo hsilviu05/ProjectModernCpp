@@ -45,6 +45,28 @@ void Game::handleInput(Player& player)
     }
 }
 
+void Game::handleExplosion(Wall& wall) {
+
+    if (wall.getHasBomb()) {
+        int explosionRadius = wall.getExplosionRadius();
+        std::pair<int, int> wallPosition = wall.getPosition();
+
+        for (auto& player : m_players) {
+            std::pair<int, int> playerPosition = player.getPosition();
+
+            int distance = std::abs(wallPosition.first - playerPosition.first) +
+                std::abs(wallPosition.second - playerPosition.second);
+
+            if (distance <= explosionRadius) {
+                player.takeDamage();
+                std::cout << "Player at position " << playerPosition.first << ", " << playerPosition.second
+                    << " took damage from explosion!" << std::endl;
+            }
+        }
+    }
+}
+
+
 void Game::render()
 {
 
