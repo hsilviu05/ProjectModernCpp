@@ -36,6 +36,11 @@ std::pair<int, int> Player::getPosition() const
     return std::pair<int, int>();
 }
 
+Direction Player::getDirection() const
+{
+    return Direction();
+}
+
 void Player::respawn() {
     m_x = initialX;
     m_y = initialY;

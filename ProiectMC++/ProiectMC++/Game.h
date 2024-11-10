@@ -12,7 +12,7 @@ public:
 	Game();
 	void start();
 	void update();
-	void handleInput();
+	void handleInput(Player& player);
 	void render();
 
 private:
