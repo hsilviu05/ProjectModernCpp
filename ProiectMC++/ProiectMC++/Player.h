@@ -1,8 +1,7 @@
 #pragma once
-#ifndef PLAYER_H
-#define PLAYER_H
-#include"Level.h"
+#include "Level.h"
 #include "Direction.h"
+#include "Bullet.h"
 
 #include <vector>
 
@@ -29,7 +28,4 @@ private:
     uint8_t initialX, initialY;
     Direction direction;
 };
-
-#endif // PLAYER_H
-
 

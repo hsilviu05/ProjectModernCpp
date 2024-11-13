@@ -1,5 +1,5 @@
 #include "Player.h"
-#include"Level.h"
+#include "Level.h"
 
 Player::Player(int startX, int startY, const Level& level)
     : m_x(startX), m_y(startY), initialX(startX), initialY(startY), direction(Direction::Up) {
@@ -40,6 +40,7 @@ Direction Player::getDirection() const
 {
     return Direction();
 }
+
 
 void Player::respawn() {
     m_x = initialX;
