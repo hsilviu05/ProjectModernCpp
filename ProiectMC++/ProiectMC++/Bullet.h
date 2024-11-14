@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include <vector>
 #include "Wall.h"
 #include "Map.h"
@@ -43,4 +43,4 @@ private:
 	int b_speed;
 	bool active;
 };
-
+*/

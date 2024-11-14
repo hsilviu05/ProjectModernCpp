@@ -5,7 +5,7 @@
 #include "Map.h"
 #include "Wall.h"
 #include "Level.h"
-
+/*
 class Game
 {
 public:
@@ -23,3 +23,4 @@ private:
 	std::vector<Wall> m_walls;
 
 };
+*/

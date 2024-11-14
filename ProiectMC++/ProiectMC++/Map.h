@@ -16,9 +16,12 @@ class Map
 		std::array<std::pair<size_t, size_t>,4>m_startPositions;
 	public:
 		size_t getHeight() const;
-		void GenerateMap();
 		size_t getWidth() const;
+
+		void GenerateMap();
+		void SetStartPositions();
+		void Draw() const;
+
 		TileType getTile(int x, int y) const;
 		void destroyTile(int x, int y);
-		void Draw() const;
 };

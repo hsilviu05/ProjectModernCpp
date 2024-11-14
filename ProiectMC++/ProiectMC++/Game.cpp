@@ -1,4 +1,5 @@
 #include "Game.h"
+/*
 
 Game::Game()
 {
@@ -44,7 +45,7 @@ void Game::handleInput(Player& player)
         std::cout << "Invalid input. Use W, A, S, D.\n";
     }
 }
-
+/*
 void Game::handleExplosion(Wall& wall) {
 
     if (wall.getHasBomb()) {
@@ -67,8 +68,10 @@ void Game::handleExplosion(Wall& wall) {
 }
 
 
+
 void Game::render()
 {
 
 }
 
+*/

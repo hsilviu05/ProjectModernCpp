@@ -24,13 +24,17 @@ void Map::GenerateMap(){
 	Allocation();
 	for(int i=0;i<m_height;i++){
 		for (int j = 0; j < m_width; j++)
-			if ((i == 0 || i == m_height) && (j == 0 || j == m_width))
+			if ((i == 0 || i == m_height-1) && (j == 0 || j == m_width-1))
 				m_gameArea[i][j] = TileType::EmptySpace;
 			else
 				m_gameArea[i][j] = static_cast<TileType>(dist_tile(gen));
 	}
 	
 
+}
+
+void Map::SetStartPositions() {
+	m_startPositions = { {{0, 0}, { 0,m_width - 1 }, { m_height - 1,m_width - 1 }, { m_height - 1,0 } } };
 }
 
 size_t Map::getWidth() const{

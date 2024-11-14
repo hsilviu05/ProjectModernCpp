@@ -1,11 +1,14 @@
 #include "Player.h"
 #include "Level.h"
 
+/*
 Player::Player(int startX, int startY, const Level& level)
     : m_x(startX), m_y(startY), initialX(startX), initialY(startY), direction(Direction::Up) {
     health = level.getPlayerHealth();
 }
-    
+*/
+
+/*
 void Player::move(Direction dir) {
     direction = dir;
     switch (dir) {
@@ -15,43 +18,34 @@ void Player::move(Direction dir) {
     case Direction::Right: m_x += 1; break;
     }
 }
+*/
 
 
 void Player::takeDamage() {
-    if (health > 0) {
-        health--;
+    if (m_health > 0) {
+        m_health--;
     }
 }
 
 bool Player::isAlive() const {
-    return health > 0;
+    return m_health > 0;
 }
 
 bool Player::isEliminated() const {
-    return health <= 0;
-}
-
-std::pair<int, int> Player::getPosition() const
-{
-    return std::pair<int, int>();
+    return m_health <= 0;
 }
 
 Direction Player::getDirection() const
 {
-    return Direction();
+    return m_direction;
 }
 
 
 void Player::respawn() {
-    m_x = initialX;
-    m_y = initialY;
+    m_position = m_initialPosition;
 }
 
-int Player::getX() const { return m_x; }
-
-int Player::getY() const { return m_y; }
-
-int Player::getHealth() const {
-    return health;
+uint8_t Player::getHealth() const {
+    return m_health;
 }
 
