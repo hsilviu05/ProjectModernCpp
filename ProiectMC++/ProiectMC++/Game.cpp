@@ -1,5 +1,5 @@
 #include "Game.h"
-/*
+
 
 Game::Game()
 {
@@ -12,40 +12,47 @@ void Game::start()
 
 void Game::update()
 {
-    for (auto& bullet : m_bullets) 
+    for (auto& bullet : m_bullets)
     {
-        //bullet.moveBullet();
-        if (bullet.CheckBulletWallCollisions(m_walls,m_map))
+        bullet.MoveBullet();
+
+        if (bullet.IsActive())
         {
-            continue;
+            bullet.CheckBulletWallCollisions(m_walls, m_map);
+            if (!bullet.IsActive()) 
+                continue;
+            bullet.CheckBulletBulletCollisions(m_bullets);
+            if (!bullet.IsActive()) 
+                continue;
+            bullet.CheckBulletPlayersCollisions(m_players);
         }
     }
 }
 
 void Game::handleInput(Player& player)
 {
-    char input;
-    std::cout << "Use W, A, S, D to move: ";
-    std::cin >> input;
+    //char input;
+    //std::cout << "Use W, A, S, D to move: ";
+    //std::cin >> input;
 
-    switch (input) {
-    case 'w': case 'W':
-        player.move(Direction::Up);
-        break;
-    case 'a': case 'A':
-        player.move(Direction::Left);
-        break;
-    case 's': case 'S':
-        player.move(Direction::Down);
-        break;
-    case 'd': case 'D':
-        player.move(Direction::Right);
-        break;
-    default:
-        std::cout << "Invalid input. Use W, A, S, D.\n";
-    }
+    //switch (input) {
+    //case 'w': case 'W':
+    //    player.move(Direction::Up);
+    //    break;
+    //case 'a': case 'A':
+    //    player.move(Direction::Left);
+    //    break;
+    //case 's': case 'S':
+    //    player.move(Direction::Down);
+    //    break;
+    //case 'd': case 'D':
+    //    player.move(Direction::Right);
+    //    break;
+    //default:
+    //    std::cout << "Invalid input. Use W, A, S, D.\n";
+    //}
 }
-/*
+
 void Game::handleExplosion(Wall& wall) {
 
     if (wall.getHasBomb()) {
@@ -74,4 +81,3 @@ void Game::render()
 
 }
 
-*/

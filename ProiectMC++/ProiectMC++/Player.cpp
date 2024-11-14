@@ -21,7 +21,7 @@ void Player::move(Direction dir) {
 */
 
 
-void Player::takeDamage() {
+void Player::TakeDamage() {
     if (m_health > 0) {
         m_health--;
     }
@@ -41,6 +41,23 @@ Direction Player::getDirection() const
 }
 
 
+//adaugat de Silviu
+void Player::AddPoints()
+{
+    m_points += POINTS_PER_ENEMY;
+}
+
+int Player::GetPoints() const
+{
+    return m_points;
+}
+
+void Player::AddWinBonus()
+{
+    m_points += WIN_BONUS;
+}
+//Pana aici
+
 void Player::respawn() {
     m_position = m_initialPosition;
 }
@@ -48,4 +65,5 @@ void Player::respawn() {
 uint8_t Player::getHealth() const {
     return m_health;
 }
+
 

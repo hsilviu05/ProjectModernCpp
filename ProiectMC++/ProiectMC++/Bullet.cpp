@@ -1,6 +1,6 @@
 #include "Bullet.h"
 #include "Player.h"
-/*
+
 Bullet::Bullet(const Position& start_position, Direction& direction, int speed)
 : b_position(start_position), b_direction(direction), b_speed(speed), active(true){}
 
@@ -42,37 +42,62 @@ void Bullet::DeactivateBullet()
 }
 
 
-bool Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap)
+void Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap)
 {
-		if (!active) {
-		return false;
-	}
-
-	for (const auto& wall : walls)
-	{
-		if (wall.getPosition() == b_position.getPosition() && !wall.getIsDestroyed())
+		if (!active)
 		{
-			if (wall.getIsDestructible())
+		return;
+		}
+
+		bool collisionDetected = false;
+		for (const auto& wall : walls)
+		{
+			if (wall.getPosition() == b_position.getPosition() && !wall.getIsDestroyed())
 			{
-				gameMap.destroyTile(wall.getPosition().first, wall.getPosition().second);
+				collisionDetected = true;
+
+				if (wall.getIsDestructible())
+				{
+					gameMap.destroyTile(wall.getPosition().first, wall.getPosition().second);
+				}
+				break;
 			}
+		}
+
+		if (collisionDetected) 
+		{
 			DeactivateBullet();
-			return true;
+		}
+}
+
+
+void Bullet::CheckBulletBulletCollisions(std::vector<Bullet>& bullets)
+{
+	if (!active) 
+		return;
+	for (auto& otherBullet : bullets)
+	{
+		if (&otherBullet != this && otherBullet.IsActive())
+		{
+			if (b_position.getPosition() == otherBullet.GetBulletPosition().getPosition())
+			{
+				DeactivateBullet();
+				otherBullet.DeactivateBullet();
+				break;
+			}
 		}
 	}
-	return false;
 }
 
 void Bullet::CheckBulletPlayersCollisions(std::vector<Player>& players)
 {
 	for (auto& player : players)
 	{
-		if (b_position.getPosition() == player.getPosition()) 
+		if (b_position.getPosition() == player.getPosition())
 		{
 			player.takeDamage();
 			DeactivateBullet();
+			player.AddPoints();
 		}
 	}
 }
-
-*/

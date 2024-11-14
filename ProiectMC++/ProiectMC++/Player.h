@@ -18,10 +18,14 @@ public:
     uint8_t getHealth() const;
     bool isEliminated() const;
     Direction getDirection() const;
-
+    
+    void AddPoints();
+    int GetPoints() const;
+    void AddWinBonus();
 
 private:
 	uint8_t m_health;
     std::pair<size_t, size_t>m_initialPosition;
+    int m_points = 0;
 };
 
