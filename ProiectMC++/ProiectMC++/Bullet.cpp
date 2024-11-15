@@ -1,7 +1,7 @@
 #include "Bullet.h"
 #include "Player.h"
 
-Bullet::Bullet(const Position& start_position, Direction& direction, int speed)
+Bullet::Bullet(const Position& start_position,const Direction& direction, int speed )
 : b_position(start_position), b_direction(direction), b_speed(speed), active(true){}
 
 
@@ -95,7 +95,7 @@ void Bullet::CheckBulletPlayersCollisions(std::vector<Player>& players)
 	{
 		if (b_position.getPosition() == player.getPosition())
 		{
-			player.takeDamage();
+			player.TakeDamage();
 			DeactivateBullet();
 			player.AddPoints();
 		}

@@ -66,7 +66,7 @@ void Game::handleExplosion(Wall& wall) {
                 std::abs(wallPosition.second - playerPosition.second);
 
             if (distance <= explosionRadius) {
-                player.takeDamage();
+                player.TakeDamage();
                 std::cout << "Player at position " << playerPosition.first << ", " << playerPosition.second
                     << " took damage from explosion!" << std::endl;
             }

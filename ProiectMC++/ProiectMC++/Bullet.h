@@ -25,7 +25,7 @@ public:
 	};
 
 public:
-	Bullet(const Position& b_start_position, Direction& direction,int b_speed = DEFAULT_BULLET_SPEED);
+	Bullet(const Position& b_start_position,const Direction& direction,int b_speed = DEFAULT_BULLET_SPEED);
 
 	void MoveBullet();
 	const Position& GetBulletPosition() const;

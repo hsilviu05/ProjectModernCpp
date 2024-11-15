@@ -21,6 +21,11 @@ void Player::move(Direction dir) {
 */
 
 
+Player::Player(int startX, int startY)
+: m_initialPosition(startX, startY), m_health(), m_fireRate(1000)
+{
+}
+
 void Player::TakeDamage() {
     if (m_health > 0) {
         m_health--;
@@ -56,6 +61,27 @@ void Player::AddWinBonus()
 {
     m_points += WIN_BONUS;
 }
+bool Player::UpgradeWeapon()
+{
+    if (m_points >= UPGRADE_COST && m_fireRateUpgrades < MAX_FIRE_RATE_UPGRADES) {
+        m_points -= UPGRADE_COST;
+        m_fireRate -= FIRE_RATE_REDUCTION;
+        m_fireRateUpgrades++;
+        return true;
+    }
+    return false;
+}
+int Player::GetFireRate() const
+{
+    return m_fireRate;
+}
+
+Bullet Player::shoot() const
+{
+    Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
+    return Bullet(startPosition, m_direction);
+}
+
 //Pana aici
 
 void Player::respawn() {
