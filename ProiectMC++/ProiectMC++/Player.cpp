@@ -84,6 +84,23 @@ Bullet Player::shoot() const
 
 //Pana aici
 
+void Player::AddScore(int points) {
+    m_score += points;
+
+    if (m_score >= 10 && !m_speedBoostApplied) {
+        m_speedBoostApplied = true;
+    }
+}
+
+int Player::GetScore() const {
+    return m_score;
+}
+
+bool Player::CanDuplicateBulletSpeed() {
+    return m_speedBoostApplied;
+}
+
+
 void Player::respawn() {
     m_position = m_initialPosition;
 }

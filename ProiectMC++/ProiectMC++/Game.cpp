@@ -30,8 +30,10 @@ void Game::update()
 
     int winnerIndex = checkWinner();
     if (winnerIndex != -1) {
-        std::cout << "Player " << winnerIndex + 1 << " wins the game!" << std::endl;
+        m_players[winnerIndex].AddWinBonus();
+        m_players[winnerIndex].AddScore(2);
         m_isGameOver = true;
+        //trb adaugat si pentru second place
     }
 
 }
