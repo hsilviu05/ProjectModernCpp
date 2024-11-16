@@ -27,6 +27,13 @@ void Game::update()
             bullet.CheckBulletPlayersCollisions(m_players);
         }
     }
+
+    int winnerIndex = checkWinner();
+    if (winnerIndex != -1) {
+        std::cout << "Player " << winnerIndex + 1 << " wins the game!" << std::endl;
+        m_isGameOver = true;
+    }
+
 }
 
 void Game::handleInput(Player& player)
@@ -73,6 +80,25 @@ void Game::handleExplosion(Wall& wall) {
         }
     }
 }
+
+int Game::checkWinner() {
+    int aliveCount = 0;
+    int lastAliveIndex = -1;
+
+    for (size_t i = 0; i < m_players.size(); ++i) {
+        if (m_players[i].isAlive()) {
+            aliveCount++;
+            lastAliveIndex = static_cast<int>(i);
+        }
+    }
+
+    if (aliveCount == 1) {
+        return lastAliveIndex;
+    }
+
+    return -1;
+}
+
 
 
 

@@ -96,6 +96,7 @@ void Bullet::CheckBulletPlayersCollisions(std::vector<Player>& players)
 		if (b_position.getPosition() == player.getPosition())
 		{
 			player.TakeDamage();
+			player.respawn();
 			DeactivateBullet();
 			player.AddPoints();
 		}

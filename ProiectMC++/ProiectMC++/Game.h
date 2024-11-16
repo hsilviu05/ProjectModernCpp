@@ -21,5 +21,7 @@ private:
 	std::vector<Bullet> m_bullets;
 	std::vector<Player> m_players;
 	std::vector<Wall> m_walls;
+	int checkWinner();
+	bool m_isGameOver = false;
 
 };
