@@ -1,5 +1,7 @@
-#include "Player.h"
+﻿#include "Player.h"
 #include "Level.h"
+#include "Bullet.h"
+#include <chrono>
 
 /*
 Player::Player(int startX, int startY, const Level& level)
@@ -71,16 +73,40 @@ bool Player::UpgradeWeapon()
     }
     return false;
 }
+
+bool Player::UpgradeBulletSpeed() {
+    if (!m_bulletSpeedUpgraded && m_points >= BULLET_SPEED_MULTIPLIER_POINTS) {
+        m_points -= BULLET_SPEED_MULTIPLIER_POINTS;
+        m_bulletSpeed *= 2;
+        m_bulletSpeedUpgraded = true;
+        return true;
+    }
+    return false;
+}
+
 int Player::GetFireRate() const
 {
     return m_fireRate;
 }
 
-Bullet Player::shoot() const
+Bullet Player::shoot()
 {
-    Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
-    return Bullet(startPosition, m_direction);
+    using namespace std::chrono;
+
+    auto now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+    if (now - m_lastShotTime >= m_fireRate) {
+        m_lastShotTime = now;
+
+        Bullet::Position startPosition(m_position.first, m_position.second);
+        Bullet bullet(startPosition, m_direction, m_bulletSpeed);
+        return bullet;
+       
+    }
+
+    return Bullet();
 }
+   /* Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
+    return Bullet(startPosition, m_direction);*/
 
 //Pana aici
 

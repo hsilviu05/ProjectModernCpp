@@ -26,6 +26,8 @@ public:
 
 public:
 	Bullet(const Position& b_start_position,const Direction& direction,int b_speed = DEFAULT_BULLET_SPEED);
+	Bullet()
+		: b_position({ 0, 0 }), b_direction(Direction::Up), b_speed(0), active(false) {} //constructor pentru glont inactiv
 
 	void MoveBullet();
 	const Position& GetBulletPosition() const;
