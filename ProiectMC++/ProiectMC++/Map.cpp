@@ -42,22 +42,23 @@ size_t Map::getWidth() const{
 }
 
 
-TileType Map::getTile(int x, int y) const
+TileType Map::GetTile(const std::pair<size_t,size_t>&t_position) const
 {
-	if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-		return m_gameArea[y][x];
+	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width) {
+		return m_gameArea[t_position.first][t_position.second];
 	}
-	return TileType::EmptySpace;
+	
 }
 
-void Map::destroyTile(int x, int y)
+void Map::DestroyTile(const std::pair<size_t, size_t>&t_position)
 {
-	if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-		if (m_gameArea[y][x] == TileType::DestrucitbleWall) {
-			m_gameArea[y][x] = TileType::EmptySpace;
+	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width) {
+		if (m_gameArea[t_position.first][t_position.second] == TileType::DestrucitbleWall) {
+			m_gameArea[t_position.first][t_position.second] = TileType::EmptySpace;
 		}
 	}
 }
+
 
 void Map::Draw() const
 {
@@ -66,5 +67,11 @@ void Map::Draw() const
 			std::cout << static_cast<int>(tile) << " ";
 		}
 		std::cout << "\n";
+	}
+}
+
+void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile){
+	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width){
+		m_gameArea[t_position.first][t_position.second] = t_tile;
 	}
 }

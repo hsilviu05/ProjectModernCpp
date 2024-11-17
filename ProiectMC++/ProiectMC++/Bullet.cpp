@@ -58,7 +58,7 @@ void Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& game
 
 				if (wall.getIsDestructible())
 				{
-					gameMap.destroyTile(wall.getPosition().first, wall.getPosition().second);
+					gameMap.DestroyTile(wall.getPosition());
 				}
 				break;
 			}

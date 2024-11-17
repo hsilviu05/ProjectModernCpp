@@ -22,6 +22,7 @@ class Map
 		void SetStartPositions();
 		void Draw() const;
 
-		TileType getTile(int x, int y) const;
-		void destroyTile(int x, int y);
+		TileType GetTile(const std::pair<size_t, size_t>&t_position) const;
+		void DestroyTile(const std::pair<size_t, size_t>&t_position);
+		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
 };
