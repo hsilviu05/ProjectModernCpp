@@ -1,5 +1,8 @@
 ﻿#include <iostream>
 #include "Map.h"
+#include "Bullet.h"
+#include "Direction.h"
+
 int main()
 {
 	Map gameMap;
@@ -13,5 +16,18 @@ int main()
 	gameMap.DestroyTile(bombPosition);
 	std::cout << "Harta generata cu bomba dupa explozie:\n";
 	gameMap.Draw();
+
+	Bullet::Position initialPosition(5, 5);
+	Direction bulletDirection = Direction::Left;
+
+	Bullet bullet(initialPosition, bulletDirection);
+
+	auto pos = bullet.GetBulletPosition().getPosition();
+	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n";
+	bullet.MoveBullet();
+
+	pos = bullet.GetBulletPosition().getPosition();
+	std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
+
 	return 0;
 }

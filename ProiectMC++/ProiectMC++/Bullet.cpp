@@ -1,4 +1,4 @@
-#include "Bullet.h"
+﻿#include "Bullet.h"
 #include "Player.h"
 
 Bullet::Bullet(const Position& start_position,const Direction& direction, int speed )
@@ -11,16 +11,16 @@ void Bullet::MoveBullet()
 
 	switch (b_direction) {
 	case Direction::Up:
-		b_position.SetPosition(b_position.getPosition().first, b_position.getPosition().second - b_speed);
-		break;
-	case Direction::Down:
-		b_position.SetPosition(b_position.getPosition().first, b_position.getPosition().second + b_speed);
-		break;
-	case Direction::Left:
 		b_position.SetPosition(b_position.getPosition().first - b_speed, b_position.getPosition().second);
 		break;
-	case Direction::Right:
+	case Direction::Down:
 		b_position.SetPosition(b_position.getPosition().first + b_speed, b_position.getPosition().second);
+		break;
+	case Direction::Left:
+		b_position.SetPosition(b_position.getPosition().first, b_position.getPosition().second - b_speed);
+		break;
+	case Direction::Right:
+		b_position.SetPosition(b_position.getPosition().first, b_position.getPosition().second + b_speed);
 		break;
 	}
 }
@@ -52,18 +52,19 @@ void Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& game
 		bool collisionDetected = false;
 		for (const auto& wall : walls)
 		{
-			if (wall.getPosition() == b_position.getPosition() && !wall.getIsDestroyed())
-			{
-				collisionDetected = true;
-
-				if (wall.getIsDestructible())
-				{
-					gameMap.DestroyTile(wall.getPosition());
+			if (wall.getPosition() == b_position.getPosition()) {
+				if (!wall.getIsDestroyed()) {
+					collisionDetected = true;
+					if (wall.getIsDestructible()) {
+						gameMap.DestroyTile(wall.getPosition());
+					}
+					else {
+						DeactivateBullet();
+					}
+					break;
 				}
-				break;
 			}
 		}
-
 		if (collisionDetected) 
 		{
 			DeactivateBullet();

@@ -12,7 +12,7 @@ void Game::start()
 
 void Game::update()
 {
-    for (auto& bullet : m_bullets)
+    /*for (auto& bullet : m_bullets)
     {
         bullet.MoveBullet();
 
@@ -26,7 +26,7 @@ void Game::update()
                 continue;
             bullet.CheckBulletPlayersCollisions(m_players);
         }
-    }
+    }*/
 
     int winnerIndex = checkWinner();
     if (winnerIndex != -1) {
