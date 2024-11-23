@@ -14,6 +14,8 @@ class Map
 		size_t m_width;
 		void Allocation();
 		std::array<std::pair<size_t, size_t>,4>m_startPositions;
+		void Explode(const std::pair<size_t, size_t>& t_position);
+
 	public:
 		size_t getHeight() const;
 		size_t getWidth() const;
@@ -25,4 +27,5 @@ class Map
 		TileType GetTile(const std::pair<size_t, size_t>&t_position) const;
 		void DestroyTile(const std::pair<size_t, size_t>&t_position);
 		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
+		
 };
