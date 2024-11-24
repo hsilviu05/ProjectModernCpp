@@ -9,7 +9,7 @@
 #include <sqlite_orm/sqlite_orm.h>
 namespace sql = sqlite_orm;
 
-struct Player {
+struct PlayerDB {
     int id;
     std::string name;
     std::string username;
@@ -23,9 +23,10 @@ inline auto createStorage(const std::string& filename)
         filename,
         sql::make_table(
             "Players",
-            sql::make_column("id", &Player::id, sql::primary_key().autoincrement()),
-            sql::make_column("name", &Player::name),
-            sql::make_column("username", &Player::username),
-            sql::make_column("points", &Player::points),
-            sql::make_column("fire_rate_upgrades", &Player::fire_rate_upgrades)));
+            sql::make_column("id", &PlayerDB::id, sql::primary_key().autoincrement()),
+            sql::make_column("name", &PlayerDB::name),
+            sql::make_column("username", &PlayerDB::username),
+            sql::make_column("points", &PlayerDB::points),
+            sql::make_column("fire_rate_upgrades", &PlayerDB::fire_rate_upgrades)));
 }
+using Storage = decltype(createStorage(""));

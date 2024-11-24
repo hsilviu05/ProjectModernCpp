@@ -1,11 +1,15 @@
-﻿#include <iostream>
+﻿#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#include <iostream>
 #include "Map.h"
 #include "Bullet.h"
 #include "Direction.h"
 #include "Player.h"
-#include <Windows.h>
+//#include <Windows.h>
+#include <crow.h>
+#include <sqlite_orm/sqlite_orm.h>
+#include "GameDatabase.h"
 
-
+using namespace sqlite_orm;
 
 char getPressedKey() {
 	if (GetAsyncKeyState('W') & 0x8000) return 'W';
@@ -69,6 +73,30 @@ int main()
 			break;
 		}
 	}
+	crow::SimpleApp app;
+	Storage storage = createStorage("product.sqlite");
+
+
+	CROW_ROUTE(app, "/register")
+		.methods("POST"_method)([&storage](const crow::request& req) {
+		auto json = crow::json::load(req.body);
+		if (!json) return crow::response(400, "Invalid JSON");
+
+		std::string username = json["username"].s();
+		std::string name = json["name"].s();
+
+		// Verificăm dacă username-ul este deja în uz
+		auto existingPlayer = storage.get_all<PlayerDB>(where(c(&PlayerDB::username) == username));
+		if (!existingPlayer.empty()) {
+			return crow::response(409, "Username already exists");
+		}
+
+		// Creăm un nou utilizator
+		PlayerDB player{ -1, username, name, 0, 0 };
+		storage.insert(player);
+
+		return crow::response(200, "User registered successfully");
+			});
 
 	return 0;
 }
