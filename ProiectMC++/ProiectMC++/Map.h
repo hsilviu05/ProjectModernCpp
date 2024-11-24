@@ -1,5 +1,6 @@
 #pragma once
 #include "TileType.h"
+#include "Wall.h"
 #include<vector>
 #include<array>
 #include<cstdint>
@@ -13,9 +14,10 @@ class Map
 		size_t m_height;
 		size_t m_width;
 		void Allocation();
-		std::vector < std::pair<size_t, size_t>>m_playersPositions;
+		std::array<std::pair<size_t, size_t>,4>m_playersPositions;
 		std::array<std::pair<size_t, size_t>,4>m_startPositions;
 		void Explode(const std::pair<size_t, size_t>& t_position);
+		std::vector<Wall> walls;
 
 	public:
 		size_t getHeight() const;
@@ -26,6 +28,7 @@ class Map
 		std::pair<size_t,size_t> getStartPosition(const size_t& playerNumber) const;
 		void Draw() const;
 
+		std::vector<Wall>& GetWalls();
 
 		TileType GetTile(const std::pair<size_t, size_t>&t_position) const;
 		void DestroyTile(const std::pair<size_t, size_t>&t_position);

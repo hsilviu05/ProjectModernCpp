@@ -35,7 +35,7 @@ int main()
 	Bullet bullet(initialPosition, bulletDirection);
 
 	auto pos = bullet.GetBulletPosition().getPosition();
-	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n";
+	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n"; 	
 	bullet.MoveBullet();
 
 	pos = bullet.GetBulletPosition().getPosition();
@@ -59,7 +59,7 @@ int main()
 			break;
 		case 'A':
 			if (player.getPosition().second > 0)
-				player.move('S');
+				player.move('A');
 			break;
 		case 'D':
 			if (player.getPosition().second < gameMap.getWidth()-1)

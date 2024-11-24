@@ -23,6 +23,8 @@ void Bullet::MoveBullet()
 		b_position.SetPosition(b_position.getPosition().first, b_position.getPosition().second + b_speed);
 		break;
 	}
+	//CheckBulletWallCollisions(walls, gameMap);
+	//CheckBulletBulletCollisions(bullets);
 }
 
 
@@ -90,7 +92,7 @@ void Bullet::CheckBulletBulletCollisions(std::vector<Bullet>& bullets)
 	}
 }
 
-void Bullet::CheckBulletPlayersCollisions(std::vector<Player>& players)
+void Bullet::CheckBulletPlayersCollisions(std::array<Player,4>& players)
 {
 	for (auto& player : players)
 	{

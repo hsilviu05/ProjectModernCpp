@@ -34,11 +34,11 @@ public:
 	bool IsActive() const;
 	void DeactivateBullet();
 
-	static const int DEFAULT_BULLET_SPEED = 3;
+	static const int DEFAULT_BULLET_SPEED = 1;
 
 	void CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap);
 	void CheckBulletBulletCollisions(std::vector<Bullet>& bullets);
-	void CheckBulletPlayersCollisions(std::vector<Player>& players);
+	void CheckBulletPlayersCollisions(std::array<Player, 4>& players);
 
 private:
 

@@ -20,7 +20,7 @@ void Map::GenerateMap(){
 	m_height = dist_size(gen);
 	m_width = dist_size(gen);
 
-	std::uniform_int_distribution<uint16_t> dist_tile(0, 2);
+	std::discrete_distribution<int> dist_tile({ 6, 3, 1 });
 	Allocation();
 	for(int i=0;i<m_height;i++){
 		for (int j = 0; j < m_width; j++)
@@ -94,6 +94,16 @@ void Map::Draw() const
 		}
 		std::cout << "\n";
 	}
+}
+
+std::vector<Wall>& Map::GetWalls()
+{
+	return walls;
+}
+
+std::vector<Bullet>& Map::GetBullets()
+{
+	return bullets;
 }
 
 std::pair<size_t, size_t> Map::GetPlayerPosition(const size_t& playerNumber)
