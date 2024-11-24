@@ -10,7 +10,7 @@ class Player:public GameObject {
 public:
     
     Player(int startX, int startY);
-
+    Player();
     void move(Direction dir);
     void TakeDamage();
     bool isAlive() const;

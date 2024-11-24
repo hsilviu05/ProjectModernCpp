@@ -90,6 +90,16 @@ void Map::Draw() const
 	}
 }
 
+std::pair<size_t, size_t> Map::GetPlayerPosition(const size_t& playerNumber)
+{
+	return m_playersPositions[playerNumber];
+}
+
+void Map::SetPlayerPosition(const size_t& playerNumber, const std::pair<size_t, size_t>& playerPosition)
+{
+	m_playersPositions[playerNumber] = playerPosition;
+}
+
 void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile){
 	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width){
 		m_gameArea[t_position.first][t_position.second] = t_tile;

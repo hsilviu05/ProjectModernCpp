@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "Bullet.h"
 #include "Direction.h"
+#include "Player.h"
 
 int main()
 {
@@ -28,6 +29,11 @@ int main()
 
 	pos = bullet.GetBulletPosition().getPosition();
 	std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
+
+	Player player;
+	{
+		
+	}
 
 	return 0;
 }
