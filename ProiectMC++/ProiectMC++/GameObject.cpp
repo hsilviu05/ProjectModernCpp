@@ -4,7 +4,7 @@ std::pair<size_t, size_t> GameObject::getPosition() const{
 	return m_position;
 }
 
-void GameObject::setPostion(std::pair<int16_t, int16_t> t_position){
+void GameObject::setPosition(std::pair<int16_t, int16_t> t_position){
 	m_position = t_position;
 }
 

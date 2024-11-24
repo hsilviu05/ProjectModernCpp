@@ -6,5 +6,6 @@ enum class TileType :uint8_t
 	EmptySpace,
 	DestrucitbleWall,
 	IndestrucitbleWall,
-	DestrucitbleWallWithBomb
+	DestrucitbleWallWithBomb,
+	Player
 };

@@ -53,6 +53,12 @@ void Map::SetStartPositions() {
 	m_startPositions = { {{0, 0}, { 0,m_width - 1 }, { m_height - 1,m_width - 1 }, { m_height - 1,0 } } };
 }
 
+std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerNumber) const
+{
+	return m_startPositions[playerNumber];
+}
+
+
 size_t Map::getWidth() const{
 	return m_width;
 }

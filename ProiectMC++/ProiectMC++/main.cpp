@@ -3,6 +3,17 @@
 #include "Bullet.h"
 #include "Direction.h"
 #include "Player.h"
+#include <Windows.h>
+
+
+
+char getPressedKey() {
+	if (GetAsyncKeyState('W') & 0x8000) return 'W';
+	if (GetAsyncKeyState('S') & 0x8000) return 'S';
+	if (GetAsyncKeyState('A') & 0x8000) return 'A';
+	if (GetAsyncKeyState('D') & 0x8000) return 'D';
+	return 0; 
+}
 
 int main()
 {
@@ -31,8 +42,32 @@ int main()
 	std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
 
 	Player player;
+	player.setPosition(gameMap.getStartPosition(0));
+	gameMap.SetPlayerPosition(0,player.getPosition());
+	gameMap.SetTile(player.getPosition(), TileType::Player);
+	while(true)
 	{
-		
+		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
+		switch (getPressedKey()) {
+		case 'W':
+			if (player.getPosition().first > 0)
+				player.move('W');
+			break;
+		case 'S':
+			if (player.getPosition().first < gameMap.getHeight()-1)
+				player.move('S');
+			break;
+		case 'A':
+			if (player.getPosition().second > 0)
+				player.move('S');
+			break;
+		case 'D':
+			if (player.getPosition().second < gameMap.getWidth()-1)
+				player.move('D');
+			break;
+		default:
+			break;
+		}
 	}
 
 	return 0;

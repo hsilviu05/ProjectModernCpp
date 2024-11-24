@@ -23,6 +23,7 @@ class Map
 
 		void GenerateMap();
 		void SetStartPositions();
+		std::pair<size_t,size_t> getStartPosition(const size_t& playerNumber) const;
 		void Draw() const;
 
 
@@ -33,9 +34,4 @@ class Map
 
 		std::pair<size_t,size_t> GetPlayerPosition(const size_t& playerNumber);
 		void SetPlayerPosition(const size_t& playerNumber,const std::pair<size_t,size_t>& playerPosition);
-
-		TileType GetTile(const std::pair<size_t, size_t>&position) const;
-		void DestroyTile(const std::pair<size_t, size_t>&position);
-		void SetTile(const std::pair<size_t, size_t>& position,const TileType& tile);
-
 };

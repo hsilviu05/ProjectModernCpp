@@ -11,7 +11,7 @@ public:
     
     Player(int startX, int startY);
     Player();
-    void move(Direction dir);
+    void move(const char& key);
     void TakeDamage();
     bool isAlive() const;
     void respawn();

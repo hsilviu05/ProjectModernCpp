@@ -2,6 +2,7 @@
 #include "Level.h"
 #include "Bullet.h"
 #include <chrono>
+#include <Windows.h>
 
 /*
 Player::Player(int startX, int startY, const Level& level)
@@ -10,21 +11,24 @@ Player::Player(int startX, int startY, const Level& level)
 }
 */
 
-/*
-void Player::move(Direction dir) {
-    direction = dir;
-    switch (dir) {
-    case Direction::Up:    m_y -= 1; break;
-    case Direction::Down:  m_y += 1; break;
-    case Direction::Left:  m_x -= 1; break;
-    case Direction::Right: m_x += 1; break;
+void Player::move(const char& key) {
+
+    switch (key) {
+    case 'W':  m_position.first--; break;
+    case 'S':  m_position.first++; break;
+    case 'A':  m_position.second--; break;
+    case 'D':  m_position.second++; break;
     }
 }
-*/
+
 
 
 Player::Player(int startX, int startY)
 : m_initialPosition(startX, startY), m_health(), m_fireRate(1000)
+{
+}
+
+Player::Player()
 {
 }
 
