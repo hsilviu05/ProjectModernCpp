@@ -101,10 +101,6 @@ std::vector<Wall>& Map::GetWalls()
 	return walls;
 }
 
-std::vector<Bullet>& Map::GetBullets()
-{
-	return bullets;
-}
 
 std::pair<size_t, size_t> Map::GetPlayerPosition(const size_t& playerNumber)
 {
