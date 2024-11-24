@@ -24,14 +24,14 @@ int main()
 	Map gameMap;
 	gameMap.GenerateMap();
 	std::cout << "Harta generata:\n";
-	gameMap.Draw();
+	//gameMap.Draw();
 	std::pair<size_t, size_t> bombPosition{ 3, 3 };
 	gameMap.SetTile(bombPosition, TileType::DestrucitbleWallWithBomb);
 	std::cout << "Harta generata cu bomba :\n";
-	gameMap.Draw();
+	//gameMap.Draw();
 	gameMap.DestroyTile(bombPosition);
 	std::cout << "Harta generata cu bomba dupa explozie:\n";
-	gameMap.Draw();
+	//gameMap.Draw();
 
 	Bullet::Position initialPosition(5, 5);
 	Direction bulletDirection = Direction::Left;
@@ -72,6 +72,10 @@ int main()
 		default:
 			break;
 		}
+		gameMap.SetPlayerPosition(0, player.getPosition());
+		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
+		gameMap.Draw();
+		Sleep(200);
 	}
 	crow::SimpleApp app;
 	Storage storage = createStorage("product.sqlite");

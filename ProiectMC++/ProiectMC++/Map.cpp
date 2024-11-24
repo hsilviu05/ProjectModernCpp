@@ -88,6 +88,7 @@ void Map::DestroyTile(const std::pair<size_t, size_t>&t_position)
 
 void Map::Draw() const
 {
+	system("cls");
 	for (const auto& row : m_gameArea) {
 		for (const auto& tile : row){
 			std::cout << static_cast<int>(tile) << " ";
