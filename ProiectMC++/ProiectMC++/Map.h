@@ -30,7 +30,7 @@ class Map
 
 		std::vector<Wall>& GetWalls();
 
-		TileType GetTile(const std::pair<size_t, size_t>&t_position) const;
+		TileType GetTile(const std::pair<size_t, size_t>&t_position) ;
 		void DestroyTile(const std::pair<size_t, size_t>&t_position);
 		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
 		

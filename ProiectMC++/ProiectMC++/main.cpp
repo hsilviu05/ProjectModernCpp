@@ -1,11 +1,11 @@
-﻿#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+﻿#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include <iostream>
 #include "Map.h"
 #include "Bullet.h"
 #include "Direction.h"
 #include "Player.h"
-//#include <Windows.h>
 #include <crow.h>
+#include <Windows.h>
 #include <sqlite_orm/sqlite_orm.h>
 #include "GameDatabase.h"
 
@@ -54,20 +54,24 @@ int main()
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
 		switch (getPressedKey()) {
 		case 'W':
-			if (player.getPosition().first > 0)
-				player.move('W');
+			if (player.getPosition().first > 0 &&
+				gameMap.GetTile({player.getPosition().first-1,player.getPosition().second}) == TileType::EmptySpace)
+					player.move('W');
 			break;
 		case 'S':
-			if (player.getPosition().first < gameMap.getHeight()-1)
-				player.move('S');
+			if (player.getPosition().first < gameMap.getHeight()-1 &&
+				gameMap.GetTile({ player.getPosition().first + 1,player.getPosition().second }) == TileType::EmptySpace)
+					player.move('S');
 			break;
 		case 'A':
-			if (player.getPosition().second > 0)
-				player.move('A');
+			if (player.getPosition().second > 0 &&
+				gameMap.GetTile({ player.getPosition().first,player.getPosition().second-1 }) == TileType::EmptySpace)
+					player.move('A');
 			break;
 		case 'D':
-			if (player.getPosition().second < gameMap.getWidth()-1)
-				player.move('D');
+			if (player.getPosition().second < gameMap.getWidth()-1 &&
+				gameMap.GetTile({ player.getPosition().first ,player.getPosition().second+1 }) == TileType::EmptySpace)
+					player.move('D');
 			break;
 		default:
 			break;
@@ -77,6 +81,8 @@ int main()
 		gameMap.Draw();
 		Sleep(200);
 	}
+
+	
 	crow::SimpleApp app;
 	Storage storage = createStorage("product.sqlite");
 
@@ -118,6 +124,5 @@ int main()
 
 		return crow::response(200, "Login successful");
 			});
-
 	return 0;
 }

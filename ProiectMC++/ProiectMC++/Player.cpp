@@ -1,8 +1,5 @@
 ﻿#include "Player.h"
-#include "Level.h"
-#include "Bullet.h"
-#include <chrono>
-#include <Windows.h>
+
 
 /*
 Player::Player(int startX, int startY, const Level& level)
@@ -12,7 +9,6 @@ Player::Player(int startX, int startY, const Level& level)
 */
 
 void Player::move(const char& key) {
-
     switch (key) {
     case 'W':  m_position.first--; break;
     case 'S':  m_position.first++; break;
@@ -109,7 +105,9 @@ Bullet Player::shoot()
 
     return Bullet();
 }
-   /* Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
+
+
+/* Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
     return Bullet(startPosition, m_direction);*/
 
 //Pana aici
