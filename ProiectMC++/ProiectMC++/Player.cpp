@@ -101,7 +101,7 @@ Bullet Player::shoot()
     if (now - m_lastShotTime >= m_fireRate) {
         m_lastShotTime = now;
 
-        Bullet::Position startPosition(m_position.first, m_position.second);
+        std::pair<size_t, size_t> startPosition = { m_position.first, m_position.second };
         Bullet bullet(startPosition, m_direction, m_bulletSpeed);
         return bullet;
        

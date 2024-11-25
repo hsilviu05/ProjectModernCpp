@@ -33,16 +33,16 @@ int main()
 	std::cout << "Harta generata cu bomba dupa explozie:\n";
 	//gameMap.Draw();
 
-	Bullet::Position initialPosition(5, 5);
+	std::pair<size_t, size_t> initialPosition = { 5, 5 };
 	Direction bulletDirection = Direction::Left;
 
 	Bullet bullet(initialPosition, bulletDirection);
 
-	auto pos = bullet.GetBulletPosition().getPosition();
-	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n"; 	
+	auto pos = bullet.getPosition();
+	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n";
 	bullet.MoveBullet();
 
-	pos = bullet.GetBulletPosition().getPosition();
+	pos = bullet.getPosition();
 	std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
 
 	Player player;
