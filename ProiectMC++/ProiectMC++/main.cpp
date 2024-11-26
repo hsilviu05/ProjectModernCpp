@@ -11,82 +11,92 @@
 
 using namespace sqlite_orm;
 
-char getPressedKey() {
-	if (GetAsyncKeyState('W') & 0x8000) return 'W';
-	if (GetAsyncKeyState('S') & 0x8000) return 'S';
-	if (GetAsyncKeyState('A') & 0x8000) return 'A';
-	if (GetAsyncKeyState('D') & 0x8000) return 'D';
-	return 0; 
+
+void handleInput(const char& key, Player& player, Map& gameMap)
+{
+	if (GetAsyncKeyState(key) & 0x8000) {
+		std::pair<size_t, size_t> newPosition = player.getPosition();
+		switch (key) {
+		case 'A':
+			newPosition.second -= 1;
+			player.setDirection(Direction::Left);
+			break;
+		case 'D':
+			newPosition.second += 1;
+			player.setDirection(Direction::Right);
+			break;
+		case 'W':
+			newPosition.first -= 1;
+			player.setDirection(Direction::Up);
+			break;
+		case 'S':
+			newPosition.first += 1;
+			player.setDirection(Direction::Down);
+			break;
+		default:
+			return;
+		}
+
+		if ((newPosition.first >= 0 && newPosition.first <= gameMap.getHeight() - 1)
+			&& (newPosition.second >= 0 && newPosition.second <= gameMap.getWidth() - 1) && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
+			player.move(key);
+		}
+	}
 }
+			
 
 int main()
 {
 	Map gameMap;
 	gameMap.GenerateMap();
 	std::cout << "Harta generata:\n";
-	//gameMap.Draw();
 	std::pair<size_t, size_t> bombPosition{ 3, 3 };
 	gameMap.SetTile(bombPosition, TileType::DestrucitbleWallWithBomb);
-	std::cout << "Harta generata cu bomba :\n";
+	//std::cout << "Harta generata cu bomba :\n";
 	//gameMap.Draw();
 	gameMap.DestroyTile(bombPosition);
-	std::cout << "Harta generata cu bomba dupa explozie:\n";
+	//std::cout << "Harta generata cu bomba dupa explozie:\n";
 	//gameMap.Draw();
 
 	std::pair<size_t, size_t> initialPosition = { 5, 5 };
 	Direction bulletDirection = Direction::Left;
 
-	Bullet bullet(initialPosition, bulletDirection);
+	//Bullet bullet(initialPosition, bulletDirection);
 
-	auto pos = bullet.getPosition();
-	std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n";
-	bullet.MoveBullet();
+	//auto pos = bullet.getPosition();
+	//std::cout << "Pozitia initiala a glontului: (" << pos.first << ", " << pos.second << ")\n";
+	//bullet.MoveBullet();
 
-	pos = bullet.getPosition();
-	std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
+	//pos = bullet.getPosition();
+	//std::cout << "Pozitia glontului dupa miscare: (" << pos.first << ", " << pos.second << ")\n";
+
 
 	Player player;
 	player.setPosition(gameMap.getStartPosition(0));
 	gameMap.SetPlayerPosition(0,player.getPosition());
 	gameMap.SetTile(player.getPosition(), TileType::Player);
+	gameMap.Draw();
 	while(true)
 	{
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
-		switch (getPressedKey()) {
-		case 'W':
-			if (player.getPosition().first > 0 &&
-				gameMap.GetTile({player.getPosition().first-1,player.getPosition().second}) == TileType::EmptySpace)
-					player.move('W');
-			break;
-		case 'S':
-			if (player.getPosition().first < gameMap.getHeight()-1 &&
-				gameMap.GetTile({ player.getPosition().first + 1,player.getPosition().second }) == TileType::EmptySpace)
-					player.move('S');
-			break;
-		case 'A':
-			if (player.getPosition().second > 0 &&
-				gameMap.GetTile({ player.getPosition().first,player.getPosition().second-1 }) == TileType::EmptySpace)
-					player.move('A');
-			break;
-		case 'D':
-			if (player.getPosition().second < gameMap.getWidth()-1 &&
-				gameMap.GetTile({ player.getPosition().first ,player.getPosition().second+1 }) == TileType::EmptySpace)
-					player.move('D');
-			break;
-		default:
-			break;
-		}
+		handleInput('A', player, gameMap);
+		handleInput('D', player, gameMap);
+		handleInput('W', player, gameMap);
+		handleInput('S', player, gameMap);
+		handleInput(VK_SPACE, player, gameMap);
 		gameMap.SetPlayerPosition(0, player.getPosition());
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
 		gameMap.Draw();
 		Sleep(200);
+
 	}
 
-	
 	crow::SimpleApp app;
 	Storage storage = createStorage("product.sqlite");
+	
 
 
+	
 	CROW_ROUTE(app, "/register")
 		.methods("POST"_method)([&storage](const crow::request& req) {
 		auto json = crow::json::load(req.body);
@@ -124,5 +134,6 @@ int main()
 
 		return crow::response(200, "Login successful");
 			});
+				
 	return 0;
 }

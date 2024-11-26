@@ -20,7 +20,8 @@ public:
     uint8_t getHealth() const;
     bool isEliminated() const;
     Direction getDirection() const;
-    
+    void setDirection(Direction player_direction);
+
     void AddPoints();
     int GetPoints() const;
     void AddWinBonus();
@@ -33,6 +34,7 @@ public:
     Bullet shoot();
 
 private:
+    std::vector<Bullet>bullets;
 	uint8_t m_health;
     std::pair<size_t, size_t>m_initialPosition;
     int m_points = 0;

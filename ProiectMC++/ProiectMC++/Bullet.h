@@ -25,8 +25,11 @@ public:
     void CheckBulletBulletCollisions(std::vector<Bullet>& bullets);
     void CheckBulletPlayersCollisions(std::array<Player, 4>& players);
 
+    Direction GetDirection();
+    void SetDirection(const Direction& direction);
+
 private:
     std::pair<size_t, size_t>m_initialPosition;
-    Direction b_direction;
+    Direction m_direction;
     bool active;
 };

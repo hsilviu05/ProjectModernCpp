@@ -2,7 +2,7 @@
 #include "Player.h"
 
 Bullet::Bullet(const std::pair<size_t, size_t> start_position, const Direction& direction, int speed)
-    : GameObject(), b_direction(direction), active(true)
+    : GameObject(), m_direction(direction), active(true)
 {
     setPosition({ static_cast<int16_t>(start_position.first), static_cast<int16_t>(start_position.second) });
     setSpeed(speed);
@@ -13,19 +13,11 @@ void Bullet::MoveBullet()
     if (!active) return;
 
     std::pair<size_t, size_t> currentPosition = getPosition();
-    switch (b_direction) {
-    case Direction::Up:
-        setPosition({ static_cast<int16_t>(currentPosition.first - m_speed), static_cast<int16_t>(currentPosition.second) });
-        break;
-    case Direction::Down:
-        setPosition({ static_cast<int16_t>(currentPosition.first + m_speed), static_cast<int16_t>(currentPosition.second) });
-        break;
-    case Direction::Left:
-        setPosition({ static_cast<int16_t>(currentPosition.first), static_cast<int16_t>(currentPosition.second - m_speed) });
-        break;
-    case Direction::Right:
-        setPosition({ static_cast<int16_t>(currentPosition.first), static_cast<int16_t>(currentPosition.second + m_speed) });
-        break;
+    switch (m_direction) {
+    case Direction::Up:m_position.first--;break;
+    case Direction::Down:m_position.first++; break;
+    case Direction::Left:m_position.second--; break;
+    case Direction::Right:m_position.second++; break;
     }
 }
 
@@ -99,4 +91,14 @@ void Bullet::CheckBulletPlayersCollisions(std::array<Player, 4>& players)
             return;
         }
     }
+}
+
+Direction Bullet::GetDirection()
+{
+    return m_direction;
+}
+
+void Bullet::SetDirection(const Direction& direction)
+{
+    m_direction = direction;
 }

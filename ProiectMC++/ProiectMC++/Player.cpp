@@ -47,6 +47,11 @@ Direction Player::getDirection() const
     return m_direction;
 }
 
+void Player::setDirection(Direction playerDirection)
+{
+    m_direction = playerDirection;
+}
+
 
 //adaugat de Silviu
 void Player::AddPoints()

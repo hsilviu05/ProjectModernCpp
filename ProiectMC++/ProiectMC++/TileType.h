@@ -8,4 +8,5 @@ enum class TileType :uint8_t
 	IndestrucitbleWall,
 	DestrucitbleWallWithBomb,
 	Player,
+	Bullet
 };
