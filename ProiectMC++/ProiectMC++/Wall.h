@@ -1,4 +1,5 @@
 #pragma once
+#include "TileType.h"
 #include<iostream>
 class Wall
 {
@@ -14,6 +15,7 @@ class Wall
 		bool getHasBomb() const;
 		std::pair<int, int> getPosition() const;
 		void setPosition(const std::pair<int, int>& newPosition);
+		void setWallType(TileType newWallType);
 
 		int getExplosionRadius() const;
 };

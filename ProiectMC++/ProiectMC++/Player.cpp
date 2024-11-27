@@ -1,13 +1,5 @@
 ﻿#include "Player.h"
 
-
-/*
-Player::Player(int startX, int startY, const Level& level)
-    : m_x(startX), m_y(startY), initialX(startX), initialY(startY), direction(Direction::Up) {
-    health = level.getPlayerHealth();
-}
-*/
-
 void Player::move(const char& key) {
     switch (key) {
     case 'W':  m_position.first--; break;
@@ -17,10 +9,8 @@ void Player::move(const char& key) {
     }
 }
 
-
-
 Player::Player(int startX, int startY)
-: m_initialPosition(startX, startY), m_health(), m_fireRate(1000)
+: m_initialPosition(startX, startY), m_health(), m_fireRate(COOL_DOWNTIME)
 {
 }
 
@@ -52,8 +42,6 @@ void Player::setDirection(Direction playerDirection)
     m_direction = playerDirection;
 }
 
-
-//adaugat de Silviu
 void Player::AddPoints()
 {
     m_points += POINTS_PER_ENEMY;
@@ -89,33 +77,19 @@ bool Player::UpgradeBulletSpeed() {
     return false;
 }
 
-int Player::GetFireRate() const
+bool Player::CanShoot() const
 {
-    return m_fireRate;
+    return (std::chrono::steady_clock::now() - lastShotTime) >= cooldownTime;
 }
 
 Bullet Player::shoot()
 {
-    using namespace std::chrono;
-
-    auto now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-    if (now - m_lastShotTime >= m_fireRate) {
-        m_lastShotTime = now;
-
-        std::pair<size_t, size_t> startPosition = { m_position.first, m_position.second };
-        Bullet bullet(startPosition, m_direction, m_bulletSpeed);
-        return bullet;
-       
+    if (!CanShoot()) {
+        throw std::runtime_error("Cannot shoot yet!");
     }
-
-    return Bullet();
+    lastShotTime = std::chrono::steady_clock::now();
+    return Bullet(getPosition(), m_direction, m_bulletSpeed);
 }
-
-
-/* Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
-    return Bullet(startPosition, m_direction);*/
-
-//Pana aici
 
 void Player::AddScore(int points) {
     m_score += points;
@@ -142,4 +116,8 @@ uint8_t Player::getHealth() const {
     return m_health;
 }
 
+std::vector<Bullet>& Player::GetBullets()
+{
+    return bullets;
+}
 

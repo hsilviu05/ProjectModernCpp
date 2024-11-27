@@ -26,12 +26,13 @@ public:
     int GetPoints() const;
     void AddWinBonus();
     bool UpgradeWeapon();
-    int GetFireRate() const;
+    bool CanShoot() const;
     void AddScore(int points);
     int GetScore() const;
     bool CanDuplicateBulletSpeed();
     bool UpgradeBulletSpeed();
     Bullet shoot();
+    std::vector<Bullet>& GetBullets();
 
 private:
     std::vector<Bullet>bullets;
@@ -42,7 +43,8 @@ private:
     int m_fireRate;
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
-    int m_lastShotTime = 0;
+    std::chrono::milliseconds cooldownTime = std::chrono::milliseconds(COOL_DOWNTIME);
+    std::chrono::steady_clock::time_point lastShotTime;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
 
@@ -52,5 +54,6 @@ private:
     static constexpr int FIRE_RATE_REDUCTION = 100;
     static constexpr int UPGRADE_COST = 500;
     static constexpr int BULLET_SPEED_MULTIPLIER_POINTS = 10;
+    static constexpr int COOL_DOWNTIME = 500;
 };
 

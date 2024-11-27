@@ -12,7 +12,6 @@ size_t Map::getHeight() const{
 }
 
 void Map::GenerateMap(){
-
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
@@ -22,14 +21,24 @@ void Map::GenerateMap(){
 
 	std::discrete_distribution<int> dist_tile({ 6, 3, 1 });
 	Allocation();
-	for(int i=0;i<m_height;i++){
-		for (int j = 0; j < m_width; j++)
-			if ((i == 0 || i == m_height-1) && (j == 0 || j == m_width-1))
+
+	for (int i = 0; i < m_height; i++) {
+		for (int j = 0; j < m_width; j++) {
+			if ((i == 0 || i == m_height - 1) && (j == 0 || j == m_width - 1))
 				m_gameArea[i][j] = TileType::EmptySpace;
-			else
-				m_gameArea[i][j] = static_cast<TileType>(dist_tile(gen));
+			else {
+				TileType tile = static_cast<TileType>(dist_tile(gen));
+				m_gameArea[i][j] = tile;
+
+				if (tile == TileType::DestrucitbleWall || tile == TileType::IndestrucitbleWall) {
+					Wall wall;
+					wall.setPosition({ i, j });
+					wall.setWallType(tile);
+					walls.push_back(wall);
+				}
+			}
+		}
 	}
-	
 	//generam automat  nr de ziduri intre 1-3
 	std::uniform_int_distribution<int> dist_bombs(1, 3);
 	int bombWallsCount = dist_bombs(gen);
@@ -135,3 +144,5 @@ void Map::Explode(const std::pair<size_t, size_t>& t_position)
 		}
 	}
 }
+
+

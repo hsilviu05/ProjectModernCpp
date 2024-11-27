@@ -60,6 +60,7 @@ void Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& game
     }
 }
 
+
 void Bullet::CheckBulletBulletCollisions(std::vector<Bullet>& bullets)
 {
     if (!active)
