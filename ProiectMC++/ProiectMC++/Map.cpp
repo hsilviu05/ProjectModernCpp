@@ -119,6 +119,13 @@ void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_
 	}
 }
 
+bool Map::inBounds(const std::pair<size_t, size_t>& position)
+{
+	if ((position.first >= 0 && position.first <= m_height) && (position.second >= 0 && position.second <= m_width))
+		return true;
+	return false;
+}
+
 void Map::Explode(const std::pair<size_t, size_t>& t_position)
 {
 	size_t startRow = (t_position.first >= 3) ? t_position.first - 3 : 0;

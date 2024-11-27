@@ -7,12 +7,14 @@
 #include <crow.h>
 #include <Windows.h>
 #include <sqlite_orm/sqlite_orm.h>
+
+#include "BulletManager.h"
 #include "GameDatabase.h"
 
 using namespace sqlite_orm;
 
 
-void handleInput(const char& key, Player& player, Map& gameMap)
+void handleInput(const char& key, Player& player, Map& gameMap,BulletManager& bulletManager)
 {
 	if (GetAsyncKeyState(key) & 0x8000) {
 		std::pair<size_t, size_t> newPosition = player.getPosition();
@@ -33,12 +35,15 @@ void handleInput(const char& key, Player& player, Map& gameMap)
 			newPosition.first += 1;
 			player.setDirection(Direction::Down);
 			break;
+		case VK_SPACE:
+			bulletManager.addBullet(player.shoot());
+
+			break;
 		default:
 			return;
 		}
 
-		if ((newPosition.first >= 0 && newPosition.first <= gameMap.getHeight() - 1)
-			&& (newPosition.second >= 0 && newPosition.second <= gameMap.getWidth() - 1) && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
+		if (gameMap.inBounds(newPosition)==true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
 			player.move(key);
 		}
 	}
@@ -72,18 +77,21 @@ int main()
 
 
 	Player player;
+	BulletManager bulletManager;
 	player.setPosition(gameMap.getStartPosition(0));
+	player.SetPlayerID(0);
 	gameMap.SetPlayerPosition(0,player.getPosition());
 	gameMap.SetTile(player.getPosition(), TileType::Player);
 	gameMap.Draw();
 	while(true)
 	{
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
-		handleInput('A', player, gameMap);
-		handleInput('D', player, gameMap);
-		handleInput('W', player, gameMap);
-		handleInput('S', player, gameMap);
-		handleInput(VK_SPACE, player, gameMap);
+		handleInput('A', player, gameMap,bulletManager);
+		handleInput('D', player, gameMap,bulletManager);
+		handleInput('W', player, gameMap,bulletManager);
+		handleInput('S', player, gameMap,bulletManager);
+		handleInput(VK_SPACE, player, gameMap,bulletManager);
+		//BulletManager.update
 		gameMap.SetPlayerPosition(0, player.getPosition());
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
 		gameMap.Draw();

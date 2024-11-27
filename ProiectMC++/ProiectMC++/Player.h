@@ -4,6 +4,7 @@
 #include "Bullet.h"
 #include "GameObject.h"
 #include <chrono>
+#include <memory>
 
 
 #include <vector>
@@ -31,10 +32,13 @@ public:
     int GetScore() const;
     bool CanDuplicateBulletSpeed();
     bool UpgradeBulletSpeed();
-    Bullet shoot();
+    std::unique_ptr<Bullet> shoot();
+    size_t GetPlayerID() const;
+    void SetPlayerID(const size_t& playerID);
 
 private:
-    std::vector<Bullet>bullets;
+    size_t m_playerID;
+    std::vector<std::unique_ptr<Bullet>>bullets;
 	uint8_t m_health;
     std::pair<size_t, size_t>m_initialPosition;
     int m_points = 0;

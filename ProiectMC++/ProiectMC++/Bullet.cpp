@@ -1,8 +1,8 @@
 ﻿#include "Bullet.h"
 #include "Player.h"
 
-Bullet::Bullet(const std::pair<size_t, size_t> start_position, const Direction& direction, int speed)
-    : GameObject(), m_direction(direction), active(true)
+Bullet::Bullet(size_t& shooterID,std::pair<size_t, size_t>& start_position,Direction& direction, int speed)
+    : GameObject(), m_direction(direction), active(true),m_shooterID(shooterID)
 {
     setPosition({ static_cast<int16_t>(start_position.first), static_cast<int16_t>(start_position.second) });
     setSpeed(speed);
@@ -101,4 +101,14 @@ Direction Bullet::GetDirection()
 void Bullet::SetDirection(const Direction& direction)
 {
     m_direction = direction;
+}
+
+size_t Bullet::GetShooterID() const
+{
+    return m_shooterID;
+}
+
+void Bullet::SetShooterID(const size_t& shooterID)
+{
+    m_shooterID = shooterID;
 }

@@ -94,7 +94,7 @@ int Player::GetFireRate() const
     return m_fireRate;
 }
 
-Bullet Player::shoot()
+  std::unique_ptr<Bullet> Player::shoot()
 {
     using namespace std::chrono;
 
@@ -103,12 +103,22 @@ Bullet Player::shoot()
         m_lastShotTime = now;
 
         std::pair<size_t, size_t> startPosition = { m_position.first, m_position.second };
-        Bullet bullet(startPosition, m_direction, m_bulletSpeed);
+        std::unique_ptr<Bullet> bullet(new Bullet(m_playerID, m_position, m_direction, m_speed));
         return bullet;
        
     }
 
-    return Bullet();
+    //return Bullet();
+}
+
+size_t Player::GetPlayerID() const
+{
+    return m_playerID;
+}
+
+void Player::SetPlayerID(const size_t& playerID)
+{
+    m_playerID = playerID;
 }
 
 
