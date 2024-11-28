@@ -1,12 +1,9 @@
 ﻿#include "Bullet.h"
 #include "Player.h"
 
-Bullet::Bullet(size_t& shooterID,std::pair<size_t, size_t>& start_position,Direction& direction, int speed)
-    : GameObject(), m_direction(direction), active(true),m_shooterID(shooterID)
-{
-    setPosition({ static_cast<int16_t>(start_position.first), static_cast<int16_t>(start_position.second) });
-    setSpeed(speed);
-}
+Bullet::Bullet(const std::pair<size_t,size_t>&position,const Direction& direction,const size_t& shooterID, const size_t& speed = DEFAULT_BULLET_SPEED)
+    : GameObject(position,speed,direction),m_shooterID(shooterID),active(true){}
+
 
 void Bullet::MoveBullet()
 {

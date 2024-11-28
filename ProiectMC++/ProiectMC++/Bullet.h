@@ -11,9 +11,9 @@ class Player;
 class Bullet : public GameObject
 {
 public:
-    Bullet( size_t& shooterID, std::pair<size_t, size_t>&m_initialPosition,  Direction& direction, int b_speed = DEFAULT_BULLET_SPEED);
-    Bullet()
-        : GameObject(), active(false) {} //constructor pt bullet inactiv
+    Bullet(const std::pair<size_t, size_t>& position, const Direction& direction, const size_t& shooterID, const size_t& speed);
+    //Bullet()
+     //   : GameObject(), active(false) {} //constructor pt bullet inactiv
 
     void MoveBullet();
     bool IsActive() const;
@@ -34,6 +34,5 @@ public:
 private:
     size_t m_shooterID;
     std::pair<size_t, size_t>m_initialPosition;
-    Direction m_direction;
     bool active;
 };

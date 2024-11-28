@@ -36,7 +36,7 @@ void handleInput(const char& key, Player& player, Map& gameMap,BulletManager& bu
 			player.setDirection(Direction::Down);
 			break;
 		case VK_SPACE:
-			bulletManager.addBullet(player.shoot());
+			bulletManager.AddBullet(player.shoot());
 
 			break;
 		default:
@@ -91,7 +91,7 @@ int main()
 		handleInput('W', player, gameMap,bulletManager);
 		handleInput('S', player, gameMap,bulletManager);
 		handleInput(VK_SPACE, player, gameMap,bulletManager);
-		//BulletManager.update
+		bulletManager.UpdateBullets(gameMap);
 		gameMap.SetPlayerPosition(0, player.getPosition());
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
 		gameMap.Draw();

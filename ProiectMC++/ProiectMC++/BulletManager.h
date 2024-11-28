@@ -4,11 +4,12 @@
 #include <memory>
 #include "Map.h"
 #include "Player.h"
+#include "TileType.h"
 class BulletManager
 {
 	public:
-		void updateBullets(Map& gameMap);
-		void addBullet(std::unique_ptr<Bullet>bullet);
+		void UpdateBullets(Map& gameMap);
+		void AddBullet(std::unique_ptr<Bullet>bullet);
 	private:
 		std::vector<std::unique_ptr<Bullet>>m_bullets;
 };

@@ -101,14 +101,12 @@ int Player::GetFireRate() const
     auto now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
     if (now - m_lastShotTime >= m_fireRate) {
         m_lastShotTime = now;
-
-        std::pair<size_t, size_t> startPosition = { m_position.first, m_position.second };
-        std::unique_ptr<Bullet> bullet(new Bullet(m_playerID, m_position, m_direction, m_speed));
+        auto bullet = std::make_unique<Bullet>(m_position,m_direction,m_playerID, Bullet::DEFAULT_BULLET_SPEED);
         return bullet;
        
     }
 
-    //return Bullet();
+    return nullptr;
 }
 
 size_t Player::GetPlayerID() const
