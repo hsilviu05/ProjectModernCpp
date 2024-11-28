@@ -24,7 +24,7 @@ void Map::GenerateMap(){
 
 	for (int i = 0; i < m_height; i++) {
 		for (int j = 0; j < m_width; j++) {
-			if ((i == 0 || i == m_height - 1) && (j == 0 || j == m_width - 1))
+			if (i == 0 || i == m_height - 1 || j == 0 || j == m_width - 1)
 				m_gameArea[i][j] = TileType::EmptySpace;
 			else {
 				TileType tile = static_cast<TileType>(dist_tile(gen));
