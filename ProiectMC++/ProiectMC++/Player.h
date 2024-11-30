@@ -23,12 +23,12 @@ public:
     bool isEliminated() const;
     Direction getDirection() const;
     void setDirection(Direction player_direction);
+    std::vector<std::unique_ptr<Bullet>>& getBullets();
 
     void AddPoints();
     int GetPoints() const;
     void AddWinBonus();
     bool UpgradeWeapon();
-    int GetFireRate() const;
     void AddScore(int points);
     int GetScore() const;
     bool CanDuplicateBulletSpeed();
@@ -48,7 +48,7 @@ private:
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
     std::chrono::milliseconds cooldownTime = std::chrono::milliseconds(COOL_DOWNTIME);
-    std::chrono::steady_clock::time_point lastShotTime;
+    std::chrono::steady_clock::time_point m_lastShotTime;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
 
