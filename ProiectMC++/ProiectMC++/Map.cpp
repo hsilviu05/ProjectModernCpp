@@ -73,16 +73,16 @@ size_t Map::getWidth() const{
 }
 
 
-TileType Map::GetTile(const std::pair<size_t,size_t>&t_position)
+TileType Map::GetTile(const std::pair<size_t,size_t>& t_position)
 {
-	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width) {
+	if (IsValidPosition(t_position)) {
 		return m_gameArea[t_position.first][t_position.second];
 	}
 }
 
-void Map::DestroyTile(const std::pair<size_t, size_t>&t_position)
+void Map::DestroyTile(const std::pair<size_t, size_t>& t_position)
 {
-	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width) {
+	if (IsValidPosition(t_position)) {
 		if (m_gameArea[t_position.first][t_position.second] == TileType::DestrucitbleWall) {
 			m_gameArea[t_position.first][t_position.second] = TileType::EmptySpace;
 		}
@@ -123,7 +123,7 @@ void Map::SetPlayerPosition(const size_t& playerNumber, const std::pair<size_t, 
 
 
 void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile){
-	if (t_position.first >= 0 && t_position.first < m_height && t_position.second >= 0 && t_position.second < m_width){
+	if (IsValidPosition(t_position)){
 		m_gameArea[t_position.first][t_position.second] = t_tile;
 	}
 }
@@ -145,4 +145,8 @@ void Map::Explode(const std::pair<size_t, size_t>& t_position)
 	}
 }
 
+bool Map::IsValidPosition(const std::pair<size_t, size_t>& position) const
+{
+	return position.first < m_height && position.second < m_width;
+}
 

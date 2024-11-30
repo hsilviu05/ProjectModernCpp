@@ -33,6 +33,7 @@ class Map
 		TileType GetTile(const std::pair<size_t, size_t>&t_position) ;
 		void DestroyTile(const std::pair<size_t, size_t>&t_position);
 		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
+		bool IsValidPosition(const std::pair<size_t,size_t>& position) const;
 		
 
 		std::pair<size_t,size_t> GetPlayerPosition(const size_t& playerNumber);
