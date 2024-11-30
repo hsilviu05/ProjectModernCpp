@@ -77,18 +77,40 @@ bool Player::UpgradeBulletSpeed() {
     return false;
 }
 
-bool Player::CanShoot() const
+int Player::GetFireRate() const
 {
-    return (std::chrono::steady_clock::now() - lastShotTime) >= cooldownTime;
+    return m_fireRate;
 }
 
-Bullet Player::shoot()
+  std::unique_ptr<Bullet> Player::shoot()
 {
-    if (!CanShoot()) {
-        throw std::runtime_error("Cannot shoot yet!");
+    using namespace std::chrono;
+
+    auto now = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+    if (now - m_lastShotTime >= m_fireRate) {
+        m_lastShotTime = now;
+        auto bullet = std::make_unique<Bullet>(m_position,m_direction,m_playerID, Bullet::DEFAULT_BULLET_SPEED);
+        return bullet;
+       
     }
-    lastShotTime = std::chrono::steady_clock::now();
-    return Bullet(getPosition(), m_direction, m_bulletSpeed);
+
+    return nullptr;
+}
+
+size_t Player::GetPlayerID() const
+{
+    return m_playerID;
+}
+
+void Player::SetPlayerID(const size_t& playerID)
+{
+    m_playerID = playerID;
+}
+
+
+/* Bullet::Position startPosition(m_initialPosition.first, m_initialPosition.second);
+    return Bullet(startPosition, m_direction);*/
+
 }
 
 void Player::AddScore(int points) {
