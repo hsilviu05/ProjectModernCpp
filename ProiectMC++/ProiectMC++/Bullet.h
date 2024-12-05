@@ -21,7 +21,6 @@ public:
 
     static const int DEFAULT_BULLET_SPEED = 1;
 
-    void CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap);
     void CheckBulletBulletCollisions(std::vector<Bullet>& bullets);
     void CheckBulletPlayersCollisions(std::array<Player, 4>& players);
 

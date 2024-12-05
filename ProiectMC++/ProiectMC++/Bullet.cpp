@@ -28,36 +28,6 @@ void Bullet::DeactivateBullet()
     active = false;
 }
 
-void Bullet::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap)
-{
-    if (!active)
-    {
-        return;
-    }
-
-    bool collisionDetected = false;
-    for (const auto& wall : walls)
-    {
-        if (wall.getPosition() == getPosition()) {
-            if (!wall.getIsDestroyed()) {
-                collisionDetected = true;
-                if (wall.getIsDestructible()) {
-                    gameMap.DestroyTile(wall.getPosition());
-                }
-                else {
-                    DeactivateBullet();
-                }
-                break;
-            }
-        }
-    }
-    if (collisionDetected)
-    {
-        DeactivateBullet();
-    }
-}
-
-
 void Bullet::CheckBulletBulletCollisions(std::vector<Bullet>& bullets)
 {
     if (!active)
