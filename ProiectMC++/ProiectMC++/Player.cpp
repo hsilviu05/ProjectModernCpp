@@ -10,7 +10,7 @@ void Player::move(const char& key) {
 }
 
 Player::Player(int startX, int startY)
-: m_initialPosition(startX, startY), m_health(), m_fireRate(COOL_DOWNTIME)
+: m_initialPosition(startX, startY), m_health(), m_fireRate(GameSettings::COOL_DOWNTIME)
 {
 }
 
@@ -44,7 +44,7 @@ void Player::setDirection(Direction playerDirection)
 
 void Player::AddPoints()
 {
-    m_points += POINTS_PER_ENEMY;
+    m_points += GameSettings::POINTS_PER_ENEMY;
 }
 
 int Player::GetPoints() const
@@ -54,13 +54,13 @@ int Player::GetPoints() const
 
 void Player::AddWinBonus()
 {
-    m_points += WIN_BONUS;
+    m_points += GameSettings::WIN_BONUS;
 }
 bool Player::UpgradeWeapon()
 {
-    if (m_points >= UPGRADE_COST && m_fireRateUpgrades < MAX_FIRE_RATE_UPGRADES) {
-        m_points -= UPGRADE_COST;
-        m_fireRate -= FIRE_RATE_REDUCTION;
+    if (m_points >= GameSettings::UPGRADE_COST && m_fireRateUpgrades < GameSettings::MAX_FIRE_RATE_UPGRADES) {
+        m_points -= GameSettings::UPGRADE_COST;
+        m_fireRate -= GameSettings::FIRE_RATE_REDUCTION;
         m_fireRateUpgrades++;
         return true;
     }
@@ -68,8 +68,8 @@ bool Player::UpgradeWeapon()
 }
 
 bool Player::UpgradeBulletSpeed() {
-    if (!m_bulletSpeedUpgraded && m_points >= BULLET_SPEED_MULTIPLIER_POINTS) {
-        m_points -= BULLET_SPEED_MULTIPLIER_POINTS;
+    if (!m_bulletSpeedUpgraded && m_points >= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS) {
+        m_points -= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS;
         m_bulletSpeed *= 2;
         m_bulletSpeedUpgraded = true;
         return true;

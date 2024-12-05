@@ -3,7 +3,7 @@
 #include "Direction.h"
 #include "Bullet.h"
 #include "GameObject.h"
-#include "Constants.h"
+#include "GameSettings.h"
 #include <chrono>
 #include <memory>
 
@@ -47,7 +47,7 @@ private:
     int m_fireRate;
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
-    std::chrono::milliseconds cooldownTime = std::chrono::milliseconds(COOL_DOWNTIME);
+    std::chrono::milliseconds cooldownTime = std::chrono::milliseconds(GameSettings::COOL_DOWNTIME);
     std::chrono::steady_clock::time_point m_lastShotTime;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
