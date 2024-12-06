@@ -1,6 +1,8 @@
 #include "RegisterWidget.h"
+#undef signals
+#include <crow.h>
+#define signals Q_SIGNALS
 #include <cpr/cpr.h>
-#include <json/json.h>
 
 RegisterWidget::RegisterWidget(QWidget* parent) : QWidget(parent) {
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -24,15 +26,12 @@ void RegisterWidget::onRegisterClicked() {
     std::string username = usernameLineEdit->text().toStdString();
     std::string name = nameLineEdit->text().toStdString();
 
-    Json::Value jsonData;
+    crow::json::wvalue jsonData;
     jsonData["username"] = username;
     jsonData["name"] = name;
 
-    Json::StreamWriterBuilder writer;
-    std::string jsonString = Json::writeString(writer, jsonData);
-
     auto response = cpr::Post(cpr::Url{ "http://localhost:18080/register" },
-        cpr::Body{ jsonString },
+        cpr::Body{ jsonData.dump() },
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (response.status_code == 200) {

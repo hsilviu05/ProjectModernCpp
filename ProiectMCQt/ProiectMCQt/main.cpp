@@ -1,17 +1,23 @@
 ﻿#include <QApplication>
-#include "client.h"
+#include <QWidget>
+#include <QVBoxLayout>
+#include "RegisterWidget.h"
+#include "LoginWidget.h"
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    // Creează o instanță a clasei Client
-    Client client;
+    QWidget mainWidget;
+    QVBoxLayout mainLayout(&mainWidget);
 
-    // Setează imaginea de fundal pentru terenul de fotbal
-    //client.setupMapBackground(":/resources/football-pitch.png");
+    RegisterWidget registerWidget;
+    LoginWidget loginWidget;
 
-    // Afișează fereastra principală
-    client.show();
+    mainLayout.addWidget(&registerWidget);
+    mainLayout.addWidget(&loginWidget);
+
+    mainWidget.setLayout(&mainLayout);
+    mainWidget.show();
 
     return app.exec();
 }

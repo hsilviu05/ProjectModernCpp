@@ -43,9 +43,15 @@
     <ClCompile Include="RegisterWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoginWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="RegisterWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LoginWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
