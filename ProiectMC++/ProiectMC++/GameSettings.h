@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 class GameSettings
 {
 public:
@@ -7,10 +8,10 @@ public:
     static const int MINIM_WALLS_WITH_BOMB;
     static const int MAXIM_WALLS_WITH_BOMB;
     static constexpr int MAX_FIRE_RATE_UPGRADES = 4;
-    static constexpr int FIRE_RATE_REDUCTION = 100;
+    static const std::chrono::milliseconds FIRE_RATE_REDUCTION;
     static constexpr int UPGRADE_COST = 500;
     static constexpr int BULLET_SPEED_MULTIPLIER_POINTS = 10;
-    static constexpr int COOL_DOWNTIME = 500;
+    static const std::chrono::milliseconds COOL_DOWNTIME;
 
 private:
     explicit GameSettings();

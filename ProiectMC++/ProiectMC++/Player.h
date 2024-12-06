@@ -36,6 +36,7 @@ public:
     std::unique_ptr<Bullet> shoot();
     size_t GetPlayerID() const;
     void SetPlayerID(const size_t& playerID);
+    bool CanShoot() const;
 
 private:
     size_t m_playerID;
@@ -44,10 +45,9 @@ private:
     std::pair<size_t, size_t>m_initialPosition;
     int m_points = 0;
     int m_score = 0;
-    int m_fireRate;
+    std::chrono::milliseconds m_fireRate;
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
-    std::chrono::milliseconds cooldownTime = std::chrono::milliseconds(GameSettings::COOL_DOWNTIME);
     std::chrono::steady_clock::time_point m_lastShotTime;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
