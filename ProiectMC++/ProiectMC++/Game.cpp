@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include "GameDatabase.h"
+
 
 Game::Game()
 {
@@ -13,41 +15,32 @@ Game::Game()
 
 void Game::start()
 {
+    while (true) {
+        update();
+        render();
+        Sleep(200); // Controlul vitezei jocului
+    }
 }
 
 void Game::update()
 {
-    /*for (auto& bullet : m_bullets)
-    {
-        bullet.MoveBullet();
+    gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
 
-        if (bullet.IsActive())
-        {
-            bullet.CheckBulletWallCollisions(m_walls, m_map);
-            if (!bullet.IsActive()) 
-                continue;
-            bullet.CheckBulletBulletCollisions(m_bullets);
-            if (!bullet.IsActive()) 
-                continue;
-            bullet.CheckBulletPlayersCollisions(m_players);
-        }
-    }*/
+    handleInput('A', player, gameMap, bulletManager);
+    handleInput('D', player, gameMap, bulletManager);
+    handleInput('W', player, gameMap, bulletManager);
+    handleInput('S', player, gameMap, bulletManager);
+    handleInput(VK_SPACE, player, gameMap, bulletManager);
 
-    int winnerIndex = checkWinner();
-    if (winnerIndex != -1) {
-        m_players[winnerIndex].AddWinBonus();
-        m_players[winnerIndex].AddScore(2);
-        m_isGameOver = true;
-        //trb adaugat si pentru second place
-    }
+    bulletManager.UpdateBullets(gameMap);
+
+    gameMap.SetPlayerPosition(0, player.getPosition());
+    gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
 
 }
 
-void Game::handleInput(Player& player)
+void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletManager& bulletManager)
 {
-    /*
-    void handleInput(const char& key, Player & player, Map & gameMap, BulletManager & bulletManager)
-    {
         if (GetAsyncKeyState(key) & 0x8000) {
             std::pair<size_t, size_t> newPosition = player.getPosition();
             switch (key) {
@@ -79,8 +72,7 @@ void Game::handleInput(Player& player)
                 player.move(key);
             }
         }
-    }
-    */
+
 }
 
 void Game::handleExplosion(Wall& wall) {
@@ -127,6 +119,6 @@ int Game::checkWinner() {
 
 void Game::render()
 {
-
+    gameMap.Draw();
 }
 

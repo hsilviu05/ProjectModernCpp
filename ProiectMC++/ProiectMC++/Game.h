@@ -20,7 +20,7 @@ public:
 	Game();
 	void start();
 	void update();
-	void handleInput(Player& player);
+	void handleInput(const char& key, Player& player, Map& gameMap, BulletManager& bulletManager);
 	void handleExplosion(Wall& wall);
 	void render();
 
