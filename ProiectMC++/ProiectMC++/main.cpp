@@ -28,11 +28,10 @@ int main()
 	player.SetPlayerID(0);
 	gameMap.SetPlayerPosition(0,player.getPosition());
 	gameMap.SetTile(player.getPosition(), TileType::Player);
-	gameMap.Draw();
 	while(true)
 	{
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
-		Game.handleInput('A', player, gameMap,bulletManager);
+		//handleInput('A', player, gameMap,bulletManager);
 		//handleInput('D', player, gameMap,bulletManager);
 		//handleInput('W', player, gameMap,bulletManager);
 		//handleInput('S', player, gameMap,bulletManager);

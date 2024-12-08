@@ -3,7 +3,12 @@
 
 Game::Game()
 {
-
+    gameMap.GenerateMap();
+    player.setPosition(gameMap.getStartPosition(0));
+    player.SetPlayerID(0);
+    gameMap.SetPlayerPosition(0, player.getPosition());
+    gameMap.SetTile(player.getPosition(), TileType::Player);
+    gameMap.Draw();
 }
 
 void Game::start()
@@ -40,6 +45,7 @@ void Game::update()
 
 void Game::handleInput(Player& player)
 {
+    /*
     void handleInput(const char& key, Player & player, Map & gameMap, BulletManager & bulletManager)
     {
         if (GetAsyncKeyState(key) & 0x8000) {
@@ -74,6 +80,7 @@ void Game::handleInput(Player& player)
             }
         }
     }
+    */
 }
 
 void Game::handleExplosion(Wall& wall) {
