@@ -5,9 +5,17 @@
 #include "Map.h"
 #include "Wall.h"
 #include "Level.h"
+#include "BulletManager.h"
 
 class Game
 {
+private:
+	Map gameMap;
+	Player player;
+	BulletManager bulletManager;
+	int checkWinner();
+	bool m_isGameOver = false;
+
 public:
 	Game();
 	void start();
@@ -21,7 +29,5 @@ private:
 	std::vector<Bullet> m_bullets;
 	std::vector<Player> m_players;
 	std::vector<Wall> m_walls;
-	int checkWinner();
-	bool m_isGameOver = false;
 
 };

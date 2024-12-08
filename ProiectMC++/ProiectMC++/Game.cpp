@@ -40,26 +40,40 @@ void Game::update()
 
 void Game::handleInput(Player& player)
 {
-    //char input;
-    //std::cout << "Use W, A, S, D to move: ";
-    //std::cin >> input;
+    void handleInput(const char& key, Player & player, Map & gameMap, BulletManager & bulletManager)
+    {
+        if (GetAsyncKeyState(key) & 0x8000) {
+            std::pair<size_t, size_t> newPosition = player.getPosition();
+            switch (key) {
+            case 'A':
+                newPosition.second -= 1;
+                player.setDirection(Direction::Left);
+                break;
+            case 'D':
+                newPosition.second += 1;
+                player.setDirection(Direction::Right);
+                break;
+            case 'W':
+                newPosition.first -= 1;
+                player.setDirection(Direction::Up);
+                break;
+            case 'S':
+                newPosition.first += 1;
+                player.setDirection(Direction::Down);
+                break;
+            case VK_SPACE:
+                bulletManager.AddBullet(player.shoot());
 
-    //switch (input) {
-    //case 'w': case 'W':
-    //    player.move(Direction::Up);
-    //    break;
-    //case 'a': case 'A':
-    //    player.move(Direction::Left);
-    //    break;
-    //case 's': case 'S':
-    //    player.move(Direction::Down);
-    //    break;
-    //case 'd': case 'D':
-    //    player.move(Direction::Right);
-    //    break;
-    //default:
-    //    std::cout << "Invalid input. Use W, A, S, D.\n";
-    //}
+                break;
+            default:
+                return;
+            }
+
+            if (gameMap.inBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
+                player.move(key);
+            }
+        }
+    }
 }
 
 void Game::handleExplosion(Wall& wall) {

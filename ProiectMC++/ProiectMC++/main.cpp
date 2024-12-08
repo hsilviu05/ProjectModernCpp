@@ -6,6 +6,7 @@
 #include <crow.h>
 #include <Windows.h>
 #include <sqlite_orm/sqlite_orm.h>
+#include "Game.h"
 
 #include "BulletManager.h"
 #include "GameDatabase.h"
@@ -13,40 +14,7 @@
 using namespace sqlite_orm;
 
 
-void handleInput(const char& key, Player& player, Map& gameMap,BulletManager& bulletManager)
-{
-	if (GetAsyncKeyState(key) & 0x8000) {
-		std::pair<size_t, size_t> newPosition = player.getPosition();
-		switch (key) {
-		case 'A':
-			newPosition.second -= 1;
-			player.setDirection(Direction::Left);
-			break;
-		case 'D':
-			newPosition.second += 1;
-			player.setDirection(Direction::Right);
-			break;
-		case 'W':
-			newPosition.first -= 1;
-			player.setDirection(Direction::Up);
-			break;
-		case 'S':
-			newPosition.first += 1;
-			player.setDirection(Direction::Down);
-			break;
-		case VK_SPACE:
-			bulletManager.AddBullet(player.shoot());
 
-			break;
-		default:
-			return;
-		}
-
-		if (gameMap.inBounds(newPosition)==true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
-			player.move(key);
-		}
-	}
-}
 			
 
 int main()
@@ -64,11 +32,11 @@ int main()
 	while(true)
 	{
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
-		handleInput('A', player, gameMap,bulletManager);
-		handleInput('D', player, gameMap,bulletManager);
-		handleInput('W', player, gameMap,bulletManager);
-		handleInput('S', player, gameMap,bulletManager);
-		handleInput(VK_SPACE, player, gameMap,bulletManager);
+		Game.handleInput('A', player, gameMap,bulletManager);
+		//handleInput('D', player, gameMap,bulletManager);
+		//handleInput('W', player, gameMap,bulletManager);
+		//handleInput('S', player, gameMap,bulletManager);
+		//handleInput(VK_SPACE, player, gameMap,bulletManager);
 		bulletManager.UpdateBullets(gameMap);
 		gameMap.SetPlayerPosition(0, player.getPosition());
 		gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
