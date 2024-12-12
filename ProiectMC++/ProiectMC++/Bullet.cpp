@@ -1,7 +1,7 @@
 ﻿#include "Bullet.h"
 #include "Player.h"
 
-Bullet::Bullet(const std::pair<size_t,size_t>&position,const Direction& direction,const size_t& shooterID, const size_t& speed = DEFAULT_BULLET_SPEED)
+Bullet::Bullet(const std::pair<size_t,size_t>&position,const Direction& direction,const size_t& shooterID, const size_t& speed = GameSettings::DEFAULT_BULLET_SPEED)
     : GameObject(position,speed,direction),m_shooterID(shooterID),active(true){}
 
 
@@ -26,39 +26,6 @@ bool Bullet::IsActive() const
 void Bullet::DeactivateBullet()
 {
     active = false;
-}
-
-void Bullet::CheckBulletBulletCollisions(std::vector<Bullet>& bullets)
-{
-    if (!active)
-        return;
-    for (auto& otherBullet : bullets)
-    {
-        if (&otherBullet != this && otherBullet.IsActive())
-        {
-            if (getPosition() == otherBullet.getPosition())
-            {
-                DeactivateBullet();
-                otherBullet.DeactivateBullet();
-                break;
-            }
-        }
-    }
-}
-
-void Bullet::CheckBulletPlayersCollisions(std::array<Player, 4>& players)
-{
-    for (auto& player : players)
-    {
-        if (getPosition() == player.getPosition())
-        {
-            player.TakeDamage();
-            player.respawn();
-            DeactivateBullet();
-            player.AddPoints();
-            return;
-        }
-    }
 }
 
 Direction Bullet::GetDirection()

@@ -77,21 +77,6 @@ bool Player::UpgradeBulletSpeed() {
     return false;
 }
 
-std::unique_ptr<Bullet> Player::shoot()
-{
-    if (!CanShoot()) 
-    {
-        throw std::runtime_error("Cannot shoot yet!");
-    }
-    else
-    {
-        auto bullet = std::make_unique<Bullet>(m_position,m_direction,m_playerID, Bullet::DEFAULT_BULLET_SPEED);
-        
-        return bullet;
-    }
-    m_lastShotTime = std::chrono::steady_clock::now();
-}
-
 size_t Player::GetPlayerID() const
 {
     return m_playerID;
@@ -125,14 +110,4 @@ void Player::respawn() {
 
 uint8_t Player::getHealth() const {
     return m_health;
-}
-
-std::vector<std::unique_ptr<Bullet>>& Player::getBullets()
-{
-    return bullets;
-}
-
-bool Player::CanShoot() const
-{
-    return  (std::chrono::steady_clock::now() - m_lastShotTime) >= GameSettings::COOL_DOWNTIME;
 }

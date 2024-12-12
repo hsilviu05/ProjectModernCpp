@@ -23,7 +23,6 @@ public:
     bool isEliminated() const;
     Direction getDirection() const;
     void setDirection(Direction player_direction);
-    std::vector<std::unique_ptr<Bullet>>& getBullets();
 
     void AddPoints();
     int GetPoints() const;
@@ -33,14 +32,11 @@ public:
     int GetScore() const;
     bool CanDuplicateBulletSpeed();
     bool UpgradeBulletSpeed();
-    std::unique_ptr<Bullet> shoot();
     size_t GetPlayerID() const;
     void SetPlayerID(const size_t& playerID);
-    bool CanShoot() const;
 
 private:
     size_t m_playerID;
-    std::vector<std::unique_ptr<Bullet>>bullets;
 	uint8_t m_health;
     std::pair<size_t, size_t>m_initialPosition;
     int m_points = 0;
@@ -48,7 +44,6 @@ private:
     std::chrono::milliseconds m_fireRate;
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
-    std::chrono::steady_clock::time_point m_lastShotTime;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
 

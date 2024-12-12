@@ -12,17 +12,10 @@ class Bullet : public GameObject
 {
 public:
     Bullet(const std::pair<size_t, size_t>& position, const Direction& direction, const size_t& shooterID, const size_t& speed);
-    //Bullet()
-     //   : GameObject(), active(false) {} //constructor pt bullet inactiv
-
+  
     void MoveBullet();
     bool IsActive() const;
     void DeactivateBullet();
-
-    static const int DEFAULT_BULLET_SPEED = 1;
-
-    void CheckBulletBulletCollisions(std::vector<Bullet>& bullets);
-    void CheckBulletPlayersCollisions(std::array<Player, 4>& players);
 
     Direction GetDirection();
     void SetDirection(const Direction& direction);

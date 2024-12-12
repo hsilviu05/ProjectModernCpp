@@ -5,16 +5,17 @@
 
 Game::Game()
 {
+
+}
+
+void Game::start()
+{
     gameMap.GenerateMap();
     player.setPosition(gameMap.getStartPosition(0));
     player.SetPlayerID(0);
     gameMap.SetPlayerPosition(0, player.getPosition());
     gameMap.SetTile(player.getPosition(), TileType::Player);
     gameMap.Draw();
-}
-
-void Game::start()
-{
     while (true) {
         update();
         render();
@@ -61,8 +62,7 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
                 player.setDirection(Direction::Down);
                 break;
             case VK_SPACE:
-                bulletManager.AddBullet(player.shoot());
-
+                bulletManager.ShootBullet(player.getPosition(),player.getDirection(),player.GetPlayerID(),GameSettings::DEFAULT_BULLET_SPEED);
                 break;
             default:
                 return;
