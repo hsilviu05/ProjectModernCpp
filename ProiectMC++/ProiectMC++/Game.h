@@ -12,6 +12,7 @@ class Game
 private:
 	Map gameMap;
 	Player player;
+	Player player2;
 	BulletManager bulletManager;
 	int checkWinner();
 	bool m_isGameOver = false;
@@ -21,6 +22,7 @@ public:
 	void start();
 	void update();
 	void handleInput(const char& key, Player& player, Map& gameMap, BulletManager& bulletManager);
+	void handleInputForPlayer2(const char& key, Player& player2, Map& gameMap, BulletManager& bulletManager);
 	void handleExplosion(Wall& wall);
 	void render();
 

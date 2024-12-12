@@ -9,7 +9,7 @@
 class BulletManager
 {
 	public:
-		void UpdateBullets(Map& gameMap);
+		void UpdateBullets(Map& gameMap, std::array<Player, 4>& players);
 		void AddBullet(const Bullet& bullet);
 		void CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap);
 		void CheckBulletBulletCollisions();

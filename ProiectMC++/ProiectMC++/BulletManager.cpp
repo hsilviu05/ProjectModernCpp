@@ -1,11 +1,12 @@
 ﻿#include "BulletManager.h"
 
-void BulletManager::UpdateBullets(Map& gameMap) {
+void BulletManager::UpdateBullets(Map& gameMap, std::array<Player, 4>& players) {
     for (auto& [shooterID, bullets] : m_bullets) {
         for (auto it = bullets.begin(); it != bullets.end();) {
             auto previousPosition = it->getPosition();
             it->MoveBullet();
             CheckBulletWallCollisions(gameMap.GetWalls(), gameMap);
+            CheckBulletPlayersCollisions(players);
 
             if (!it->IsActive()) {
                 gameMap.SetTile(previousPosition, TileType::EmptySpace);
