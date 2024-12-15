@@ -55,3 +55,8 @@ void Wall::setWallType(TileType newWallType)
         hasBomb = false;
     }
 }
+
+TileType Wall::getWallType() const
+{
+    return wallType;
+}

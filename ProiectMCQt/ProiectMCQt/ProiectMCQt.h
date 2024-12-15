@@ -1,16 +1,26 @@
-#pragma once
+﻿#ifndef PROIECTMCQT_H
+#define PROIECTMCQT_H
 
-#include <QtWidgets/QMainWindow>
-#include "ui_ProiectMCQt.h"
+#include <QMainWindow>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class ProiectMCQt : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    ProiectMCQt(QWidget *parent = nullptr);
+    ProiectMCQt(QWidget* parent = nullptr);
     ~ProiectMCQt();
 
+private slots:
+    void fetchData();
+
 private:
-    Ui::ProiectMCQtClass ui;
+    void setupUI(); // Noua metodă pentru configurarea UI-ului
+
+    QWidget* centralWidget;
 };
+
+#endif // PROIECTMCQT_H

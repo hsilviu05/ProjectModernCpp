@@ -9,6 +9,8 @@ class Wall
 		bool hasBomb;
 		std::pair<int, int>position;
 		int explosionRadius;
+		TileType wallType;
+
 	public:
 		bool getIsDestructible() const;
 		bool getIsDestroyed() const;
@@ -16,6 +18,7 @@ class Wall
 		std::pair<int, int> getPosition() const;
 		void setPosition(const std::pair<int, int>& newPosition);
 		void setWallType(TileType newWallType);
+		TileType getWallType() const;
 
 		int getExplosionRadius() const;
 };

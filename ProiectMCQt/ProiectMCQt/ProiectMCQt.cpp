@@ -1,4 +1,4 @@
-#include "ProiectMCQt.h"
+﻿#include "ProiectMCQt.h"
 
 ProiectMCQt::ProiectMCQt(QWidget *parent)
     : QMainWindow(parent)
