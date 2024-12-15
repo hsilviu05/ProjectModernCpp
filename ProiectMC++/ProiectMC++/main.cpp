@@ -17,6 +17,7 @@ using namespace sqlite_orm;
 
 
 			
+std::pair<int, int> playerPosition = { 0, 0 };
 
 int main()
 {
@@ -48,45 +49,6 @@ int main()
     //	gameMap.Draw();
     //	Sleep(200);
 
-    /*
-    crow::SimpleApp app;
-
-    Map map;
-    map.GenerateMap();
-
-    CROW_ROUTE(app, "/map")
-        .methods("GET"_method)
-        ([&map]() {
-        crow::json::wvalue result;
-        result["height"] = map.getHeight();
-        result["width"] = map.getWidth();
-
-        crow::json::wvalue::list mapArray;
-        for (size_t i = 0; i < map.getHeight(); ++i) {
-            crow::json::wvalue::list rowArray;
-            for (size_t j = 0; j < map.getWidth(); ++j) {
-                rowArray.push_back(static_cast<int>(map.GetTile({ i, j })));
-            }
-            mapArray.push_back(std::move(rowArray));
-        }
-        result["map"] = std::move(mapArray);
-
-        crow::json::wvalue::list wallsArray;
-        auto walls = map.GetWalls();
-        for (const auto& wall : walls) {
-            crow::json::wvalue wallJson;
-            wallJson["x"] = wall.getPosition().first;
-            wallJson["y"] = wall.getPosition().second;
-            wallJson["type"] = static_cast<int>(wall.getWallType());
-            wallsArray.emplace_back(std::move(wallJson));
-        }
-        result["walls"] = std::move(wallsArray);
-
-        return crow::response(result);
-            });
-
-    app.port(18080).multithreaded().run();
-    */
     std::mutex mapMutex;  // Mutex for thread-safety
 
     crow::SimpleApp app;
@@ -132,6 +94,36 @@ int main()
 
         return crow::response(result);
             });
+
+    CROW_ROUTE(app, "/move")
+        .methods("POST"_method)
+        ([&map](const crow::request& req) {
+        auto jsonReq = crow::json::load(req.body);
+        if (!jsonReq) {
+            return crow::response(400, "Invalid JSON");
+        }
+
+        int x = jsonReq["x"].i();
+        int y = jsonReq["y"].i();
+        int playerID = jsonReq["playerID"].i();
+
+        // Validarea noii poziții
+        std::pair<size_t, size_t> newPosition = { static_cast<size_t>(x), static_cast<size_t>(y) };
+        if (map.inBounds(newPosition) && map.GetTile(newPosition) == TileType::EmptySpace) {
+            // Update the player's position
+            map.SetTile(map.GetPlayerPosition(playerID), TileType::EmptySpace);
+            map.SetPlayerPosition(playerID, newPosition);
+            map.SetTile(newPosition, TileType::Player);
+            playerPosition = newPosition;
+        }
+
+        crow::json::wvalue result;
+        result["x"] = playerPosition.first;
+        result["y"] = playerPosition.second;
+        return crow::response(result);
+            });
+
+
 
         app.port(18080).multithreaded().run();
 }
