@@ -15,7 +15,7 @@ bool Wall::getHasBomb() const
 	return hasBomb;
 }
 
-std::pair<int, int> Wall::getPosition() const
+std::pair<size_t, size_t> Wall::getPosition() const
 {
 	return position;
 }

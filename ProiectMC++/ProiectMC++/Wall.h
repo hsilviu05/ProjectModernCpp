@@ -7,7 +7,7 @@ class Wall
 		bool isDestructible;
 		bool isDestroyed;
 		bool hasBomb;
-		std::pair<int, int>position;
+		std::pair<size_t, size_t>position;
 		int explosionRadius;
 		TileType wallType;
 
@@ -15,7 +15,7 @@ class Wall
 		bool getIsDestructible() const;
 		bool getIsDestroyed() const;
 		bool getHasBomb() const;
-		std::pair<int, int> getPosition() const;
+		std::pair<size_t, size_t> getPosition() const;
 		void setPosition(const std::pair<int, int>& newPosition);
 		void setWallType(TileType newWallType);
 		TileType getWallType() const;

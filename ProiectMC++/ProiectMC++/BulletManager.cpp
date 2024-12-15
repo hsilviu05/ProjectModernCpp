@@ -34,9 +34,30 @@ void BulletManager::AddBullet(const Bullet& bullet) {
 
 
 void BulletManager::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap) {
+
+    std::unordered_map<std::pair<size_t,size_t>, const Wall*,PairHash> wallMap;
+    for (const auto& wall : walls) {
+        wallMap[wall.getPosition()] = &wall;
+    }
+
     for (auto& [shooterID, bullets] : m_bullets) {
         for (auto& bullet : bullets) {
-            if (bullet.IsActive()) {
+            if (!bullet.IsActive()) {
+                continue;
+            }
+
+            auto it = wallMap.find(bullet.getPosition());
+            if (it != wallMap.end()) {
+                const Wall* wall = it->second;
+                if (!wall->getIsDestroyed()) {
+                    if (wall->getIsDestructible()) {
+                        gameMap.DestroyTile(wall->getPosition());
+                    }
+                    bullet.DeactivateBullet();
+                }
+            }
+
+            /*
                 for (const auto& wall : walls) {
                     if (wall.getPosition() == bullet.getPosition()) {
                         if (!wall.getIsDestroyed()) {
@@ -48,9 +69,9 @@ void BulletManager::CheckBulletWallCollisions(const std::vector<Wall>& walls, Ma
                         }
                     }
                 }
+            */
             }
         }
-    }
 }
 
 void BulletManager::CheckBulletBulletCollisions() {

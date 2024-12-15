@@ -22,32 +22,9 @@ std::pair<int, int> playerPosition = { 0, 0 };
 int main()
 {
 
-    //Game game;
-    //game.start();
-    //Player player;
-    //std::cout <<player.shoot()<< player.CanShoot();
-    //Map gameMap;
-    //gameMap.GenerateMap();
-
-    //Player player;
-    //BulletManager bulletManager;
-    //player.setPosition(gameMap.getStartPosition(0));
-    //player.SetPlayerID(0);
-    //gameMap.SetPlayerPosition(0,player.getPosition());
-    //gameMap.SetTile(player.getPosition(), TileType::Player);
-    //while(true)
-    //{
-    //	gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
-    //	//handleInput('A', player, gameMap,bulletManager);
-    //	//handleInput('D', player, gameMap,bulletManager);
-    //	//handleInput('W', player, gameMap,bulletManager);
-    //	//handleInput('S', player, gameMap,bulletManager);
-    //	//handleInput(VK_SPACE, player, gameMap,bulletManager);
-    //	bulletManager.UpdateBullets(gameMap);
-    //	gameMap.SetPlayerPosition(0, player.getPosition());
-    //	gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
-    //	gameMap.Draw();
-    //	Sleep(200);
+    Game game;
+    game.start();
+    /*
 
     std::mutex mapMutex;  // Mutex for thread-safety
 
@@ -126,6 +103,7 @@ int main()
 
 
         app.port(18080).multithreaded().run();
+    */
 }
 
 
