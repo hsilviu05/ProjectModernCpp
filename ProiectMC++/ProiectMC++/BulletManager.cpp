@@ -38,25 +38,27 @@ void BulletManager::CheckBulletWallCollisions(const std::vector<Wall>& walls, Ma
         wallMap[wall.getPosition()] = &wall;
     }
 
-    for (auto& [shooterID, bullets] : m_bullets) {
-        for (auto& bullet : bullets) {
-            if (!bullet.IsActive()) {
+    for (auto itBullet = m_bullets.begin(); itBullet != m_bullets.end();) {
+		if (!itBullet->IsActive()) {
+            itBullet = m_bullets.erase(itBullet);
+			continue;
+		}
+
+		auto itWall = wallMap.find(itBullet->getPosition());
+		if (itWall != wallMap.end()) {
+			const Wall* wall = itWall->second;
+			if (!wall->getIsDestroyed()) {
+				if (wall->getIsDestructible()) {
+					gameMap.DestroyTile(wall->getPosition());
+				}
+				itBullet->DeactivateBullet();
+                itBullet = m_bullets.erase(itBullet);
                 continue;
-            }
-
-            auto it = wallMap.find(bullet.getPosition());
-            if (it != wallMap.end()) {
-                const Wall* wall = it->second;
-                if (!wall->getIsDestroyed()) {
-                    if (wall->getIsDestructible()) {
-                        gameMap.DestroyTile(wall->getPosition());
-                    }
-                    bullet.DeactivateBullet();
-                }
-            }
-
-        }
-    }
+			}
+		}
+        ++itBullet;
+	}
+    
 }
 
 void BulletManager::CheckBulletBulletCollisions() {
@@ -85,17 +87,16 @@ void BulletManager::CheckBulletBulletCollisions() {
 
 
 void BulletManager::CheckBulletPlayersCollisions(std::array<Player, 4>& players) {
-    for (auto& [shooterID, bullets] : m_bullets) {
-        for (auto& bullet : bullets) {
-            if (bullet.IsActive()) {
-                for (auto& player : players) {
-                    if (bullet.getPosition() == player.getPosition()) {
-                        if (shooterID != player.GetPlayerID()) {
+	for (auto& bullet : m_bullets) {
+		if (bullet.IsActive()) {
+			for (auto& player : players) {
+				if (bullet.getPosition() == player.getPosition()) {
+					if (bullet.GetShooterID() != player.GetPlayerID()) {
                             player.TakeDamage();
                             player.respawn();
                             bullet.DeactivateBullet();
                             auto itShooter = std::find_if(players.begin(), players.end(),
-                                [&](const Player& p) { return p.GetPlayerID() == shooterID; });
+                                [&](const Player& p) { return p.GetPlayerID() == player.GetShooterID(); });
                             if (itShooter != players.end()) {
                                 itShooter->AddPoints();
                             }
