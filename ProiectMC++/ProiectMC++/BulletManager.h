@@ -6,6 +6,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "TileType.h"
+#include <list>
 class BulletManager
 {
 	public:
@@ -19,7 +20,7 @@ class BulletManager
 		void ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,size_t shooterID,size_t speed);
 		
 	private:
-		std::unordered_map<size_t, std::vector<Bullet>> m_bullets;
+		std::list<Bullet> m_bullets;
 		std::chrono::steady_clock::time_point m_lastShotTime;
 		struct PairHash {
 			std::size_t operator()(const std::pair<int, int>& p) const {

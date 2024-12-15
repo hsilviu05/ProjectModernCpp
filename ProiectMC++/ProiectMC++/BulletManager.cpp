@@ -1,8 +1,7 @@
 ﻿#include "BulletManager.h"
 
 void BulletManager::UpdateBullets(Map& gameMap, std::array<Player, 4>& players) {
-    for (auto& [shooterID, bullets] : m_bullets) {
-        for (auto it = bullets.begin(); it != bullets.end();) {
+		for (auto it = m_bullets.begin(); it != m_bullets.end();) {
             auto previousPosition = it->getPosition();
             it->MoveBullet();
             CheckBulletWallCollisions(gameMap.GetWalls(), gameMap);
@@ -10,7 +9,7 @@ void BulletManager::UpdateBullets(Map& gameMap, std::array<Player, 4>& players) 
 
             if (!it->IsActive()) {
                 gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                it = bullets.erase(it);
+                it = m_bullets.erase(it);
             }
             else {
                 if (gameMap.inBounds(it->getPosition())) {
@@ -21,15 +20,14 @@ void BulletManager::UpdateBullets(Map& gameMap, std::array<Player, 4>& players) 
                 else {
                     it->DeactivateBullet();
                     gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                    it = bullets.erase(it);
+                    it = m_bullets.erase(it);
                 }
             }
         }
-    }
 }
 
 void BulletManager::AddBullet(const Bullet& bullet) {
-    m_bullets[bullet.GetShooterID()].emplace_back(bullet);
+    m_bullets.emplace_back(bullet);
 }
 
 
@@ -57,24 +55,18 @@ void BulletManager::CheckBulletWallCollisions(const std::vector<Wall>& walls, Ma
                 }
             }
 
-            /*
-                for (const auto& wall : walls) {
-                    if (wall.getPosition() == bullet.getPosition()) {
-                        if (!wall.getIsDestroyed()) {
-                            if (wall.getIsDestructible()) {
-                                gameMap.DestroyTile(wall.getPosition());
-                            }
-                            bullet.DeactivateBullet();
-                            break;
-                        }
-                    }
-                }
-            */
-            }
         }
+    }
 }
 
 void BulletManager::CheckBulletBulletCollisions() {
+
+
+
+
+
+
+
     for (auto it1 = m_bullets.begin(); it1 != m_bullets.end(); ++it1) {
         for (auto& bullet1 : it1->second) {
             if (bullet1.IsActive()) {
