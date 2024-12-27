@@ -1,29 +1,31 @@
 ﻿#include "BulletManager.h"
 
-void BulletManager::UpdateBullets(Map& gameMap, std::array<Player, 4>& players) {
-		for (auto it = m_bullets.begin(); it != m_bullets.end();) {
-            auto previousPosition = it->getPosition();
-            it->MoveBullet();
-            CheckBulletWallCollisions(gameMap.GetWalls(), gameMap);
-            CheckBulletPlayersCollisions(players);
-
-            if (!it->IsActive()) {
-                gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                it = m_bullets.erase(it);
-            }
-            else {
-                if (gameMap.inBounds(it->getPosition())) {
-                    gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                    gameMap.SetTile(it->getPosition(), TileType::Bullet);
-                    ++it;
-                }
-                else {
-                    it->DeactivateBullet();
-                    gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                    it = m_bullets.erase(it);
-                }
-            }
+void BulletManager::UpdateBullets()
+{
+    for (auto& bullet : m_bullets)
+    {
+        if (!bullet.IsActive()) {
+            continue;
         }
+        auto previousPosition = bullet.getPosition();
+        bullet.MoveBullet();
+
+        if (!m_gameMap.inBounds(bullet.getPosition())) {
+            bullet.DeactivateBullet();
+        }
+        else {
+
+            ProcessCollisions(bullet);
+
+            if(bullet.IsActive())
+				m_gameMap.SetTile(bullet.getPosition(), TileType::Bullet);
+        }
+
+        m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
+    }
+
+    m_bullets.erase(std::remove_if(m_bullets.begin(), m_bullets.end(), [](const Bullet& bullet){
+            return !bullet.IsActive(); }),m_bullets.end());
 }
 
 void BulletManager::AddBullet(const Bullet& bullet) {
@@ -31,80 +33,67 @@ void BulletManager::AddBullet(const Bullet& bullet) {
 }
 
 
-void BulletManager::CheckBulletWallCollisions(const std::vector<Wall>& walls, Map& gameMap) {
+void BulletManager::CheckBulletWallCollisions(Bullet& bullet) {
 
-    std::unordered_map<std::pair<size_t,size_t>, const Wall*,PairHash> wallMap;
-    for (const auto& wall : walls) {
-        wallMap[wall.getPosition()] = &wall;
+	auto position = bullet.getPosition();
+	auto tileType = m_gameMap.GetTile(position);
+
+    switch (tileType) {
+    case TileType::DestrucitbleWall:
+        bullet.DeactivateBullet();
+        m_gameMap.SetTile(position, TileType::EmptySpace);
+        break;
+
+    case TileType::DestrucitbleWallWithBomb:
+        bullet.DeactivateBullet();
+        m_gameMap.BombExplosion(position);
+        break;
+
+    case TileType::IndestrucitbleWall:
+        bullet.DeactivateBullet();
+        break;
+
+    default:
+        break;
     }
-
-    for (auto itBullet = m_bullets.begin(); itBullet != m_bullets.end();) {
-		if (!itBullet->IsActive()) {
-            itBullet = m_bullets.erase(itBullet);
-			continue;
-		}
-
-		auto itWall = wallMap.find(itBullet->getPosition());
-		if (itWall != wallMap.end()) {
-			const Wall* wall = itWall->second;
-			if (!wall->getIsDestroyed()) {
-				if (wall->getIsDestructible()) {
-					gameMap.DestroyTile(wall->getPosition());
-				}
-				itBullet->DeactivateBullet();
-                itBullet = m_bullets.erase(itBullet);
-                continue;
-			}
-		}
-        ++itBullet;
-	}
-    
 }
 
-void BulletManager::CheckBulletBulletCollisions() {
+void BulletManager::CheckBulletBulletCollisions(Bullet& currentBullet) {
 
+    auto currentPosition = currentBullet.getPosition();
 
+    for (auto& bullet : m_bullets) 
+    {
+        if (&currentBullet == &bullet || !bullet.IsActive()) {
+            continue;
+        }
 
-
-
-
-
-    for (auto it1 = m_bullets.begin(); it1 != m_bullets.end(); ++it1) {
-        for (auto& bullet1 : it1->second) {
-            if (bullet1.IsActive()) {
-                for (auto it2 = m_bullets.begin(); it2 != m_bullets.end(); ++it2) {
-                    for (auto& bullet2 : it2->second) {
-                        if (&bullet1 != &bullet2 && bullet2.IsActive() && bullet1.getPosition() == bullet2.getPosition()) {
-                            bullet1.DeactivateBullet();
-                            bullet2.DeactivateBullet();
-                        }
-                    }
-                }
-            }
+        if (bullet.getPosition() == currentPosition) {
+            currentBullet.DeactivateBullet();
+            bullet.DeactivateBullet();
+            m_gameMap.SetTile(currentPosition, TileType::EmptySpace);
+            return; 
         }
     }
 }
 
 
-void BulletManager::CheckBulletPlayersCollisions(std::array<Player, 4>& players) {
-	for (auto& bullet : m_bullets) {
-		if (bullet.IsActive()) {
-			for (auto& player : players) {
-				if (bullet.getPosition() == player.getPosition()) {
-					if (bullet.GetShooterID() != player.GetPlayerID()) {
-                            player.TakeDamage();
-                            player.respawn();
-                            bullet.DeactivateBullet();
-                            auto itShooter = std::find_if(players.begin(), players.end(),
-                                [&](const Player& p) { return p.GetPlayerID() == player.GetShooterID(); });
-                            if (itShooter != players.end()) {
-                                itShooter->AddPoints();
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
+void BulletManager::CheckBulletPlayersCollisions(Bullet& bullet) {
+
+    const auto bulletPosition = bullet.getPosition();
+    const auto shooterID = bullet.GetShooterID();
+
+    for (auto& player : m_players) {
+
+        if (bulletPosition == player.getPosition() && shooterID != player.GetPlayerID()) {
+            player.TakeDamage();
+            player.respawn();
+            bullet.DeactivateBullet();
+
+            m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
+
+            m_players[shooterID].AddPoints();
+            return;
         }
     }
 }
@@ -117,15 +106,30 @@ bool BulletManager::CanShoot()
 void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,size_t shooterID,size_t speed)
 {
     if(!CanShoot())
-    { 
-        throw std::runtime_error("Cannot shoot yet!");
+    {
+        return;
+        //throw std::runtime_error("Cannot shoot yet!");
     }
     else 
     {
         m_lastShotTime = std::chrono::steady_clock::now();
         Bullet newBullet(position, direction, shooterID, speed);
-        m_bullets[shooterID].emplace_back(std::move(newBullet));
+        m_bullets.emplace_back(std::move(newBullet));
     }
    
+}
+
+BulletManager::BulletManager(Map& map, std::array<Player, 4>& playerArray)
+    : m_gameMap(map), m_players(playerArray) {}
+
+void BulletManager::ProcessCollisions(Bullet& bullet)
+{
+    CheckBulletWallCollisions(bullet);
+
+    if (!bullet.IsActive()) return;
+    CheckBulletBulletCollisions(bullet);
+
+    if (!bullet.IsActive()) return;
+    CheckBulletPlayersCollisions(bullet);
 }
 

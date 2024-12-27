@@ -16,13 +16,12 @@ class Map
 		void Allocation();
 		std::array<std::pair<size_t, size_t>,4>m_playersPositions;
 		std::array<std::pair<size_t, size_t>,4>m_startPositions;
-		void Explode(const std::pair<size_t, size_t>& t_position);
 		std::vector<Wall> walls;
 
 	public:
 		size_t getHeight() const;
 		size_t getWidth() const;
-
+		void BombExplosion(const std::pair<size_t, size_t>& bombPosition);
 		void GenerateMap();
 		void SetStartPositions();
 		std::pair<size_t,size_t> getStartPosition(const size_t& playerNumber) const;

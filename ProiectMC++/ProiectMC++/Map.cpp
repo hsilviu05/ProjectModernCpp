@@ -135,8 +135,39 @@ bool Map::inBounds(const std::pair<size_t, size_t>& position)
 	return false;
 }
 
-void Map::Explode(const std::pair<size_t, size_t>& t_position)
+void Map::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 {
+	const int radius = 10;
+	const int radiusSquared = radius * radius;
+
+	for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x) {
+		for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y) {
+			int dx = x - bombPosition.first;
+			int dy = y - bombPosition.second;
+
+			if (dx * dx + dy * dy <= radiusSquared && inBounds({ x, y })){
+				auto tileType = GetTile({ x, y });
+
+				if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
+					SetTile({ x, y }, TileType::EmptySpace);
+
+					if (tileType == TileType::DestrucitbleWallWithBomb) {
+						BombExplosion({ x, y });
+					}
+				}
+
+				for (int i = 0; i < 4;i++) {
+					if (m_playersPositions[i] == std::make_pair(x, y)) {
+						// Omorâm jucătorul
+					}
+				}
+			}
+		}
+	}
+
+
+
+	/*
 	size_t startRow = (t_position.first >= 3) ? t_position.first - 3 : 0;
 	size_t endRow = std::min(t_position.first + 3, m_height - 1);
 
@@ -150,6 +181,7 @@ void Map::Explode(const std::pair<size_t, size_t>& t_position)
 			}
 		}
 	}
+	*/
 }
 
 bool Map::IsValidPosition(const std::pair<size_t, size_t>& position) const
