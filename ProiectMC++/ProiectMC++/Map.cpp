@@ -2,9 +2,7 @@
 
 
 void Map::Allocation(){
-	m_gameArea.resize(m_height);
-	for (int i = 0; i < m_height; i++)
-		m_gameArea[i].resize(m_width);
+	m_gameArea.resize(m_height, std::vector<TileType>(m_width));
 }
 
 size_t Map::getHeight() const{
@@ -58,13 +56,15 @@ void Map::GenerateMap(){
 	}
 }
 
-void Map::SetStartPositions() {
-	m_startPositions = { {{0, 0}, { 0,m_width - 1 }, { m_height - 1,m_width - 1 }, { m_height - 1,0 } } };
-}
-
 std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const
 {
-	return m_startPositions[playerID];
+	switch (playerID) {
+	case 0: return { 0, 0 };                            
+	case 1: return { 0, m_width - 1 };                  
+	case 2: return { m_height - 1, m_width - 1 };       
+	case 3: return { m_height - 1, 0 };                 
+	default: throw std::out_of_range("Invalid playerID");
+	}
 }
 
 
@@ -75,24 +75,10 @@ size_t Map::getWidth() const{
 
 TileType Map::GetTile(const std::pair<size_t,size_t>& t_position)
 {
-	if (IsValidPosition(t_position)) {
+	if (InBounds(t_position)) {
 		return m_gameArea[t_position.first][t_position.second];
 	}
 }
-
-void Map::DestroyTile(const std::pair<size_t, size_t>& t_position)
-{
-	if (IsValidPosition(t_position)) {
-		if (m_gameArea[t_position.first][t_position.second] == TileType::DestrucitbleWall) {
-			m_gameArea[t_position.first][t_position.second] = TileType::EmptySpace;
-		}
-		else if (m_gameArea[t_position.first][t_position.second] == TileType::DestrucitbleWallWithBomb) {
-			m_gameArea[t_position.first][t_position.second] = TileType::EmptySpace; // Distruge zidul
-			Explode(t_position); // Apelează funcția pentru explozie
-		}
-	}
-}
-
 
 void Map::Draw() const
 {
@@ -130,45 +116,7 @@ void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_
 
 bool Map::InBounds(const std::pair<size_t, size_t>& position)
 {
-	if ((position.first >= 0 && position.first <= m_height) && (position.second >= 0 && position.second <= m_width))
-		return true;
-	return false;
-}
-
-void Map::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
-{
-	const int radius = 10;
-	const int radiusSquared = radius * radius;
-
-	for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x) {
-		for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y) {
-			int dx = x - bombPosition.first;
-			int dy = y - bombPosition.second;
-
-			if (dx * dx + dy * dy <= radiusSquared && InBounds({ x, y })){
-				auto tileType = GetTile({ x, y });
-
-				if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
-					SetTile({ x, y }, TileType::EmptySpace);
-
-					if (tileType == TileType::DestrucitbleWallWithBomb) {
-						BombExplosion({ x, y });
-					}
-				}
-
-				for (int i = 0; i < 4;i++) {
-					if (m_playersPositions[i] == std::make_pair(x, y)) {
-						// Omorâm jucătorul
-					}
-				}
-			}
-		}
-	}
-
-}
-
-bool Map::IsValidPosition(const std::pair<size_t, size_t>& position) const
-{
 	return position.first < m_height && position.second < m_width;
 }
+
 

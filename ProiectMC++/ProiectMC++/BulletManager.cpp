@@ -17,7 +17,7 @@ void BulletManager::UpdateBullets()
         }
         else {
 
-            ProcessCollisions(bullet);
+            ProcessCollisions(bulletOpt);
 
             if(bulletOpt)
 				m_gameMap.SetTile(bullet.getPosition(), TileType::Bullet);
@@ -50,7 +50,7 @@ void BulletManager::CheckBulletWallCollisions(std::optional<Bullet>& bulletOpt) 
 
     case TileType::DestrucitbleWallWithBomb:
         bulletOpt.reset();
-        m_gameMap.BombExplosion(position);
+        BombExplosion(position);
         break;
 
     case TileType::IndestrucitbleWall:
@@ -139,5 +139,37 @@ void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 
     if (!bulletOpt) return;
     CheckBulletPlayersCollisions(bulletOpt);
+}
+
+void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
+{
+    const int radius = 10;
+    const int radiusSquared = radius * radius;
+
+    for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x) {
+        for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y) {
+            int dx = x - bombPosition.first;
+            int dy = y - bombPosition.second;
+
+            if (dx * dx + dy * dy <= radiusSquared && m_gameMap.InBounds({ x, y })) {
+                auto tileType = m_gameMap.GetTile({ x, y });
+
+                if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
+                    m_gameMap.SetTile({ x, y }, TileType::EmptySpace);
+
+                    if (tileType == TileType::DestrucitbleWallWithBomb) {
+                        BombExplosion({ x, y });
+                    }
+                }
+
+                for (int i = 0; i < 4; i++) {
+                    if (m_players[i].getPosition() == std::make_pair(x, y)) {
+                        m_players[i].TakeDamage();
+                        m_players[i].respawn();
+                    }
+                }
+            }
+        }
+    }
 }
 

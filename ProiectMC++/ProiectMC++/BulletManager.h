@@ -25,6 +25,7 @@ class BulletManager
 		Map& m_gameMap;
 		std::array<Player, 4>& m_players;
 		void ProcessCollisions(std::optional<Bullet>& bulletOpt);
+		void BombExplosion(const std::pair<size_t, size_t>& bombPosition);
 		std::vector<std::optional<Bullet>> m_bullets;
 		std::chrono::steady_clock::time_point m_lastShotTime;
 		struct PairHash {
