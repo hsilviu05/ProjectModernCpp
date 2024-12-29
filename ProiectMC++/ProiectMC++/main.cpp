@@ -12,6 +12,8 @@
 #include "BulletManager.h"
 #include "GameDatabase.h"
 
+#include "..\LoggingDLL\AccountManager.h"
+
 using namespace sqlite_orm;
 
 
@@ -22,8 +24,28 @@ std::pair<int, int> playerPosition = { 0, 0 };
 int main()
 {
 
+    AccountManager account("username", "password");
+
+    // Authenticate the user
+    if (account.authenticate("username", "password")) {
+        std::cout << "Authentication successful!" << std::endl;
+    }
+    else {
+        std::cout << "Authentication failed!" << std::endl;
+    }
+
+    // Save data to file
+    account.saveDataToFile("account_data.txt");
+
+    // Load data from file
+    AccountManager loadedAccount;
+    loadedAccount.loadDataFromFile("account_data.txt");
+
+    std::cout << "Loaded Account: " << loadedAccount.getUsername() << std::endl;
+
     Game game;
     game.start();
+    return 0;
     /*
 
     std::mutex mapMutex;  // Mutex for thread-safety
