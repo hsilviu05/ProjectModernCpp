@@ -62,9 +62,9 @@ void Map::SetStartPositions() {
 	m_startPositions = { {{0, 0}, { 0,m_width - 1 }, { m_height - 1,m_width - 1 }, { m_height - 1,0 } } };
 }
 
-std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerNumber) const
+std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const
 {
-	return m_startPositions[playerNumber];
+	return m_startPositions[playerID];
 }
 
 
@@ -123,12 +123,12 @@ void Map::SetPlayerPosition(const size_t& playerNumber, const std::pair<size_t, 
 
 
 void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile){
-	if (IsValidPosition(t_position)){
+	if (InBounds(t_position)){
 		m_gameArea[t_position.first][t_position.second] = t_tile;
 	}
 }
 
-bool Map::inBounds(const std::pair<size_t, size_t>& position)
+bool Map::InBounds(const std::pair<size_t, size_t>& position)
 {
 	if ((position.first >= 0 && position.first <= m_height) && (position.second >= 0 && position.second <= m_width))
 		return true;
@@ -145,7 +145,7 @@ void Map::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 			int dx = x - bombPosition.first;
 			int dy = y - bombPosition.second;
 
-			if (dx * dx + dy * dy <= radiusSquared && inBounds({ x, y })){
+			if (dx * dx + dy * dy <= radiusSquared && InBounds({ x, y })){
 				auto tileType = GetTile({ x, y });
 
 				if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
@@ -165,23 +165,6 @@ void Map::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 		}
 	}
 
-
-
-	/*
-	size_t startRow = (t_position.first >= 3) ? t_position.first - 3 : 0;
-	size_t endRow = std::min(t_position.first + 3, m_height - 1);
-
-	size_t startCol = (t_position.second >= 3) ? t_position.second - 3 : 0;
-	size_t endCol = std::min(t_position.second + 3, m_width - 1);
-
-	for (size_t i = startRow; i <= endRow; ++i) {
-		for (size_t j = startCol; j <= endCol; ++j) {
-			if (m_gameArea[i][j] == TileType::DestrucitbleWall || m_gameArea[i][j] == TileType::DestrucitbleWallWithBomb) {
-				m_gameArea[i][j] = TileType::EmptySpace; //distrugem zidurile pe o raza de 3
-			}
-		}
-	}
-	*/
 }
 
 bool Map::IsValidPosition(const std::pair<size_t, size_t>& position) const

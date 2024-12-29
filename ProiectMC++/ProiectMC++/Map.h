@@ -34,7 +34,7 @@ class Map
 		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
 		bool IsValidPosition(const std::pair<size_t,size_t>& position) const;
 
-		bool inBounds(const std::pair<size_t,size_t>&position);
+		bool InBounds(const std::pair<size_t,size_t>&position);
 
 
 		std::pair<size_t,size_t> GetPlayerPosition(const size_t& playerNumber);

@@ -11,6 +11,7 @@ Game::Game()
 void Game::start()
 {
     gameMap.GenerateMap();
+    bulletManager(m_map, m_players);
     player.setPosition(gameMap.getStartPosition(0));
     player.SetPlayerID(0);
     player2.setPosition(gameMap.getStartPosition(1));
@@ -46,7 +47,7 @@ void Game::update()
     handleInputForPlayer2('M', player2, gameMap, bulletManager);
 
     std::array<Player, 4> players = { player, player2 };
-    bulletManager.UpdateBullets(gameMap, players);
+    bulletManager.UpdateBullets();
 
     gameMap.SetPlayerPosition(0, player.getPosition());
     gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
@@ -83,7 +84,7 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
             return;
         }
 
-        if (gameMap.inBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
+        if (gameMap.InBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
             player.move(key);
         }
     }
@@ -117,7 +118,7 @@ void Game::handleInputForPlayer2(const char& key, Player& player2, Map& gameMap,
             return;
         }
 
-        if (gameMap.inBounds(newPosition2) == true && gameMap.GetTile(newPosition2) == TileType::EmptySpace) {
+        if (gameMap.InBounds(newPosition2) == true && gameMap.GetTile(newPosition2) == TileType::EmptySpace) {
             player2.move(key);
         }
     }

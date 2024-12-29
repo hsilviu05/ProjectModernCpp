@@ -7,14 +7,16 @@
 #include "Player.h"
 #include "TileType.h"
 #include <vector>
+#include <optional>
+#include <algorithm>
 class BulletManager
 {
 	public:
 		void UpdateBullets();
 		void AddBullet(const Bullet& bullet);
-		void CheckBulletWallCollisions(Bullet& bullet);
-		void CheckBulletBulletCollisions(Bullet& currentBullet);
-		void CheckBulletPlayersCollisions(Bullet& bullet);
+		void CheckBulletWallCollisions(std::optional<Bullet>& bulletOpt);
+		void CheckBulletBulletCollisions(std::optional<Bullet>& currentBulletOpt);
+		void CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp);
 		bool CanShoot();
 		void ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,size_t shooterID,size_t speed);
 		BulletManager(Map& map, std::array<Player, 4>& playerArray);
@@ -22,8 +24,8 @@ class BulletManager
 	private:
 		Map& m_gameMap;
 		std::array<Player, 4>& m_players;
-		void ProcessCollisions(Bullet& bullet);
-		std::vector<Bullet> m_bullets;
+		void ProcessCollisions(std::optional<Bullet>& bulletOpt);
+		std::vector<std::optional<Bullet>> m_bullets;
 		std::chrono::steady_clock::time_point m_lastShotTime;
 		struct PairHash {
 			std::size_t operator()(const std::pair<int, int>& p) const {

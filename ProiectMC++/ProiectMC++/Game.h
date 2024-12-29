@@ -29,7 +29,7 @@ public:
 private:
 	Map m_map;
 	std::vector<Bullet> m_bullets;
-	std::vector<Player> m_players;
+	std::array<Player, 4>m_players;
 	std::vector<Wall> m_walls;
 
 };
