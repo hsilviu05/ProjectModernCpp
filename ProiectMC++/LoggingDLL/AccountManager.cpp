@@ -43,3 +43,7 @@ void AccountManager::loadDataFromFile(const std::string& filename) {
     inFile >> points;
     inFile.close();
 }
+
+AccountManager::~AccountManager()
+{
+}

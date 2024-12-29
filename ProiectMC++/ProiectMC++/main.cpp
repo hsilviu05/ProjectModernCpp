@@ -12,7 +12,7 @@
 #include "BulletManager.h"
 #include "GameDatabase.h"
 
-#include "..\LoggingDLL\AccountManager.h"
+#include "AccountManager.h"
 
 using namespace sqlite_orm;
 
@@ -43,8 +43,8 @@ int main()
 
     std::cout << "Loaded Account: " << loadedAccount.getUsername() << std::endl;
 
-    Game game;
-    game.start();
+    /*Game game;
+    game.start();*/
     return 0;
     /*
 

@@ -4,6 +4,7 @@
 
 
 Game::Game()
+    :bulletManager(m_map, m_players)
 {
 
 }
@@ -11,7 +12,6 @@ Game::Game()
 void Game::start()
 {
     gameMap.GenerateMap();
-    bulletManager(m_map, m_players);
     player.setPosition(gameMap.getStartPosition(0));
     player.SetPlayerID(0);
     player2.setPosition(gameMap.getStartPosition(1));

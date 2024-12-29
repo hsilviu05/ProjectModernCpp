@@ -107,10 +107,12 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS 
 /D_SILENCE_ALL_CXX20_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>C:\Users\silh6\OneDrive\Desktop\MC++\ProiectMC++\LoggingDLL</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\Users\silh6\OneDrive\Desktop\MC++\ProiectMC++\x64\Debug\LoggingDLL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

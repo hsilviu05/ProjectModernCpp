@@ -29,4 +29,6 @@ public:
     bool authenticate(const std::string& user, const std::string& pass) const;
     void saveDataToFile(const std::string& filename) const;
     void loadDataFromFile(const std::string& filename);
+    
+    ~AccountManager();
 };
