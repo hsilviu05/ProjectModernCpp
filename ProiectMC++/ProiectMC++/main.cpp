@@ -105,6 +105,42 @@ int main()
         return crow::response(result);
             });
 
+    Player player(1, 1);  // poziția de start (1, 1)
+    map.SetTile({ 1, 1 }, TileType::Player);
+
+    //CROW_ROUTE(app, "/move")
+    //    .methods("POST"_method)
+    //    ([&map, &player, &mapMutex](const crow::request& req) {
+    //    std::lock_guard<std::mutex> lock(mapMutex);
+
+    //    auto body = crow::json::load(req.body);
+    //    if (!body) {
+    //        return crow::response(400, "Invalid JSON");
+    //    }
+
+    //    // Verificăm dacă "direction" este un string și dacă are cel puțin un caracter
+    //    if (body["direction"].t() != crow::json::type::String || body["direction"].s().length() == 0) {
+    //        return crow::response(400, "Invalid direction");
+    //    }
+    //    char direction = body["direction"].s()[0];
+    //    player.move(direction);
+
+    //    // Actualizăm harta
+    //    auto playerPos = player.getPosition();
+    //    map.SetTile(playerPos, TileType::Player);
+
+    //    // Construim obiectul JSON pentru "new_position"
+    //    crow::json::wvalue new_position;
+    //    new_position["x"] = playerPos.first;
+    //    new_position["y"] = playerPos.second;
+
+    //    crow::json::wvalue result;
+    //    result["new_position"] = new_position;
+
+    //    return crow::response(result);
+    //        });
+
+
 
 
         app.port(18080).multithreaded().run();
