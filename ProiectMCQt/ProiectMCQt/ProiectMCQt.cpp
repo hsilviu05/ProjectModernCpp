@@ -3,6 +3,10 @@
 #include <QMessageBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QPalette>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
@@ -42,8 +46,9 @@ void ProiectMCQt::fetchData()
             QJsonArray rowArray = mapArray[i].toArray();
             for (size_t j = 0; j < width; ++j) {
                 int tileValue = rowArray[j].toInt();
-                QLabel* label = new QLabel(QString::number(tileValue));
-                label->setAlignment(Qt::AlignCenter);
+                QLabel* label = new QLabel();
+                label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
+                colorTile(label, tileValue);
                 layout->addWidget(label, i, j);
             }
         }
@@ -53,12 +58,59 @@ void ProiectMCQt::fetchData()
             QJsonObject wallObj = wallJson.toObject();
             size_t x = wallObj["x"].toInt();
             size_t y = wallObj["y"].toInt();
-            QLabel* label = new QLabel("W");
-            label->setAlignment(Qt::AlignCenter);
+            int type = wallObj["type"].toInt();
+            QLabel* label = new QLabel();
+            label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
+            colorWall(label, type);
             layout->addWidget(label, x, y);
         }
     }
     else {
         QMessageBox::critical(this, "Error", QString::fromStdString(response.error.message));
     }
+}
+
+void ProiectMCQt::colorTile(QLabel* label, int type)
+{
+    QPalette palette = label->palette();
+    switch (type) {
+    case 0: // EmptySpace
+        palette.setColor(QPalette::Window, Qt::white);
+        break;
+    case 1: // DestrucitbleWall
+        palette.setColor(QPalette::Window, Qt::blue);
+        break;
+    case 2: // IndestrucitbleWall
+        palette.setColor(QPalette::Window, Qt::red);
+        break;
+    case 3: // DestrucitbleWallWithBomb
+        palette.setColor(QPalette::Window, Qt::green);
+        break;
+    default:
+        palette.setColor(QPalette::Window, Qt::gray);
+        break;
+    }
+    label->setAutoFillBackground(true);
+    label->setPalette(palette);
+}
+
+void ProiectMCQt::colorWall(QLabel* label, int type)
+{
+    QPalette palette = label->palette();
+    switch (type) {
+    case 1: // DestrucitbleWall
+        palette.setColor(QPalette::Window, Qt::blue);
+        break;
+    case 2: // IndestrucitbleWall
+        palette.setColor(QPalette::Window, Qt::red);
+        break;
+    case 3: // DestrucitbleWallWithBomb
+        palette.setColor(QPalette::Window, Qt::green);
+        break;
+    default:
+        palette.setColor(QPalette::Window, Qt::black);
+        break;
+    }
+    label->setAutoFillBackground(true);
+    label->setPalette(palette);
 }

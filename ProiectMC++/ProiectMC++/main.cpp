@@ -35,6 +35,8 @@ int main()
     Map map;  // Assuming the Map object is instantiated
     map.GenerateMap();  // Generate the map
 
+
+
     CROW_ROUTE(app, "/map")
         .methods("GET"_method)
         ([&map, &mapMutex]() {
@@ -74,6 +76,7 @@ int main()
         return crow::response(result);
             });
 
+
     CROW_ROUTE(app, "/move")
         .methods("POST"_method)
         ([&map](const crow::request& req) {
@@ -88,7 +91,7 @@ int main()
 
         // Validarea noii poziții
         std::pair<size_t, size_t> newPosition = { static_cast<size_t>(x), static_cast<size_t>(y) };
-        if (map.inBounds(newPosition) && map.GetTile(newPosition) == TileType::EmptySpace) {
+        if (map.InBounds(newPosition) && map.GetTile(newPosition) == TileType::EmptySpace) {
             // Update the player's position
             map.SetTile(map.GetPlayerPosition(playerID), TileType::EmptySpace);
             map.SetPlayerPosition(playerID, newPosition);
@@ -105,7 +108,7 @@ int main()
 
 
         app.port(18080).multithreaded().run();
-    */
+    
 }
 
 

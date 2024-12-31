@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include<QLabel>
 
 class ProiectMCQt : public QMainWindow
 {
@@ -16,6 +17,9 @@ public:
 
 private slots:
     void fetchData();
+    void colorWall(QLabel* label, int type);
+    void colorTile(QLabel* label, int type);
+
 
 private:
     void setupUI(); // Noua metodă pentru configurarea UI-ului
