@@ -17,10 +17,6 @@
 using namespace sqlite_orm;
 
 
-
-			
-std::pair<int, int> playerPosition = { 0, 0 };
-
 int main()
 {
 

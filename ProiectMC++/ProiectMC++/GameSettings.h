@@ -3,7 +3,10 @@
 class GameSettings
 {
 public:
-    static const int POINTS_PER_ENEMY;
+
+    static const int SCORE_PER_ENEMY;
+    static const int FIRST_PLACE_POINTS;
+    static const int SECOND_PLACE_POINTS;
     static const int WIN_BONUS;
     static const int MINIM_WALLS_WITH_BOMB;
     static const int MAXIM_WALLS_WITH_BOMB;

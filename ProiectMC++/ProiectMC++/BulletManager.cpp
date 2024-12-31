@@ -77,8 +77,8 @@ void BulletManager::CheckBulletBulletCollisions(std::optional<Bullet>& currentBu
             continue;
         }
 
-        currentBulletOpt.reset(); // Deactivate current bullet
-        bulletOpt.reset(); // Deactivate other bullet
+        currentBulletOpt.reset(); 
+        bulletOpt.reset(); 
         m_gameMap.SetTile(currentPosition, TileType::EmptySpace);
         return;
     }
@@ -95,7 +95,7 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
 
         if (bulletPosition == player.getPosition() && shooterID != player.GetPlayerID()) {
             player.TakeDamage();
-            player.respawn();
+            player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
             bulletOpt.reset();
 
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
@@ -162,10 +162,10 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
                     }
                 }
 
-                for (int i = 0; i < 4; i++) {
-                    if (m_players[i].getPosition() == std::make_pair(x, y)) {
-                        m_players[i].TakeDamage();
-                        m_players[i].respawn();
+                for (auto& player : m_players) {
+                    if (player.getPosition() == std::make_pair(x, y)) {
+                        player.TakeDamage();
+                        player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
                     }
                 }
             }

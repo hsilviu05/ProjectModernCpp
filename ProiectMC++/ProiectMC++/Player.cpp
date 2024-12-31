@@ -42,22 +42,14 @@ void Player::setDirection(Direction playerDirection)
     m_direction = playerDirection;
 }
 
-void Player::AddPoints()
-{
-    m_points += GameSettings::POINTS_PER_ENEMY;
-}
-
-int Player::GetPoints() const
-{
-    return m_points;
-}
 
 void Player::AddWinBonus()
 {
-    m_points += GameSettings::WIN_BONUS;
+    m_score += GameSettings::WIN_BONUS;
 }
 bool Player::UpgradeWeapon()
 {
+    /*
     if (m_points >= GameSettings::UPGRADE_COST && m_fireRateUpgrades < GameSettings::MAX_FIRE_RATE_UPGRADES) {
         m_points -= GameSettings::UPGRADE_COST;
         m_fireRate -= GameSettings::FIRE_RATE_REDUCTION;
@@ -65,9 +57,11 @@ bool Player::UpgradeWeapon()
         return true;
     }
     return false;
+	*/
 }
 
 bool Player::UpgradeBulletSpeed() {
+    /*
     if (!m_bulletSpeedUpgraded && m_points >= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS) {
         m_points -= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS;
         m_bulletSpeed *= 2;
@@ -75,27 +69,26 @@ bool Player::UpgradeBulletSpeed() {
         return true;
     }
     return false;
+	*/
+    //direct cu baza de date
 }
 
-size_t Player::GetPlayerID() const
+uint8_t Player::GetPlayerID() const
 {
     return m_playerID;
 }
 
-void Player::SetPlayerID(const size_t& playerID)
+void Player::SetPlayerID(const uint8_t& playerID)
 {
     m_playerID = playerID;
 }
 
-void Player::AddScore(int points) {
-    m_score += points;
 
-    if (m_score >= 10 && !m_speedBoostApplied) {
-        m_speedBoostApplied = true;
-    }
+void Player::AddScore() {
+    m_score += GameSettings::SCORE_PER_ENEMY;
 }
 
-int Player::GetScore() const {
+uint16_t Player::GetScore() const {
     return m_score;
 }
 
@@ -104,10 +97,10 @@ bool Player::CanDuplicateBulletSpeed() {
 }
 
 
-void Player::respawn() {
-    m_position = m_initialPosition;
+void Player::respawn(const std::pair<size_t,size_t>& initialPosition) {
+    m_position = initialPosition;
 }
 
-uint8_t Player::getHealth() const {
+size_t Player::getHealth() const {
     return m_health;
 }

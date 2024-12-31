@@ -18,34 +18,32 @@ public:
     void move(const char& key);
     void TakeDamage();
     bool isAlive() const;
-    void respawn();
-    uint8_t getHealth() const;
+    void respawn(const std::pair<size_t, size_t>& initialPosition);
+    size_t getHealth() const;
     bool isEliminated() const;
     Direction getDirection() const;
     void setDirection(Direction player_direction);
 
-    void AddPoints();
-    int GetPoints() const;
     void AddWinBonus();
     bool UpgradeWeapon();
-    void AddScore(int points);
-    int GetScore() const;
+    void AddScore();
+    uint16_t GetScore() const;
     bool CanDuplicateBulletSpeed();
     bool UpgradeBulletSpeed();
-    size_t GetPlayerID() const;
-    void SetPlayerID(const size_t& playerID);
+    uint8_t GetPlayerID() const;
+    void SetPlayerID(const uint8_t& playerID);
 
 private:
-    size_t m_playerID;
-	uint8_t m_health;
-    std::pair<size_t, size_t>m_initialPosition;
-    int m_points = 0;
-    int m_score = 0;
+    uint8_t m_playerID;
+    std::string m_username;
+	size_t m_health;
+    uint16_t m_score = 0;
     std::chrono::milliseconds m_fireRate;
     int m_fireRateUpgrades = 0;
     double m_bulletSpeed = 0.25;
     bool m_speedBoostApplied = false;
     bool m_bulletSpeedUpgraded = false;
+    //am eliminat points ca ar trebui sa fie doar in baza de date si upgrade-urile sa se faca pe baza informatiilor din baza de date
 
 };
 
