@@ -19,17 +19,9 @@ using namespace sqlite_orm;
 
 int main()
 {
-
-    AccountManager account("username", "password", 100, 10, false, true );
-
-    // Save data to SQLite database
-    account.saveDataToDatabase("account_data.db");
-
-    // Load data from SQLite database
-    AccountManager loadedAccount;
-    loadedAccount.loadDataFromDatabase("account_data.db", "username");
-
-    std::cout << "Loaded Account: " << loadedAccount.getUsername() << std::endl;
+    AccountManager account;
+    const std::string dbFile = "account_data.db";
+    account.loginForm(dbFile);
 
     /*Game game;
     game.start();*/

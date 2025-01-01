@@ -100,7 +100,7 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
 
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
 
-            m_players[shooterID].AddPoints();
+            //m_players[shooterID].AddPoints();
             return;
         }
     }

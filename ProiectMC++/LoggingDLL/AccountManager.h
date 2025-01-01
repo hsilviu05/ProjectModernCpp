@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <sqlite3.h>
+#include <sqlite_orm/sqlite_orm.h>
 
 #ifdef BUILD_DLL
 #define DLL_EXPORT __declspec(dllexport)
@@ -35,8 +35,14 @@ public:
     bool GetSpeedUpgrade() const;
 
     bool authenticate(const std::string& user, const std::string& pass) const;
+
+    inline auto initStorage(const std::string& dbFile) const;
     void saveDataToDatabase(const std::string& dbFile) const;
     void loadDataFromDatabase(const std::string& dbFile, const std::string& user);
+
+    void signUp(const std::string& dbFile, const std::string& user, const std::string& pass);
+
+    void loginForm(const std::string& dbFile);
 
     ~AccountManager();
 };

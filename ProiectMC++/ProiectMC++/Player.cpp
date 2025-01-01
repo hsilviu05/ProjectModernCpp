@@ -10,7 +10,7 @@ void Player::move(const char& key) {
 }
 
 Player::Player(int startX, int startY)
-: m_initialPosition(startX, startY), m_health(), m_fireRate(GameSettings::COOL_DOWNTIME)
+: m_health(), m_fireRate(GameSettings::COOL_DOWNTIME)
 {
 }
 
@@ -55,9 +55,9 @@ bool Player::UpgradeWeapon()
         m_fireRate -= GameSettings::FIRE_RATE_REDUCTION;
         m_fireRateUpgrades++;
         return true;
-    }
+    }*/
     return false;
-	*/
+	
 }
 
 bool Player::UpgradeBulletSpeed() {
@@ -67,9 +67,9 @@ bool Player::UpgradeBulletSpeed() {
         m_bulletSpeed *= 2;
         m_bulletSpeedUpgraded = true;
         return true;
-    }
+    }*/
     return false;
-	*/
+	
     //direct cu baza de date
 }
 

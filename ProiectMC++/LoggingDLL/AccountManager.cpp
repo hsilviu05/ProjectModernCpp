@@ -7,7 +7,7 @@
 AccountManager::AccountManager()
     : username(""), password(""), points(0), score(0), isSpeedBoost(false), isSpeedUpgrade(false) {
 }
-AccountManager::AccountManager(const std::string& user, const std::string& pass, int pts, int scr, bool iSB , bool iSU)
+AccountManager::AccountManager(const std::string& user, const std::string& pass, int pts, int scr, bool iSB, bool iSU)
     : username(user), password(pass), points(pts), score(scr), isSpeedBoost(iSB), isSpeedUpgrade(iSU) {
 }
 
@@ -27,98 +27,107 @@ bool AccountManager::authenticate(const std::string& user, const std::string& pa
     return username == user && password == pass;
 }
 
-void AccountManager::saveDataToDatabase(const std::string& dbFile) const {
-    sqlite3* db;
-    char* errMsg = nullptr;
+inline auto AccountManager::initStorage(const std::string& dbFile) const
+{
+    using namespace sqlite_orm;
+    return make_storage(
+        dbFile,
+        make_table("Account",
+            make_column("Username", &AccountManager::username, primary_key()),
+            make_column("Password", &AccountManager::password),
+            make_column("Points", &AccountManager::points),
+            make_column("Score", &AccountManager::score),
+            make_column("isSpeedBoost", &AccountManager::isSpeedBoost),
+            make_column("isSpeedUpgrade", &AccountManager::isSpeedUpgrade))
+    );
+}
 
-    if (sqlite3_open(dbFile.c_str(), &db)) {
-        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-        return;
-    }
-
-    const char* createTableSQL = R"(
-        CREATE TABLE IF NOT EXISTS Account (
-            Username TEXT PRIMARY KEY,
-            Password TEXT,
-            Points INTEGER,
-            Score INTEGER,
-            isSpeedBoost BOOL,
-            isSpeedUpgrade BOOL
-        );
-    )";
-
-    if (sqlite3_exec(db, createTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        std::cerr << "SQL error: " << errMsg << std::endl;
-        sqlite3_free(errMsg);
-        sqlite3_close(db);
-        return;
-    }
-
-    const char* insertSQL = R"(
-        INSERT OR REPLACE INTO Account (Username, Password, Points, Score, isSpeedBoost, isSpeedUpgrade)
-        VALUES (?, ?, ?, ?, ?, ?);
-    )";
-
-    sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, insertSQL, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return;
-    }
-
-    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, 3, points);
-    sqlite3_bind_int(stmt, 4, score);
-    sqlite3_bind_int(stmt, 5, isSpeedBoost);
-    sqlite3_bind_int(stmt, 6, isSpeedUpgrade);
-
-    if (sqlite3_step(stmt) != SQLITE_DONE) {
-        std::cerr << "Failed to execute statement: " << sqlite3_errmsg(db) << std::endl;
-    }
-
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
+void AccountManager::saveDataToDatabase(const std::string& dbFile) const
+{
+    auto storage = initStorage(dbFile);
+    storage.sync_schema();
+    storage.replace(*this);
 }
 
 
 void AccountManager::loadDataFromDatabase(const std::string& dbFile, const std::string& user) {
-    sqlite3* db;
+    auto storage = initStorage(dbFile);
+    storage.sync_schema();
 
-    if (sqlite3_open(dbFile.c_str(), &db)) {
-        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-        return;
-    }
-
-    const char* querySQL = R"(
-        SELECT Username, Password, Points, Score, isSpeedBoost, isSpeedUpgrade
-        FROM Account
-        WHERE Username = ?;
-    )";
-
-    sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, querySQL, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return;
-    }
-
-    sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC);
-
-    if (sqlite3_step(stmt) == SQLITE_ROW) {
-        username = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-        password = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        points = sqlite3_column_int(stmt, 2);
-        score = sqlite3_column_int(stmt, 3);
-        isSpeedBoost = sqlite3_column_int(stmt, 4);
-        isSpeedUpgrade = sqlite3_column_int(stmt, 5);
+    auto account = storage.get_pointer<AccountManager>(user);
+    if (account) {
+        *this = *account;
     }
     else {
         std::cerr << "No data found for user: " << user << std::endl;
     }
+}
 
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
+void AccountManager::signUp(const std::string& dbFile, const std::string& user, const std::string& pass)
+{
+    auto storage = initStorage(dbFile);
+    storage.sync_schema();
+
+    auto existingAccount = storage.get_pointer<AccountManager>(user);
+
+    if(existingAccount){
+        std::cerr << "Account already exists.Please chose another one. "<< std::endl;
+        return;
+    }
+    AccountManager newAccount(user, pass, 0, 0, false, false);
+    storage.replace(newAccount);
+    std::cout << " Account created succesfully!" << std::endl;
+}
+
+void AccountManager::loginForm(const std::string& dbFile)
+{
+    AccountManager account;
+    while (true) {
+        std::cout << "\n....LoginForm....\n";
+        std::cout << "1.Login\n";
+        std::cout << "2.Sign up\n";
+        std::cout << "3.Exit\n";
+        std::cout << "\nChose your option : \n";
+
+        int choice;
+        std::cin >> choice;
+
+        switch (choice) {
+        case 1:
+            std::cout << "Enter Username: ";
+            std::cin >> username;
+            std::cout << "Enter Password: ";
+            std::cin >> password;
+
+            account.loadDataFromDatabase(dbFile, username);
+            if (account.authenticate(username, password)) {
+                std::cout << "Login successful! Welcome, " << username << "!\n";
+            }
+            else {
+                std::cout << "Invalid credentials. Please try again.\n";
+            }
+            break;
+
+        case 2:
+
+            std::cout << "Choose a Username: ";
+            std::cin >> username;
+            std::cout << "Choose a Password: ";
+            std::cin >> password;
+
+            account.signUp(dbFile, username, password);
+            break;
+
+        case 3:
+            std::cout << "Exiting...\n";
+            return;
+
+        default:
+            std::cout << "Invalid option. Please try again.\n";
+
+        }
+
+    }
 }
 
 AccountManager::~AccountManager()
