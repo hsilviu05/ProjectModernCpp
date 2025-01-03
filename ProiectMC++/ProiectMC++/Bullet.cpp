@@ -26,12 +26,12 @@ void Bullet::SetDirection(const Direction& direction)
     m_direction = direction;
 }
 
-size_t Bullet::GetShooterID() const
+uint8_t Bullet::GetShooterID() const
 {
     return m_shooterID;
 }
 
-void Bullet::SetShooterID(const size_t& shooterID)
+void Bullet::SetShooterID(const uint8_t& shooterID)
 {
     m_shooterID = shooterID;
 }

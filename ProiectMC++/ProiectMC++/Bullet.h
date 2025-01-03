@@ -12,9 +12,9 @@ public:
     Direction GetDirection();
     void SetDirection(const Direction& direction);
 
-    size_t GetShooterID() const;
-    void SetShooterID(const size_t& shooterID);
+    uint8_t GetShooterID() const;
+    void SetShooterID(const uint8_t& shooterID);
 
 private:
-    size_t m_shooterID;
+    uint8_t m_shooterID;
 };

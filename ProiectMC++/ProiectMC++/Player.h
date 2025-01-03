@@ -13,7 +13,7 @@
 class Player:public GameObject {
 public:
     
-    Player(int startX, int startY);
+    Player(const std::string& username, std::chrono::milliseconds& fireRate, uint8_t& fireRateUpgrades, double& bulletSpeed, bool& bulletSpeedUpgraded);
     Player();
     void move(const char& key);
     void TakeDamage();
@@ -28,7 +28,6 @@ public:
     bool UpgradeWeapon();
     void AddScore();
     uint16_t GetScore() const;
-    bool CanDuplicateBulletSpeed();
     bool UpgradeBulletSpeed();
     uint8_t GetPlayerID() const;
     void SetPlayerID(const uint8_t& playerID);
@@ -39,10 +38,9 @@ private:
 	size_t m_health;
     uint16_t m_score = 0;
     std::chrono::milliseconds m_fireRate;
-    int m_fireRateUpgrades = 0;
-    double m_bulletSpeed = 0.25;
-    bool m_speedBoostApplied = false;
-    bool m_bulletSpeedUpgraded = false;
+    uint8_t m_fireRateUpgrades;
+    double m_bulletSpeed;
+    bool m_bulletSpeedUpgraded;
     //am eliminat points ca ar trebui sa fie doar in baza de date si upgrade-urile sa se faca pe baza informatiilor din baza de date
 
 };

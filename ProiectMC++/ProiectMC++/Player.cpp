@@ -9,10 +9,8 @@ void Player::move(const char& key) {
     }
 }
 
-Player::Player(int startX, int startY)
-: m_health(), m_fireRate(GameSettings::COOL_DOWNTIME)
-{
-}
+Player::Player(const std::string& username, std::chrono::milliseconds& fireRate, uint8_t& fireRateUpgrades, double& bulletSpeed, bool& bulletSpeedUpgraded)
+    : m_score(0), m_health(3), m_username(username), m_fireRate(fireRate), m_fireRateUpgrades(fireRateUpgrades), m_bulletSpeed(bulletSpeed), m_bulletSpeedUpgraded(bulletSpeedUpgraded) {};
 
 Player::Player()
 {
@@ -91,11 +89,6 @@ void Player::AddScore() {
 uint16_t Player::GetScore() const {
     return m_score;
 }
-
-bool Player::CanDuplicateBulletSpeed() {
-    return m_speedBoostApplied;
-}
-
 
 void Player::respawn(const std::pair<size_t,size_t>& initialPosition) {
     m_position = initialPosition;
