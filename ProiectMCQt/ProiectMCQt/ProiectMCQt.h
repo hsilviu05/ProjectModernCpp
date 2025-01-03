@@ -17,7 +17,7 @@ public:
 
 private slots:
     void fetchData();
-    void colorWall(QLabel* label, int type);
+    //void colorWall(QLabel* label, int type);
     void colorTile(QLabel* label, int type);
     void keyPressEvent(QKeyEvent* event);
     void sendMoveRequest(int x, int y, int playerID);

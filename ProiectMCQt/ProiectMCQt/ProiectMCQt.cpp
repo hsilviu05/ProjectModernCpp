@@ -8,10 +8,15 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QKeyEvent>
+#include <QPixmap>
+#include <QDebug>
+#include <QBrush>
+#include <QGraphicsOpacityEffect>
 
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
 {
+    setAttribute(Qt::WA_TranslucentBackground); // Permite transparența pentru fereastra principală
     setupUI();
     fetchData();
 }
@@ -28,6 +33,13 @@ void ProiectMCQt::setupUI()
 
     QGridLayout* layout = new QGridLayout(centralWidget);
     centralWidget->setLayout(layout);
+
+    // Setează imaginea de fundal
+    QPixmap background("C:/Users/Cezar/Desktop/football-pitch.png");
+    QPalette palette;
+    palette.setBrush(QPalette::Window, QBrush(background));
+    centralWidget->setAutoFillBackground(true);
+    centralWidget->setPalette(palette);
 }
 
 void ProiectMCQt::fetchData()
@@ -62,7 +74,7 @@ void ProiectMCQt::fetchData()
             int type = wallObj["type"].toInt();
             QLabel* label = new QLabel();
             label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
-            colorWall(label, type);
+            colorTile(label, type);
             layout->addWidget(label, x, y);
         }
     }
@@ -73,51 +85,41 @@ void ProiectMCQt::fetchData()
 
 void ProiectMCQt::colorTile(QLabel* label, int type)
 {
-    QPalette palette = label->palette();
+    QPixmap pixmap;
     switch (type) {
     case 0: // EmptySpace
-        palette.setColor(QPalette::Window, Qt::white);
+        label->setAutoFillBackground(false);
+        label->clear();
         break;
-    case 1: // DestrucitbleWall
-        palette.setColor(QPalette::Window, Qt::blue);
+    case 1: // DestructibleWall
+        pixmap = QPixmap("C:/Users/Cezar/Desktop/fanul2_transparent.png");
+        if (pixmap.isNull()) {
+            qDebug() << "Failed to load image!";
+        }
+        else {
+            qDebug() << "Image loaded successfully!";
+            label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        }
         break;
-    case 2: // IndestrucitbleWall
-        palette.setColor(QPalette::Window, Qt::red);
+    case 2: // IndestructibleWall
+        label->setAutoFillBackground(true);
+        label->setPalette(QPalette(Qt::red));
         break;
-    case 3: // DestrucitbleWallWithBomb
-        palette.setColor(QPalette::Window, Qt::green);
+    case 3: // DestructibleWallWithBomb
+        label->setAutoFillBackground(true);
+        label->setPalette(QPalette(Qt::green));
         break;
     case 4: // Player
-        palette.setColor(QPalette::Window, Qt::yellow);
+        label->setAutoFillBackground(true);
+        label->setPalette(QPalette(Qt::yellow));
         break;
     default:
-        palette.setColor(QPalette::Window, Qt::gray);
+        label->setAutoFillBackground(true);
+        label->setPalette(QPalette(Qt::gray));
         break;
     }
-    label->setAutoFillBackground(true);
-    label->setPalette(palette);
 }
 
-void ProiectMCQt::colorWall(QLabel* label, int type)
-{
-    QPalette palette = label->palette();
-    switch (type) {
-    case 1: // DestrucitbleWall
-        palette.setColor(QPalette::Window, Qt::blue);
-        break;
-    case 2: // IndestrucitbleWall
-        palette.setColor(QPalette::Window, Qt::red);
-        break;
-    case 3: // DestrucitbleWallWithBomb
-        palette.setColor(QPalette::Window, Qt::green);
-        break;
-    default:
-        palette.setColor(QPalette::Window, Qt::black);
-        break;
-    }
-    label->setAutoFillBackground(true);
-    label->setPalette(palette);
-}
 
 void ProiectMCQt::keyPressEvent(QKeyEvent* event)
 {
@@ -143,7 +145,6 @@ void ProiectMCQt::keyPressEvent(QKeyEvent* event)
     sendMoveRequest(x, y, playerID);
 }
 
-
 void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
 {
     // Trimite cererea POST către server pentru a muta jucătorul
@@ -158,4 +159,3 @@ void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
         QMessageBox::critical(this, "Error", QString::fromStdString(response.error.message));
     }
 }
-
