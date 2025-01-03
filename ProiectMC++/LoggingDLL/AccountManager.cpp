@@ -1,33 +1,38 @@
 
 #include "pch.h"
 #include "AccountManager.h"
-#include <fstream>
-#include <iostream>
 
 AccountManager::AccountManager()
-    : username(""), password(""), points(0), score(0), isSpeedBoost(false), isSpeedUpgrade(false) {
-}
-AccountManager::AccountManager(const std::string& user, const std::string& pass, int pts, int scr, bool iSB, bool iSU)
-    : username(user), password(pass), points(pts), score(scr), isSpeedBoost(iSB), isSpeedUpgrade(iSU) {
-}
+    : username(""), password(""), health(3), fireRate(2000),
+    points(0), score(0), isFireRateUpgrade(false), isSpeedUpgrade(false), bulletSpeed(0.25) {}
 
-void AccountManager::setUsername(const std::string& user) { username = user; }
-void AccountManager::setPassword(const std::string& pass) { password = pass; }
-void AccountManager::setPoints(int pts) { points = pts; }
+AccountManager::AccountManager(const std::string& user, const std::string& pass, size_t heal, 
+    uint32_t fRate, uint16_t pts, uint16_t scr, bool iFRU, bool iSU, double bSpeed)
+    : username(user), password(pass), health(heal), fireRate(fRate),
+    points(pts), score(scr), isFireRateUpgrade(iFRU), isSpeedUpgrade(iSU), bulletSpeed(bSpeed) {}
 
-std::string AccountManager::getUsername() const { return username; }
-std::string AccountManager::getPassword() const { return password; }
-int AccountManager::getPoints() const { return points; }
-int AccountManager::getScore() const { return score; }
+void AccountManager::SetUsername(const std::string& user) { username = user; }
+void AccountManager::SetPassword(const std::string& pass) { password = pass; }
+void AccountManager::SetHealth(size_t& heal) { health =heal; }
+void AccountManager::SetFireRate(uint32_t& fRate) { fireRate = fRate; }
+void AccountManager::SetPoints(uint16_t& pts) { points = pts; }
+void AccountManager::SetBulletSpeed(double& bSpeed) { bulletSpeed = bSpeed; }
 
-bool AccountManager::GetSpeedBoost() const { return isSpeedBoost; }
+std::string AccountManager::GetUsername() const { return username; }
+std::string AccountManager::GetPassword() const { return password; }
+uint16_t AccountManager::GetPoints() const { return points; }
+uint16_t AccountManager::GetScore() const { return score; }
+
+std::chrono::milliseconds AccountManager::GetFireRate() const { return std::chrono::milliseconds(fireRate); }
+
+bool AccountManager::GetSpeedBoost() const { return isFireRateUpgrade; }
 bool AccountManager::GetSpeedUpgrade() const { return isSpeedUpgrade; }
 
-bool AccountManager::authenticate(const std::string& user, const std::string& pass) const {
-    return username == user && password == pass;
+bool AccountManager::Authenticate(const std::string& user, const std::string& pass) const {
+    return username == user && password == HashPassword(pass);
 }
 
-inline auto AccountManager::initStorage(const std::string& dbFile) const
+inline auto AccountManager::InItStorage(const std::string& dbFile) const
 {
     using namespace sqlite_orm;
     return make_storage(
@@ -35,23 +40,26 @@ inline auto AccountManager::initStorage(const std::string& dbFile) const
         make_table("Account",
             make_column("Username", &AccountManager::username, primary_key()),
             make_column("Password", &AccountManager::password),
+            make_column("Health", &AccountManager::health),
+            make_column("FireRate", &AccountManager::fireRate),
             make_column("Points", &AccountManager::points),
             make_column("Score", &AccountManager::score),
-            make_column("isSpeedBoost", &AccountManager::isSpeedBoost),
-            make_column("isSpeedUpgrade", &AccountManager::isSpeedUpgrade))
+            make_column("isFireRateUpgrade", &AccountManager::isFireRateUpgrade),
+            make_column("isSpeedUpgrade", &AccountManager::isSpeedUpgrade),
+            make_column("BulletSpeed", &AccountManager::bulletSpeed))
     );
 }
 
-void AccountManager::saveDataToDatabase(const std::string& dbFile) const
+void AccountManager::SaveDataToDatabase(const std::string& dbFile) const
 {
-    auto storage = initStorage(dbFile);
+    auto storage = InItStorage(dbFile);
     storage.sync_schema();
     storage.replace(*this);
 }
 
 
-void AccountManager::loadDataFromDatabase(const std::string& dbFile, const std::string& user) {
-    auto storage = initStorage(dbFile);
+void AccountManager::LoadDataFromDatabase(const std::string& dbFile, const std::string& user) {
+    auto storage = InItStorage(dbFile);
     storage.sync_schema();
 
     auto account = storage.get_pointer<AccountManager>(user);
@@ -63,9 +71,14 @@ void AccountManager::loadDataFromDatabase(const std::string& dbFile, const std::
     }
 }
 
-void AccountManager::signUp(const std::string& dbFile, const std::string& user, const std::string& pass)
+void AccountManager::SignUp(const std::string& dbFile, const std::string& user, const std::string& pass)
 {
-    auto storage = initStorage(dbFile);
+    if (!IsValidPassword(pass)) {
+        std::cerr << "Password must contain at least one uppercase letter, one lowercase letter, one digit, one special character, and be at least 8 characters long.\n";
+        return;
+    }
+
+    auto storage = InItStorage(dbFile);
     storage.sync_schema();
 
     auto existingAccount = storage.get_pointer<AccountManager>(user);
@@ -74,12 +87,12 @@ void AccountManager::signUp(const std::string& dbFile, const std::string& user, 
         std::cerr << "Account already exists.Please chose another one. "<< std::endl;
         return;
     }
-    AccountManager newAccount(user, pass, 0, 0, false, false);
+    AccountManager newAccount(user, HashPassword(pass), 3, 2000, 0, 0, false, false, 0.25);
     storage.replace(newAccount);
     std::cout << " Account created succesfully!" << std::endl;
 }
 
-void AccountManager::loginForm(const std::string& dbFile)
+void AccountManager::LoginForm(const std::string& dbFile)
 {
     AccountManager account;
     while (true) {
@@ -99,8 +112,8 @@ void AccountManager::loginForm(const std::string& dbFile)
             std::cout << "Enter Password: ";
             std::cin >> password;
 
-            account.loadDataFromDatabase(dbFile, username);
-            if (account.authenticate(username, password)) {
+            account.LoadDataFromDatabase(dbFile, username);
+            if (account.Authenticate(username, password)) {
                 std::cout << "Login successful! Welcome, " << username << "!\n";
             }
             else {
@@ -112,10 +125,10 @@ void AccountManager::loginForm(const std::string& dbFile)
 
             std::cout << "Choose a Username: ";
             std::cin >> username;
-            std::cout << "Choose a Password: ";
+            std::cout << "Password must contain minim 8 caracters one uppercase one lowercase one special caracter (@, $, !, %, *, ?, &, #)\n" << "Choose a Password: ";
             std::cin >> password;
 
-            account.signUp(dbFile, username, password);
+            account.SignUp(dbFile, username, password);
             break;
 
         case 3:
@@ -128,6 +141,25 @@ void AccountManager::loginForm(const std::string& dbFile)
         }
 
     }
+}
+
+
+
+bool AccountManager::IsValidPassword(const std::string& pass) const
+{
+    //Parola trb sa contina minim 8 caractere: min 1 Uppercase,Lowercase,si caracterele : @ $ ! % * ? & #
+    std::regex passRegex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$");
+
+    return std::regex_match(pass, passRegex);
+}
+
+std::string AccountManager::HashPassword(const std::string& pass) const
+{
+    std::hash<std::string> hasher;
+    size_t hashed = hasher(pass);
+    std::stringstream ss;
+    ss << std::hex << hashed;
+    return ss.str();
 }
 
 AccountManager::~AccountManager()

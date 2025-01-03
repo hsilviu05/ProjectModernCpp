@@ -2,6 +2,15 @@
 
 #include <string>
 #include <sqlite_orm/sqlite_orm.h>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <chrono>
+//pt operatia de hassing a parolei avem urmatoarele biblioteci
+#include <iomanip>
+#include <sstream>
+
+using namespace sqlite_orm;
 
 #ifdef BUILD_DLL
 #define DLL_EXPORT __declspec(dllexport)
@@ -13,36 +22,47 @@ class DLL_EXPORT AccountManager {
 private:
     std::string username;
     std::string password;
-    int points;
-    int score;
-    bool isSpeedBoost;
-    bool isSpeedUpgrade;
+    size_t health;
+    uint32_t fireRate;
+    uint16_t points;
+    uint16_t score; 
+    bool isFireRateUpgrade; 
+    bool isSpeedUpgrade; 
+    double bulletSpeed; 
 
 public:
     AccountManager();
-    AccountManager(const std::string& user, const std::string& pass, int pts, int scr, bool iSB, bool iSU);
+    AccountManager(const std::string& user, const std::string& pass, size_t heal, uint32_t fRate, uint16_t pts, uint16_t scr, bool iFRU, bool iSU, double bSpeed);
 
-    void setUsername(const std::string& user);
-    void setPassword(const std::string& pass);
-    void setPoints(int pts);
+    void SetUsername(const std::string& user);
+    void SetPassword(const std::string& pass);
+    void SetHealth(size_t& heal);
+    void SetFireRate(uint32_t& fireRate);
+    void SetPoints(uint16_t& pts);
+    void SetBulletSpeed(double& bSpeed);
 
-    std::string getUsername() const;
-    std::string getPassword() const;
-    int getPoints() const;
-    int getScore() const;
+    std::string GetUsername() const;
+    std::string GetPassword() const;
+    uint16_t GetPoints() const;
+    uint16_t GetScore() const;
+    std::chrono::milliseconds GetFireRate() const;
 
     bool GetSpeedBoost() const;
     bool GetSpeedUpgrade() const;
 
-    bool authenticate(const std::string& user, const std::string& pass) const;
+    bool Authenticate(const std::string& user, const std::string& pass) const;
 
-    inline auto initStorage(const std::string& dbFile) const;
-    void saveDataToDatabase(const std::string& dbFile) const;
-    void loadDataFromDatabase(const std::string& dbFile, const std::string& user);
+    inline auto InItStorage(const std::string& dbFile) const;
+    void SaveDataToDatabase(const std::string& dbFile) const;
+    void LoadDataFromDatabase(const std::string& dbFile, const std::string& user);
 
-    void signUp(const std::string& dbFile, const std::string& user, const std::string& pass);
+    void SignUp(const std::string& dbFile, const std::string& user, const std::string& pass);
 
-    void loginForm(const std::string& dbFile);
+    void LoginForm(const std::string& dbFile);
+
+    bool IsValidPassword(const std::string& pass) const;
+
+    std::string HashPassword(const std::string& pass) const;
 
     ~AccountManager();
 };
