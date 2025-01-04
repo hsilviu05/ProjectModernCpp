@@ -19,12 +19,14 @@ using namespace sqlite_orm;
 
 int main()
 {
+    /*
     AccountManager account;
     const std::string dbFile = "account_data.db";
     account.LoginForm(dbFile);
+	*/
 
-    /*Game game;
-    game.start();*/
+    Game game;
+    game.start();
     return 0;
     
 

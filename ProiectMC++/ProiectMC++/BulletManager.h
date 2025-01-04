@@ -12,6 +12,7 @@
 class BulletManager
 {
 	public:
+		
 		void UpdateBullets();
 		void AddBullet(const Bullet& bullet);
 		void CheckBulletWallCollisions(std::optional<Bullet>& bulletOpt);

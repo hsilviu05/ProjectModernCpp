@@ -1,5 +1,6 @@
 ﻿#include "BulletManager.h"
 
+
 void BulletManager::UpdateBullets()
 {
     for (auto& bulletOpt : m_bullets)
@@ -116,15 +117,14 @@ void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const 
     if(!CanShoot())
     {
         return;
-        //throw std::runtime_error("Cannot shoot yet!");
+        throw std::runtime_error("Cannot shoot yet!");
     }
-    else 
+    else
     {
         m_lastShotTime = std::chrono::steady_clock::now();
-        Bullet newBullet(position, direction, shooterID, speed);
-        m_bullets.emplace_back(std::move(newBullet));
-    }
-   
+        std::optional<Bullet> newBullet=Bullet(position, direction, shooterID, speed);
+		m_bullets.emplace_back(newBullet);
+	}
 }
 
 BulletManager::BulletManager(Map& map, std::array<Player, 4>& playerArray)
@@ -134,11 +134,11 @@ void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 {
     CheckBulletWallCollisions(bulletOpt);
 
-    if (!bulletOpt) return;
-    CheckBulletBulletCollisions(bulletOpt);
+    //if (!bulletOpt) return;
+    //CheckBulletBulletCollisions(bulletOpt);
 
-    if (!bulletOpt) return;
-    CheckBulletPlayersCollisions(bulletOpt);
+    //if (!bulletOpt) return;
+    //CheckBulletPlayersCollisions(bulletOpt);
 }
 
 void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)

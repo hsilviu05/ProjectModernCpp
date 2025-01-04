@@ -18,6 +18,7 @@ class Map
 		std::vector<Wall> walls;
 
 	public:
+		Map();
 		size_t getHeight() const;
 		size_t getWidth() const;
 

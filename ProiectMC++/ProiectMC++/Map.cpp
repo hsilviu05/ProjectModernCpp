@@ -5,6 +5,11 @@ void Map::Allocation(){
 	m_gameArea.resize(m_height, std::vector<TileType>(m_width));
 }
 
+Map::Map()
+{
+	GenerateMap();
+}
+
 size_t Map::getHeight() const{
 	return m_height;
 }
@@ -37,7 +42,6 @@ void Map::GenerateMap(){
 			}
 		}
 	}
-	//generam automat  nr de ziduri intre 1-3
 	std::uniform_int_distribution<int> dist_bombs(1, 3);
 	int bombWallsCount = dist_bombs(gen);
 
@@ -116,7 +120,7 @@ void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_
 
 bool Map::InBounds(const std::pair<size_t, size_t>& position)
 {
-	return position.first < m_height && position.second < m_width;
+	return position.first <= m_height-1 && position.second <= m_width-1;
 }
 
 

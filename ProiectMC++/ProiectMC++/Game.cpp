@@ -3,25 +3,24 @@
 #include "GameDatabase.h"
 
 
-Game::Game()
-    :bulletManager(m_map, m_players)
+Game::Game():m_map(),bulletManager(m_map,m_players)
 {
 
 }
 
 void Game::start()
 {
-    gameMap.GenerateMap();
-    player.setPosition(gameMap.getStartPosition(0));
+    //gameMap.GenerateMap();
+    player.setPosition(m_map.getStartPosition(0));
     player.SetPlayerID(0);
-    player2.setPosition(gameMap.getStartPosition(1));
-    player2.SetPlayerID(1);
 
-    gameMap.SetPlayerPosition(0, player.getPosition());
-    gameMap.SetTile(player.getPosition(), TileType::Player);
-    gameMap.SetPlayerPosition(1, player2.getPosition());
-    gameMap.SetTile(player2.getPosition(), TileType::Player);
-    gameMap.Draw();
+    m_map.SetPlayerPosition(0, player.getPosition());
+    m_map.SetTile(player.getPosition(), TileType::Player);
+    m_map.SetPlayerPosition(1, player2.getPosition());
+    m_map.SetTile(player2.getPosition(), TileType::Player);
+    m_map.Draw();
+
+    //BulletManager bulletManager(gameMap, m_players);
 
     while (true) {
         update();
@@ -32,29 +31,27 @@ void Game::start()
 
 void Game::update()
 {
-    gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
+   m_map.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
 
-    handleInput('A', player, gameMap, bulletManager);
-    handleInput('D', player, gameMap, bulletManager);
-    handleInput('W', player, gameMap, bulletManager);
-    handleInput('S', player, gameMap, bulletManager);
-    handleInput(VK_SPACE, player, gameMap, bulletManager);
+    handleInput('A', player, m_map, bulletManager);
+    handleInput('D', player, m_map, bulletManager);
+    handleInput('W', player, m_map, bulletManager);
+    handleInput('S', player, m_map, bulletManager);
+    handleInput(VK_SPACE, player, m_map, bulletManager);
 
-    handleInputForPlayer2(VK_LEFT, player2, gameMap, bulletManager);
-    handleInputForPlayer2(VK_RIGHT, player2, gameMap, bulletManager);
-    handleInputForPlayer2(VK_UP, player2, gameMap, bulletManager);
-    handleInputForPlayer2(VK_DOWN, player2, gameMap, bulletManager);
-    handleInputForPlayer2('M', player2, gameMap, bulletManager);
+    //handleInputForPlayer2(VK_LEFT, player2, gameMap, bulletManager);
+    //handleInputForPlayer2(VK_RIGHT, player2, gameMap, bulletManager);
+   // handleInputForPlayer2(VK_UP, player2, gameMap, bulletManager);
+    //handleInputForPlayer2(VK_DOWN, player2, gameMap, bulletManager);
+   // handleInputForPlayer2('M', player2, gameMap, bulletManager);
 
     std::array<Player, 4> players = { player, player2 };
     bulletManager.UpdateBullets();
 
-    gameMap.SetPlayerPosition(0, player.getPosition());
-    gameMap.SetTile(gameMap.GetPlayerPosition(0), TileType::Player);
-    gameMap.SetPlayerPosition(1, player2.getPosition());
-    gameMap.SetTile(gameMap.GetPlayerPosition(1), TileType::Player);
+    m_map.SetPlayerPosition(0, player.getPosition());
+    m_map.SetTile(m_map.GetPlayerPosition(0), TileType::Player);
 
-}
+   }
 
 void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletManager& bulletManager)
 {
@@ -85,6 +82,7 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
         }
 
         if (gameMap.InBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
+            gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
             player.move(key);
         }
     }
@@ -168,6 +166,6 @@ int Game::checkWinner() {
 
 void Game::render()
 {
-    gameMap.Draw();
+    m_map.Draw();
 }
 
