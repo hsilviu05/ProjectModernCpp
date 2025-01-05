@@ -10,23 +10,33 @@ void BulletManager::UpdateBullets()
         }
 
         Bullet& bullet = *bulletOpt;
-        auto previousPosition = bullet.getPosition();
-        bullet.MoveBullet();
+        size_t m_bulletspeed = GameSettings::DEFAULT_BULLET_SPEED;
+        auto currentPosition = bullet.getPosition();
 
-        if (!m_gameMap.InBounds(bullet.getPosition())) {
-            bulletOpt.reset();
-        }
-        else {
+        for (size_t step = 0; step < m_bulletspeed; ++step) {
+            
+            auto previousPosition = currentPosition;
+            bullet.MoveBullet();
+            currentPosition = bullet.getPosition();
+
+            if (!m_gameMap.InBounds(currentPosition))
+            {
+                bulletOpt.reset();
+                m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
+                break;
+            }
 
             ProcessCollisions(bulletOpt);
+            if (!bulletOpt)
+            {
+                m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
+                break;
+            }
 
-            if(bulletOpt)
-				m_gameMap.SetTile(bullet.getPosition(), TileType::Bullet);
+            m_gameMap.SetTile(currentPosition, TileType::Bullet);
+            m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
         }
-
-        m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
     }
-
     std::erase_if(m_bullets, [](const std::optional<Bullet>& bulletOpt) {
     	return !bulletOpt;
     });

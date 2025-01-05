@@ -10,7 +10,7 @@ public:
     static const int WIN_BONUS;
     static const int MINIM_WALLS_WITH_BOMB;
     static const int MAXIM_WALLS_WITH_BOMB;
-    static const int DEFAULT_BULLET_SPEED;
+    static const size_t DEFAULT_BULLET_SPEED;
     static constexpr int MAX_FIRE_RATE_UPGRADES = 4;
     static const std::chrono::milliseconds FIRE_RATE_REDUCTION;
     static constexpr int UPGRADE_COST = 500;

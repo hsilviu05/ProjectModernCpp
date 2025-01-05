@@ -45,7 +45,7 @@ public:
     std::string GetPassword() const;
     uint16_t GetPoints() const;
     uint16_t GetScore() const;
-    std::chrono::milliseconds GetFireRate() const;
+    uint32_t GetFireRate() const;
 
     bool GetSpeedBoost() const;
     bool GetSpeedUpgrade() const;

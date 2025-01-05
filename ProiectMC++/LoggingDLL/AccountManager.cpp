@@ -23,7 +23,7 @@ std::string AccountManager::GetPassword() const { return password; }
 uint16_t AccountManager::GetPoints() const { return points; }
 uint16_t AccountManager::GetScore() const { return score; }
 
-std::chrono::milliseconds AccountManager::GetFireRate() const { return std::chrono::milliseconds(fireRate); }
+uint32_t AccountManager::GetFireRate() const { return fireRate; }
 
 bool AccountManager::GetSpeedBoost() const { return isFireRateUpgrade; }
 bool AccountManager::GetSpeedUpgrade() const { return isSpeedUpgrade; }
