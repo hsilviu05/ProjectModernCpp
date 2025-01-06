@@ -31,7 +31,7 @@ void Game::start()
 
 void Game::update()
 {
-   m_map.SetTile(gameMap.GetPlayerPosition(0), TileType::EmptySpace);
+   //m_map.SetTile(m_map.GetPlayerPosition(0), TileType::EmptySpace);
 
     handleInput('A', player, m_map, bulletManager);
     handleInput('D', player, m_map, bulletManager);
@@ -84,6 +84,31 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
         if (gameMap.InBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
             gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
             player.move(key);
+        }
+        else if (!gameMap.InBounds(newPosition))
+        {
+            auto portal = gameMap.GetPortalByEntry(player.getPosition());
+            if (portal != nullptr)
+            {
+                auto [exitX, exitY] = portal->exit;
+                if (gameMap.GetTile({ exitX,exitY }) == TileType::EmptySpace)
+                {
+                    gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
+                    if (exitY == 0) {
+                        player.setDirection(Direction::Right);
+                    }
+                    else if (exitY == gameMap.getWidth() - 1) {
+                        player.setDirection(Direction::Left);
+                    }
+                    else if (exitX == 0) {
+                        player.setDirection(Direction::Down);
+                    }
+                    else if (exitX == gameMap.getHeight() - 1) {
+                        player.setDirection(Direction::Up);
+                    }
+                    player.setPosition({ exitX,exitY });
+                }
+            }
         }
     }
 }

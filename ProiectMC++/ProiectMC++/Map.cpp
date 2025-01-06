@@ -26,7 +26,9 @@ void Map::GeneratePortals(std::mt19937& gen)
 			});
 
 		if (!entryOrExitExists) {
-			m_portals.insert(portal); 
+			m_portals.insert(portal);
+			entryMap[portal.entry] = portal;
+			exitMap[portal.exit] = portal;
 		}
 
 
@@ -124,6 +126,12 @@ std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const
 
 size_t Map::getWidth() const{
 	return m_width;
+}
+
+const Portal* Map::GetPortalByEntry(const std::pair<size_t, size_t>& position) const
+{
+	auto it = entryMap.find(position);
+	return (it != entryMap.end()) ? &(it->second) : nullptr;
 }
 
 

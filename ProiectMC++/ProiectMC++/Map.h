@@ -7,6 +7,7 @@
 #include<iostream>
 #include<random>
 #include <unordered_set>
+#include <unordered_map>
 
 struct Portal {
 	std::pair<size_t, size_t> entry;
@@ -26,6 +27,12 @@ struct PortalHash {
 	}
 };
 
+struct PairHash {
+	std::size_t operator()(const std::pair<size_t, size_t>& p) const {
+		return std::hash<size_t>{}(p.first) ^ (std::hash<size_t>{}(p.second) << 1);
+	}
+};
+
 class Map
 {
 	private:
@@ -33,6 +40,8 @@ class Map
 		size_t m_height;
 		size_t m_width;
 		std::unordered_set<Portal,PortalHash>m_portals;
+		std::unordered_map<std::pair<size_t, size_t>, Portal, PairHash> entryMap;
+		std::unordered_map<std::pair<size_t, size_t>, Portal, PairHash> exitMap;
 		void Allocation();
 		std::array<std::pair<size_t, size_t>,4>m_playersPositions;
 		std::vector<Wall> walls;
@@ -43,7 +52,7 @@ class Map
 		Map();
 		size_t getHeight() const;
 		size_t getWidth() const;
-
+		const Portal* GetPortalByEntry(const std::pair<size_t, size_t>& position) const;
 		void GenerateMap();
 
 		std::pair<size_t,size_t> getStartPosition(const size_t& playerID) const;
