@@ -5,6 +5,54 @@ void Map::Allocation(){
 	m_gameArea.resize(m_height, std::vector<TileType>(m_width));
 }
 
+void Map::GeneratePortals(std::mt19937& gen)
+{
+	std::uniform_int_distribution<size_t> distPortals(2, 5);
+	size_t portalsCount = distPortals(gen);
+
+	std::bernoulli_distribution bernoulli(0.5);
+
+	while (m_portals.size() < portalsCount)
+	{
+		bool entry = bernoulli(gen);
+		bool exit = bernoulli(gen); 
+		Portal portal = { GeneratePortalPart(gen, bernoulli, entry),GeneratePortalPart(gen, bernoulli, exit) };
+
+
+		bool entryOrExitExists = std::any_of(m_portals.begin(), m_portals.end(),
+			[&portal](const Portal& p) {
+				return (p.entry == portal.entry || p.exit == portal.entry ||
+					p.entry == portal.exit || p.exit == portal.exit);
+			});
+
+		if (!entryOrExitExists) {
+			m_portals.insert(portal); 
+		}
+
+
+	}
+
+}
+
+std::pair<size_t,size_t> Map::GeneratePortalPart(std::mt19937& gen, std::bernoulli_distribution& bernoulli, const bool& part)
+{
+	size_t x, y;
+	std::uniform_int_distribution<size_t>dist_x(0, m_height - 1);
+	std::uniform_int_distribution<size_t>dist_y(0, m_width - 1);
+
+	if (part)
+	{
+		 x = bernoulli(gen) ? (0) : (m_height - 1);
+		 y = dist_y(gen);
+	}
+	else
+	{
+		 x = dist_x(gen);
+		 y = bernoulli(gen) ? (0) : (m_width - 1);
+	}
+	return { x,y };
+}
+
 Map::Map()
 {
 	GenerateMap();
@@ -58,6 +106,8 @@ void Map::GenerateMap(){
 			bombWallsPlaced++;
 		}
 	}
+	GeneratePortals(gen);
+
 }
 
 std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const

@@ -24,7 +24,6 @@ int main()
     const std::string dbFile = "account_data.db";
     account.LoginForm(dbFile);
 	*/
-
     Game game;
     game.start();
     return 0;
