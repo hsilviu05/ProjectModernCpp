@@ -18,7 +18,7 @@ private slots:
 
 private:
     QLineEdit* usernameLineEdit;
-    QLineEdit* nameLineEdit;
+    QLineEdit* passwordLineEdit;
 };
 
 #endif

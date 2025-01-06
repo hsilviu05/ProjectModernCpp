@@ -162,6 +162,21 @@ std::string AccountManager::HashPassword(const std::string& pass) const
     return ss.str();
 }
 
+crow::json::wvalue AccountManager::To_json() const
+{
+    crow::json::wvalue result;
+    result["username"] = username;
+    result["password"] = password;
+    result["health"] = health;
+    result["fireRate"] = fireRate;
+    result["points"] = points;
+    result["score"] = score;
+    result["isFireRateUpgrade"] = isFireRateUpgrade;
+    result["isSpeedUpgrade"] = isSpeedUpgrade;
+    result["bulletSpeed"] = bulletSpeed;
+    return result;
+}
+
 AccountManager::~AccountManager()
 {
 }

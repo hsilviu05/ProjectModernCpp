@@ -18,6 +18,7 @@ private slots:
 
 private:
     QLineEdit* usernameLineEdit;
+    QLineEdit* passwordLineEdit;
 };
 
 #endif // LOGINWIDGET_H

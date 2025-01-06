@@ -9,6 +9,8 @@
 //pt operatia de hassing a parolei avem urmatoarele biblioteci
 #include <iomanip>
 #include <sstream>
+#include <nlohmann/json.hpp>
+#include <crow.h>
 
 using namespace sqlite_orm;
 
@@ -63,6 +65,8 @@ public:
     bool IsValidPassword(const std::string& pass) const;
 
     std::string HashPassword(const std::string& pass) const;
+
+    crow::json::wvalue To_json() const;
 
     ~AccountManager();
 };
