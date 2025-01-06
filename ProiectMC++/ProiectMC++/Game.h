@@ -10,7 +10,6 @@
 class Game
 {
 private:
-	//Map gameMap;
 	Player player;
 	Player player2;
 	BulletManager bulletManager;

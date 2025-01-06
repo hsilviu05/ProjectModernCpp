@@ -117,23 +117,29 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
     }
 }
 
-bool BulletManager::CanShoot()
+bool BulletManager::CanShoot(const size_t& shooterID)
 {
-     return  (std::chrono::steady_clock::now() - m_lastShotTime) >= GameSettings::COOL_DOWNTIME;
+    auto now = std::chrono::steady_clock::now();
+    if (m_lastShotTime.find(shooterID) == m_lastShotTime.end()) {
+        return true;
+    }
+    return (now - m_lastShotTime[shooterID]) >= GameSettings::COOL_DOWNTIME;
+	//return  (std::chrono::steady_clock::now() - m_lastShotTime) >= GameSettings::COOL_DOWNTIME;
 }
 
-void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,size_t shooterID,size_t speed)
+void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,const size_t& shooterID,size_t speed)
 {
-    if(!CanShoot())
+    if(!CanShoot(shooterID))
     {
-        return;
-        throw std::runtime_error("Cannot shoot yet!");
+        
     }
     else
     {
-        m_lastShotTime = std::chrono::steady_clock::now();
-        std::optional<Bullet> newBullet=Bullet(position, direction, shooterID, speed);
-		m_bullets.emplace_back(newBullet);
+        m_lastShotTime[shooterID] = std::chrono::steady_clock::now();
+        std::optional<Bullet> newBullet = Bullet(position, direction, shooterID, speed);
+        m_bullets.emplace_back(newBullet);
+
+       // m_lastShotTime = std::chrono::steady_clock::now();
 	}
 }
 
@@ -151,13 +157,19 @@ void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
     //CheckBulletPlayersCollisions(bulletOpt);
 }
 
+
 void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 {
+    // for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x)
+    //for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y)
     const int radius = 10;
     const int radiusSquared = radius * radius;
 
-    for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x) {
-        for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y) {
+     for (auto x = std::max(0, static_cast<int>(bombPosition.first - radius));
+        x <= bombPosition.first + radius && x < m_gameMap.getHeight(); ++x) {
+        for (auto y = std::max(0, static_cast<int>(bombPosition.second - radius));
+        y <= bombPosition.second + radius && y < m_gameMap.getWidth(); ++y)
+        {
             int dx = x - bombPosition.first;
             int dy = y - bombPosition.second;
 
@@ -183,3 +195,42 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
     }
 }
 
+
+
+/*
+void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
+{
+    const int radius = 10;
+    const int radiusSquared = radius * radius;
+
+    for (auto x = std::max(0, static_cast<int>(bombPosition.first - radius));
+        x <= bombPosition.first + radius && x < m_gameMap.getHeight(); ++x) {
+        for (int y = std::max(0, static_cast<int>(bombPosition.second - radius));
+            y <= bombPosition.second + radius && y < m_gameMap.getWidth(); ++y) {
+
+            int dx = x - bombPosition.first;
+            int dy = y - bombPosition.second;
+
+            if (dx * dx + dy * dy <= radiusSquared && m_gameMap.InBounds({ static_cast<size_t>(x), static_cast<size_t>(y) })) {
+                auto tileType = m_gameMap.GetTile({ static_cast<size_t>(x), static_cast<size_t>(y) });
+
+                if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
+                    m_gameMap.SetTile({ static_cast<size_t>(x), static_cast<size_t>(y) }, TileType::EmptySpace);
+
+                    if (tileType == TileType::DestrucitbleWallWithBomb) {
+                        BombExplosion({ static_cast<size_t>(x), static_cast<size_t>(y) });
+                    }
+                }
+
+                for (auto& player : m_players) {
+                    if (player.getPosition() == std::make_pair(static_cast<size_t>(x), static_cast<size_t>(y))) {
+                        player.TakeDamage();
+                        player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+                    }
+                }
+            }
+        }
+    }
+}
+
+*/

@@ -67,10 +67,12 @@ int main()
 {
     const std::string dbFile = "..\..\ProiectMC++\ProiectMC++\_account_data.db";
     
-    /*Game game;
+    Game game;
     game.start();
-    return 0;*/
-    
+    return 0;
+
+    /**/
+    /*
 
     std::mutex mapMutex;  // Mutex for thread-safety
 
@@ -152,6 +154,9 @@ int main()
             });
 
 
+	*/
+
+
     //CROW_ROUTE(app, "/move")
     //    .methods("POST"_method)
     //    ([&map](const crow::request& req) {
@@ -218,7 +223,7 @@ int main()
 
 
 
-        app.port(18080).multithreaded().run();
+        //app.port(18080).multithreaded().run();
     
 }
 
