@@ -21,6 +21,8 @@ private slots:
     void colorTile(QLabel* label, int type);
     void keyPressEvent(QKeyEvent* event);
     void sendMoveRequest(int x, int y, int playerID);
+    void registerUser(const std::string& username, const std::string& password);
+    void loginUser(const std::string& username, const std::string& password);
 
 
 private:

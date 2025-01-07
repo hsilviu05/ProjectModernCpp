@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QBrush>
 #include <QGraphicsOpacityEffect>
+#include<QLineEdit>
+#include<QPushButton>
 
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
@@ -26,6 +28,23 @@ ProiectMCQt::~ProiectMCQt()
     // Curățarea resurselor, dacă este necesar
 }
 
+//void ProiectMCQt::setupUI()
+//{
+//    centralWidget = new QWidget(this);
+//    setCentralWidget(centralWidget);
+//
+//    QGridLayout* layout = new QGridLayout(centralWidget);
+//    centralWidget->setLayout(layout);
+//
+//    // Setează imaginea de fundal
+//    QPixmap background("C:/Users/Cezar/Desktop/football-pitch.png");
+//    QPalette palette;
+//    palette.setBrush(QPalette::Window, QBrush(background));
+//    centralWidget->setAutoFillBackground(true);
+//    centralWidget->setPalette(palette);
+//}
+
+
 void ProiectMCQt::setupUI()
 {
     centralWidget = new QWidget(this);
@@ -34,13 +53,38 @@ void ProiectMCQt::setupUI()
     QGridLayout* layout = new QGridLayout(centralWidget);
     centralWidget->setLayout(layout);
 
-    // Setează imaginea de fundal
-    QPixmap background("C:/Users/Cezar/Desktop/football-pitch.png");
-    QPalette palette;
-    palette.setBrush(QPalette::Window, QBrush(background));
-    centralWidget->setAutoFillBackground(true);
-    centralWidget->setPalette(palette);
+    // Adaugă câmpuri pentru username și password
+    QLabel* usernameLabel = new QLabel("Username:", this);
+    QLineEdit* usernameLineEdit = new QLineEdit(this);
+    layout->addWidget(usernameLabel, 0, 0);
+    layout->addWidget(usernameLineEdit, 0, 1);
+
+    QLabel* passwordLabel = new QLabel("Password:", this);
+    QLineEdit* passwordLineEdit = new QLineEdit(this);
+    passwordLineEdit->setEchoMode(QLineEdit::Password); // Setați câmpul parolei să ascundă caracterele
+    layout->addWidget(passwordLabel, 1, 0);
+    layout->addWidget(passwordLineEdit, 1, 1);
+
+    // Adaugă butoanele pentru register și login
+    QPushButton* registerButton = new QPushButton("Register", this);
+    QPushButton* loginButton = new QPushButton("Login", this);
+    layout->addWidget(registerButton, 2, 0);
+    layout->addWidget(loginButton, 2, 1);
+
+    // Conectează butoanele la funcțiile respective
+    QObject::connect(registerButton, &QPushButton::clicked, [=]() {
+        std::string username = usernameLineEdit->text().toStdString();
+        std::string password = passwordLineEdit->text().toStdString();
+        registerUser(username, password);
+        });
+
+    QObject::connect(loginButton, &QPushButton::clicked, [=]() {
+        std::string username = usernameLineEdit->text().toStdString();
+        std::string password = passwordLineEdit->text().toStdString();
+        loginUser(username, password);
+        });
 }
+
 
 void ProiectMCQt::fetchData()
 {
@@ -92,7 +136,7 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         label->clear();
         break;
     case 1: // DestructibleWall
-        pixmap = QPixmap("C:/Users/Cezar/Desktop/fanul2_transparent.png");
+        pixmap = QPixmap("C:/Users/Cezar/Desktop/pngwing.com.png");
         if (pixmap.isNull()) {
             qDebug() << "Failed to load image!";
         }
@@ -157,5 +201,32 @@ void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
     }
     else {
         QMessageBox::critical(this, "Error", QString::fromStdString(response.error.message));
+    }
+}
+
+
+void ProiectMCQt::registerUser(const std::string& username, const std::string& password) {
+    cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/signup" },
+        cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
+        cpr::Header{ {"Content-Type", "application/json"} });
+
+    if (response.status_code == 200) {
+        qDebug() << "Account created successfully!";
+    }
+    else {
+        qDebug() << "Failed to create account: " << QString::fromStdString(response.text);
+    }
+}
+
+void ProiectMCQt::loginUser(const std::string& username, const std::string& password) {
+    cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/login" },
+        cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
+        cpr::Header{ {"Content-Type", "application/json"} });
+
+    if (response.status_code == 200) {
+        qDebug() << "Login successful!";
+    }
+    else {
+        qDebug() << "Failed to login: " << QString::fromStdString(response.text);
     }
 }
