@@ -21,10 +21,38 @@ void BulletManager::UpdateBullets()
 
             if (!m_gameMap.InBounds(currentPosition))
             {
-                bulletOpt.reset();
-                m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
-                break;
+                auto portal = m_gameMap.GetPortalByEntry(previousPosition);
+                if (portal != nullptr)
+                {
+                    auto [exitX, exitY] = portal->exit;
+                    if (m_gameMap.GetTile({ exitX,exitY }) == TileType::EmptySpace)
+                    {
+                        //gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
+                        if (exitY == 0) {
+                            bullet.SetDirection(Direction::Right);
+                        }
+                        else if (exitY == m_gameMap.getWidth() - 1) {
+                            bullet.SetDirection(Direction::Left);
+                        }
+                        else if (exitX == 0) {
+                            bullet.SetDirection(Direction::Down);
+                        }
+                        else if (exitX == m_gameMap.getHeight() - 1) {
+                            bullet.SetDirection(Direction::Up);
+                        }
+                        currentPosition={ exitX,exitY };
+                        bullet.setPosition({ exitX,exitY });
+                    }
+                }
+                else
+                {
+                    bulletOpt.reset();
+                    m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
+                    break;
+                }
             }
+            
+            
 
             ProcessCollisions(bulletOpt);
             if (!bulletOpt)
