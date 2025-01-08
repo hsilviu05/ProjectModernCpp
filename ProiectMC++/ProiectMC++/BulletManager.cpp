@@ -128,7 +128,7 @@ bool BulletManager::CanShoot(const size_t& shooterID)
     return (now - m_lastShotTime[shooterID]) >= m_players[shooterID].GetFireRate();
 }
 
-void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,const size_t& shooterID,size_t speed)
+void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction, const uint8_t shooterID,size_t speed)
 {
     if(CanShoot(shooterID))
     {
