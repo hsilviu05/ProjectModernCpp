@@ -1,5 +1,4 @@
 #pragma once
-#include "Level.h"
 #include "Direction.h"
 #include "Bullet.h"
 #include "GameObject.h"

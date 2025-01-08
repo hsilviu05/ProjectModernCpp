@@ -4,9 +4,9 @@
 #include "Player.h"
 #include "Map.h"
 #include "Wall.h"
-#include "Level.h"
 #include "BulletManager.h"
-
+#include <windows.h>
+#
 class Game
 {
 private:

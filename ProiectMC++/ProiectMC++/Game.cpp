@@ -1,6 +1,5 @@
 #include "Game.h"
 
-#include "GameDatabase.h"
 
 
 Game::Game():m_map(),bulletManager(m_map,m_players)
@@ -11,7 +10,7 @@ Game::Game():m_map(),bulletManager(m_map,m_players)
 void Game::start()
 {
     //gameMap.GenerateMap();
-    player.setPosition(m_map.getStartPosition(0));
+    player.SetPosition(m_map.getStartPosition(0));
     player.SetPlayerID(0);
 
     m_map.SetPlayerPosition(0, player.getPosition());
@@ -106,7 +105,7 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
                     else if (exitX == gameMap.getHeight() - 1) {
                         player.setDirection(Direction::Up);
                     }
-                    player.setPosition({ exitX,exitY });
+                    player.SetPosition({ exitX,exitY });
                 }
             }
         }

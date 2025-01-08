@@ -10,7 +10,7 @@
 #include"TileType.h"
 
 #include "BulletManager.h"
-#include "GameDatabase.h"
+
 
 #include "..\LoggingDLL\AccountManager.h"
 
@@ -23,11 +23,11 @@ int main()
     const std::string dbFile = "account_data.db";
     //account.LoginForm(dbFile);
 
-    ///*Game game;
-    //game.start();*/
-    //return 0;
+    Game game;
+    game.start();
+    return 0;
     
-
+    /*
     std::mutex mapMutex;  // Mutex for thread-safety
 
     crow::SimpleApp app;
@@ -74,6 +74,7 @@ int main()
         });
 
     app.port(18080).multithreaded().run();
+	*/
 }
 
 

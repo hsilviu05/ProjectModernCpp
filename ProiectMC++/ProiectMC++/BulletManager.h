@@ -1,14 +1,17 @@
 #pragma once
-#include <vector>
 #include "Bullet.h"
-#include <memory>
-#include <unordered_map>
 #include "Map.h"
 #include "Player.h"
 #include "TileType.h"
+
 #include <vector>
+#include <unordered_map>
+
 #include <optional>
 #include <algorithm>
+#include <ranges>
+
+
 class BulletManager
 {
 	public:
@@ -30,10 +33,5 @@ class BulletManager
 		std::vector<std::optional<Bullet>> m_bullets;
 		std::unordered_map<size_t, std::chrono::steady_clock::time_point> m_lastShotTime;
 		//std::chrono::steady_clock::time_point m_lastShotTime;
-		struct PairHash {
-			std::size_t operator()(const std::pair<int, int>& p) const {
-				return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
-			}
-		};
 };
 

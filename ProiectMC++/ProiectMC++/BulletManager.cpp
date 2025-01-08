@@ -41,7 +41,7 @@ void BulletManager::UpdateBullets()
                             bullet.SetDirection(Direction::Up);
                         }
                         currentPosition={ exitX,exitY };
-                        bullet.setPosition({ exitX,exitY });
+                        bullet.SetPosition({ exitX,exitY });
                     }
                 }
                 else
@@ -186,6 +186,7 @@ void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 }
 
 
+/*
 void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 {
     // for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x)
@@ -223,42 +224,44 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
     }
 }
 
+*/
 
-
-/*
 void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 {
-    const int radius = 10;
-    const int radiusSquared = radius * radius;
+    const int radius = 5;
+    for (auto [x, y] : std::views::iota(0, (radius * 2)* (radius * 2))
+        | std::views::transform([bombPosition, radius](int offset) {
+            return std::make_pair(
+                bombPosition.first + (offset % (2 * radius)) - radius,
+                bombPosition.second + (offset / (2 * radius)) - radius
+            );
+            }))
+    {
+        if (m_gameMap.InBounds({ x, y })) {
+            auto tileType = m_gameMap.GetTile({ x, y });
 
-    for (auto x = std::max(0, static_cast<int>(bombPosition.first - radius));
-        x <= bombPosition.first + radius && x < m_gameMap.getHeight(); ++x) {
-        for (int y = std::max(0, static_cast<int>(bombPosition.second - radius));
-            y <= bombPosition.second + radius && y < m_gameMap.getWidth(); ++y) {
 
-            int dx = x - bombPosition.first;
-            int dy = y - bombPosition.second;
+            if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
+                m_gameMap.SetTile({ x, y }, TileType::EmptySpace);
 
-            if (dx * dx + dy * dy <= radiusSquared && m_gameMap.InBounds({ static_cast<size_t>(x), static_cast<size_t>(y) })) {
-                auto tileType = m_gameMap.GetTile({ static_cast<size_t>(x), static_cast<size_t>(y) });
-
-                if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
-                    m_gameMap.SetTile({ static_cast<size_t>(x), static_cast<size_t>(y) }, TileType::EmptySpace);
-
-                    if (tileType == TileType::DestrucitbleWallWithBomb) {
-                        BombExplosion({ static_cast<size_t>(x), static_cast<size_t>(y) });
-                    }
+                if (tileType == TileType::DestrucitbleWallWithBomb) {
+                    BombExplosion({ x, y });
                 }
+            }
 
-                for (auto& player : m_players) {
-                    if (player.getPosition() == std::make_pair(static_cast<size_t>(x), static_cast<size_t>(y))) {
-                        player.TakeDamage();
-                        player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
-                    }
+
+            for (auto& player : m_players) {
+                if (player.getPosition() == std::make_pair(x, y)) {
+                    player.TakeDamage();
+                    player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
                 }
             }
         }
     }
 }
 
-*/
+
+
+
+
+
