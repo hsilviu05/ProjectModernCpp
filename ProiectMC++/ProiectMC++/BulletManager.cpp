@@ -21,38 +21,16 @@ void BulletManager::UpdateBullets()
 
             if (!m_gameMap.InBounds(currentPosition))
             {
-                auto portal = m_gameMap.GetPortalByEntry(previousPosition);
-                if (portal != nullptr)
-                {
-                    auto [exitX, exitY] = portal->exit;
-                    if (m_gameMap.GetTile({ exitX,exitY }) == TileType::EmptySpace)
-                    {
-                        //gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
-                        if (exitY == 0) {
-                            bullet.SetDirection(Direction::Right);
-                        }
-                        else if (exitY == m_gameMap.getWidth() - 1) {
-                            bullet.SetDirection(Direction::Left);
-                        }
-                        else if (exitX == 0) {
-                            bullet.SetDirection(Direction::Down);
-                        }
-                        else if (exitX == m_gameMap.getHeight() - 1) {
-                            bullet.SetDirection(Direction::Up);
-                        }
-                        currentPosition={ exitX,exitY };
-                        bullet.SetPosition({ exitX,exitY });
-                    }
-                }
-                else
-                {
+                if (!HandlePortal(bullet, previousPosition)) {
                     bulletOpt.reset();
                     m_gameMap.SetTile(previousPosition, TileType::EmptySpace);
                     break;
                 }
+                else
+                {
+                    currentPosition = bullet.getPosition();
+                }
             }
-            
-            
 
             ProcessCollisions(bulletOpt);
             if (!bulletOpt)
@@ -68,10 +46,6 @@ void BulletManager::UpdateBullets()
     std::erase_if(m_bullets, [](const std::optional<Bullet>& bulletOpt) {
     	return !bulletOpt;
     });
-}
-
-void BulletManager::AddBullet(const Bullet& bullet) {
-    m_bullets.emplace_back(bullet);
 }
 
 
@@ -139,7 +113,7 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
 
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
 
-            //m_players[shooterID].AddPoints();
+            //m_players[shooterID].AddPoints(); cu baza de date
             return;
         }
     }
@@ -151,23 +125,16 @@ bool BulletManager::CanShoot(const size_t& shooterID)
     if (m_lastShotTime.find(shooterID) == m_lastShotTime.end()) {
         return true;
     }
-    return (now - m_lastShotTime[shooterID]) >= GameSettings::COOL_DOWNTIME;
-	//return  (std::chrono::steady_clock::now() - m_lastShotTime) >= GameSettings::COOL_DOWNTIME;
+    return (now - m_lastShotTime[shooterID]) >= m_players[shooterID].GetFireRate();
 }
 
 void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,const size_t& shooterID,size_t speed)
 {
-    if(!CanShoot(shooterID))
-    {
-        
-    }
-    else
+    if(CanShoot(shooterID))
     {
         m_lastShotTime[shooterID] = std::chrono::steady_clock::now();
         std::optional<Bullet> newBullet = Bullet(position, direction, shooterID, speed);
         m_bullets.emplace_back(newBullet);
-
-       // m_lastShotTime = std::chrono::steady_clock::now();
 	}
 }
 
@@ -178,53 +145,12 @@ void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 {
     CheckBulletWallCollisions(bulletOpt);
 
-    //if (!bulletOpt) return;
-    //CheckBulletBulletCollisions(bulletOpt);
+    if (!bulletOpt) return;
+    CheckBulletBulletCollisions(bulletOpt);
 
-    //if (!bulletOpt) return;
-    //CheckBulletPlayersCollisions(bulletOpt);
+    if (!bulletOpt) return;
+    CheckBulletPlayersCollisions(bulletOpt);
 }
-
-
-/*
-void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
-{
-    // for (int x = bombPosition.first - radius; x <= bombPosition.first + radius; ++x)
-    //for (int y = bombPosition.second - radius; y <= bombPosition.second + radius; ++y)
-    const int radius = 10;
-    const int radiusSquared = radius * radius;
-
-     for (auto x = std::max(0, static_cast<int>(bombPosition.first - radius));
-        x <= bombPosition.first + radius && x < m_gameMap.getHeight(); ++x) {
-        for (auto y = std::max(0, static_cast<int>(bombPosition.second - radius));
-        y <= bombPosition.second + radius && y < m_gameMap.getWidth(); ++y)
-        {
-            int dx = x - bombPosition.first;
-            int dy = y - bombPosition.second;
-
-            if (dx * dx + dy * dy <= radiusSquared && m_gameMap.InBounds({ x, y })) {
-                auto tileType = m_gameMap.GetTile({ x, y });
-
-                if (tileType == TileType::DestrucitbleWall || tileType == TileType::DestrucitbleWallWithBomb) {
-                    m_gameMap.SetTile({ x, y }, TileType::EmptySpace);
-
-                    if (tileType == TileType::DestrucitbleWallWithBomb) {
-                        BombExplosion({ x, y });
-                    }
-                }
-
-                for (auto& player : m_players) {
-                    if (player.getPosition() == std::make_pair(x, y)) {
-                        player.TakeDamage();
-                        player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
-                    }
-                }
-            }
-        }
-    }
-}
-
-*/
 
 void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 {
@@ -254,10 +180,32 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
                 if (player.getPosition() == std::make_pair(x, y)) {
                     player.TakeDamage();
                     player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+                    break;
                 }
             }
         }
     }
+}
+
+bool BulletManager::HandlePortal(Bullet& bullet, const std::pair<size_t, size_t>& previousPosition)
+{
+    auto portal = m_gameMap.GetPortalByEntry(previousPosition);
+    if (portal == nullptr) {
+        return false;
+    }
+
+    auto [exitX, exitY] = portal->exit;
+    if (m_gameMap.GetTile({ exitX,exitY }) !=TileType::EmptySpace){
+        return false;
+    }
+
+    if (exitY == 0) bullet.SetDirection(Direction::Right);
+    else if (exitY == m_gameMap.getWidth() - 1) bullet.SetDirection(Direction::Left);
+    else if (exitX == 0) bullet.SetDirection(Direction::Down);
+    else if (exitX == m_gameMap.getHeight() - 1) bullet.SetDirection(Direction::Up);
+
+    bullet.SetPosition({ exitX,exitY });
+    return true;
 }
 
 

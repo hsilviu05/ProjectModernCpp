@@ -81,6 +81,16 @@ void Player::SetPlayerID(const uint8_t& playerID)
     m_playerID = playerID;
 }
 
+std::chrono::milliseconds Player::GetFireRate() const
+{
+    return m_fireRate;
+}
+
+void Player::SetFireRate(const std::chrono::milliseconds fireRate)
+{
+    m_fireRate = fireRate;
+}
+
 
 void Player::AddScore() {
     m_score += GameSettings::SCORE_PER_ENEMY;

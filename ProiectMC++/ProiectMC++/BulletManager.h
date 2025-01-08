@@ -32,6 +32,6 @@ class BulletManager
 		void BombExplosion(const std::pair<size_t, size_t>& bombPosition);
 		std::vector<std::optional<Bullet>> m_bullets;
 		std::unordered_map<size_t, std::chrono::steady_clock::time_point> m_lastShotTime;
-		//std::chrono::steady_clock::time_point m_lastShotTime;
+		bool HandlePortal(Bullet& bullet, const std::pair<size_t, size_t>& previousPosition);
 };
 
