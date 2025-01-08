@@ -1,8 +1,8 @@
 #pragma once
+import GameSettings;
 #include "Direction.h"
 #include "Bullet.h"
 #include "GameObject.h"
-#include "GameSettings.h"
 #include <chrono>
 #include <memory>
 

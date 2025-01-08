@@ -1,6 +1,7 @@
 ﻿#pragma once
+import GameSettings;
 #include "GameObject.h"
-#include "GameSettings.h"
+
 
 class Bullet : public GameObject
 {

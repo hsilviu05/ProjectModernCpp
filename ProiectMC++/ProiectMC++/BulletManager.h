@@ -17,12 +17,11 @@ class BulletManager
 	public:
 		
 		void UpdateBullets();
-		void AddBullet(const Bullet& bullet);
 		void CheckBulletWallCollisions(std::optional<Bullet>& bulletOpt);
 		void CheckBulletBulletCollisions(std::optional<Bullet>& currentBulletOpt);
 		void CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp);
 		bool CanShoot(const size_t& shooterID);
-		void ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction,const size_t& shooterID,size_t speed);
+		void ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction, const uint8_t shooterID,size_t speed);
 		BulletManager(Map& map, std::array<Player, 4>& playerArray);
 		
 	private:
