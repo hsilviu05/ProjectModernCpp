@@ -81,9 +81,11 @@ void BulletManager::CheckBulletBulletCollisions(std::optional<Bullet>& currentBu
     Bullet& currentBullet = *currentBulletOpt;
     auto currentPosition = currentBullet.getPosition();
 
-    for (auto& bulletOpt : m_bullets) 
+    for (auto& bulletOpt : m_bullets | 
+        std::views::filter([](const std::optional<Bullet>& bulletOpt) {
+            return bulletOpt.has_value();
+        }))
     {
-        if (!bulletOpt) continue;
         Bullet& bullet = *bulletOpt;
 
         if (&currentBullet == &bullet || bullet.getPosition() != currentPosition) {
