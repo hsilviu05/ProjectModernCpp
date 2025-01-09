@@ -1,7 +1,7 @@
-﻿#include <iostream>
+﻿import Direction;
+#include <iostream>
 #include "Map.h"
 #include "Bullet.h"
-#include "Direction.h"
 #include "Player.h"
 #include <crow.h>
 #include <Windows.h>

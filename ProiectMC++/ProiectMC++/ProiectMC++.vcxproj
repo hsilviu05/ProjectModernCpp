@@ -134,8 +134,10 @@
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
+    <ClCompile Include="Direction.cppm" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObject.cppm" />
     <ClCompile Include="GameSettings.cppm" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -146,9 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletManager.h" />
-    <ClInclude Include="Direction.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Routing.h" />

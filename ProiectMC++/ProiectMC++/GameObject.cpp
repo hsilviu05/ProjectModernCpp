@@ -1,4 +1,4 @@
-#include "GameObject.h"
+module GameObject;
 
 std::pair<size_t, size_t> GameObject::getPosition() const{
 	return m_position;

@@ -1,6 +1,8 @@
 ﻿#pragma once
+import GameObject;
 import GameSettings;
-#include "GameObject.h"
+import Direction;
+#include<utility>
 
 
 class Bullet : public GameObject

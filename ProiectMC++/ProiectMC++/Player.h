@@ -1,12 +1,10 @@
 #pragma once
+import GameObject;
 import GameSettings;
-#include "Direction.h"
+import Direction;
 #include "Bullet.h"
-#include "GameObject.h"
 #include <chrono>
 #include <memory>
-
-
 #include <vector>
 
 class Player:public GameObject {

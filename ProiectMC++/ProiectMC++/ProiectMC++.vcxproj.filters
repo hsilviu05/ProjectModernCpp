@@ -45,6 +45,12 @@
     <ClCompile Include="GameSettings.cppm">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Direction.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Player.h">
@@ -63,12 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Direction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BulletManager.h">
