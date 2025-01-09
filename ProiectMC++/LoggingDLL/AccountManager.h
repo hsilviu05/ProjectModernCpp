@@ -24,33 +24,29 @@ class DLL_EXPORT AccountManager {
 private:
     std::string username;
     std::string password;
-    size_t health;
-    uint32_t fireRate;
+    uint16_t fireRate;
     uint16_t points;
     uint16_t score; 
+    uint16_t SpeedUpgrade;
     bool isFireRateUpgrade; 
-    bool isSpeedUpgrade; 
-    double bulletSpeed; 
 
 public:
     AccountManager();
-    AccountManager(const std::string& user, const std::string& pass, size_t heal, uint32_t fRate, uint16_t pts, uint16_t scr, bool iFRU, bool iSU, double bSpeed);
+    AccountManager(const std::string& user, const std::string& pass, uint16_t fRate, uint16_t pts, uint16_t scr, bool iFRU, uint16_t sU);
 
     void SetUsername(const std::string& user);
     void SetPassword(const std::string& pass);
-    void SetHealth(size_t& heal);
-    void SetFireRate(uint32_t& fireRate);
+    void SetFireRate(uint16_t& fireRate);
     void SetPoints(uint16_t& pts);
-    void SetBulletSpeed(double& bSpeed);
 
     std::string GetUsername() const;
     std::string GetPassword() const;
     uint16_t GetPoints() const;
     uint16_t GetScore() const;
-    uint32_t GetFireRate() const;
-
+    uint16_t GetFireRate() const;
+    uint16_t GetSpeedUpgrade() const;
+    
     bool GetSpeedBoost() const;
-    bool GetSpeedUpgrade() const;
 
     bool Authenticate(const std::string& user, const std::string& pass) const;
 
@@ -65,8 +61,6 @@ public:
     bool IsValidPassword(const std::string& pass) const;
 
     std::string HashPassword(const std::string& pass) const;
-
-    crow::json::wvalue To_json() const;
 
     ~AccountManager();
 };

@@ -1,32 +1,35 @@
 
 #include "pch.h"
 #include "AccountManager.h"
+#ifdef BUILD_DLL
+template class __declspec(dllexport) std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+#else
+template class __declspec(dllimport) std::basic_string<char, std::char_traits<char>, std::allocator<char>>;
+#endif
 
 AccountManager::AccountManager()
-    : username(""), password(""), health(3), fireRate(2000),
-    points(0), score(0), isFireRateUpgrade(false), isSpeedUpgrade(false), bulletSpeed(0.25) {}
+    : username(""), password(""), fireRate(2000),
+    points(0), score(0), isFireRateUpgrade(false), SpeedUpgrade(0) {}
 
-AccountManager::AccountManager(const std::string& user, const std::string& pass, size_t heal, 
-    uint32_t fRate, uint16_t pts, uint16_t scr, bool iFRU, bool iSU, double bSpeed)
-    : username(user), password(pass), health(heal), fireRate(fRate),
-    points(pts), score(scr), isFireRateUpgrade(iFRU), isSpeedUpgrade(iSU), bulletSpeed(bSpeed) {}
+AccountManager::AccountManager(const std::string& user, const std::string& pass, 
+    uint16_t fRate, uint16_t pts, uint16_t scr, bool iFRU, uint16_t sU)
+    : username(user), password(pass), fireRate(fRate),
+    points(pts), score(scr), isFireRateUpgrade(iFRU), SpeedUpgrade(sU) {}
 
 void AccountManager::SetUsername(const std::string& user) { username = user; }
 void AccountManager::SetPassword(const std::string& pass) { password = pass; }
-void AccountManager::SetHealth(size_t& heal) { health =heal; }
-void AccountManager::SetFireRate(uint32_t& fRate) { fireRate = fRate; }
+void AccountManager::SetFireRate(uint16_t& fRate) { fireRate = fRate; }
 void AccountManager::SetPoints(uint16_t& pts) { points = pts; }
-void AccountManager::SetBulletSpeed(double& bSpeed) { bulletSpeed = bSpeed; }
 
 std::string AccountManager::GetUsername() const { return username; }
 std::string AccountManager::GetPassword() const { return password; }
 uint16_t AccountManager::GetPoints() const { return points; }
 uint16_t AccountManager::GetScore() const { return score; }
 
-uint32_t AccountManager::GetFireRate() const { return fireRate; }
+uint16_t AccountManager::GetFireRate() const { return fireRate; }
+uint16_t AccountManager::GetSpeedUpgrade() const { return SpeedUpgrade; }
 
 bool AccountManager::GetSpeedBoost() const { return isFireRateUpgrade; }
-bool AccountManager::GetSpeedUpgrade() const { return isSpeedUpgrade; }
 
 bool AccountManager::Authenticate(const std::string& user, const std::string& pass) const {
     return username == user && password == HashPassword(pass);
@@ -40,13 +43,11 @@ inline auto AccountManager::InItStorage(const std::string& dbFile) const
         make_table("Account",
             make_column("Username", &AccountManager::username, primary_key()),
             make_column("Password", &AccountManager::password),
-            make_column("Health", &AccountManager::health),
             make_column("FireRate", &AccountManager::fireRate),
             make_column("Points", &AccountManager::points),
             make_column("Score", &AccountManager::score),
             make_column("isFireRateUpgrade", &AccountManager::isFireRateUpgrade),
-            make_column("isSpeedUpgrade", &AccountManager::isSpeedUpgrade),
-            make_column("BulletSpeed", &AccountManager::bulletSpeed))
+            make_column("SpeedUpgradeCount", &AccountManager::SpeedUpgrade))
     );
 }
 
@@ -87,7 +88,7 @@ void AccountManager::SignUp(const std::string& dbFile, const std::string& user, 
         std::cerr << "Account already exists.Please chose another one. "<< std::endl;
         return;
     }
-    AccountManager newAccount(user, HashPassword(pass), 3, 2000, 0, 0, false, false, 0.25);
+    AccountManager newAccount(user, HashPassword(pass), 2000, 0, 0, false, 0);
     storage.replace(newAccount);
     std::cout << " Account created succesfully!" << std::endl;
 }
@@ -160,21 +161,6 @@ std::string AccountManager::HashPassword(const std::string& pass) const
     std::stringstream ss;
     ss << std::hex << hashed;
     return ss.str();
-}
-
-crow::json::wvalue AccountManager::To_json() const
-{
-    crow::json::wvalue result;
-    result["username"] = username;
-    result["password"] = password;
-    result["health"] = health;
-    result["fireRate"] = fireRate;
-    result["points"] = points;
-    result["score"] = score;
-    result["isFireRateUpgrade"] = isFireRateUpgrade;
-    result["isSpeedUpgrade"] = isSpeedUpgrade;
-    result["bulletSpeed"] = bulletSpeed;
-    return result;
 }
 
 AccountManager::~AccountManager()

@@ -16,18 +16,36 @@
 
 using namespace sqlite_orm;
 
+std::vector<Player> lobby;
+std::mutex lobbyMutex;
+std::condition_variable lobbyCondition;
+
+void startGame() {
+    Game game;
+
+    {
+        std::unique_lock<std::mutex> lock(lobbyMutex);
+        // Initialize players in the game from the lobby
+        for (size_t i = 0; i < lobby.size(); ++i) {
+            lobby[i].SetPlayerID(i);
+            //game.addPlayer(lobby[i]);
+        }
+        lobby.clear(); // Clear the lobby
+    }
+
+    game.start();
+}
 
 int main()
 {
     AccountManager account;
     const std::string dbFile = "account_data.db";
-    //account.LoginForm(dbFile);
 
-    Game game;
+    /*Game game;
     game.start();
-    return 0;
+    return 0;*/
     
-    /*
+    
     std::mutex mapMutex;  // Mutex for thread-safety
 
     crow::SimpleApp app;
@@ -63,18 +81,45 @@ int main()
         std::string password = x["password"].s();
         std::string dbFile = "account_data.db";
 
-        accountManager.LoadDataFromDatabase(dbFile, username);
+        try {
+            accountManager.LoadDataFromDatabase(dbFile, username);
 
-        if (accountManager.Authenticate(username, password)) {
-            return crow::response(200, "Login successful!");
+            if (accountManager.Authenticate(username, password)) {
+                
+                uint16_t points = accountManager.GetPoints();
+                
+                std::chrono::milliseconds fireRate(accountManager.GetFireRate());
+                uint8_t fireRateUpgrades = GameSettings::MAX_FIRE_RATE_UPGRADES;
+                double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
+                bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
+
+                std::unique_lock<std::mutex> lock(lobbyMutex);
+                Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
+                lobby.push_back(player);
+                if (lobby.size() == 4) {
+                    lobbyCondition.notify_one(); // Notify the game-start thread
+                }
+                return crow::response(200, "Login successful!");
+            }
+            else {
+                return crow::response(403, "Invalid credentials.");
+            }
         }
-        else {
-            return crow::response(403, "Invalid credentials.");
+        catch (const std::exception& e) {
+            return crow::response(500, e.what());
+        }
+        });
+
+    std::thread gameThread([]() {
+        while (true) {
+            std::unique_lock<std::mutex> lock(lobbyMutex);
+            lobbyCondition.wait(lock, []() { return lobby.size() == 4; });
+            startGame();
         }
         });
 
     app.port(18080).multithreaded().run();
-	*/
+	
 }
 
 

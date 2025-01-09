@@ -14,7 +14,7 @@ public:
     static constexpr std::chrono::milliseconds FIRE_RATE_REDUCTION {100};
     static constexpr uint16_t UPGRADE_COST = 500;
     static constexpr uint16_t BULLET_SPEED_MULTIPLIER_POINTS = 10;
-    static constexpr std::chrono::milliseconds COOL_DOWNTIME{200};
+    static constexpr std::chrono::milliseconds COOL_DOWNTIME{800};
 private:
     explicit GameSettings()=default;
 

@@ -19,7 +19,7 @@ void Game::start()
     m_map.SetTile(player2.getPosition(), TileType::Player);
     m_map.Draw();
 
-    //BulletManager bulletManager(gameMap, m_players);
+    BulletManager bulletManager(m_map, m_players);
 
     while (true) {
         update();
@@ -142,27 +142,6 @@ void Game::handleInputForPlayer2(const char& key, Player& player2, Map& gameMap,
 
         if (gameMap.InBounds(newPosition2) == true && gameMap.GetTile(newPosition2) == TileType::EmptySpace) {
             player2.move(key);
-        }
-    }
-}
-
-void Game::handleExplosion(Wall& wall) {
-
-    if (wall.getHasBomb()) {
-        int explosionRadius = wall.getExplosionRadius();
-        std::pair<int, int> wallPosition = wall.getPosition();
-
-        for (auto& player : m_players) {
-            std::pair<int, int> playerPosition = player.getPosition();
-
-            int distance = std::abs(wallPosition.first - playerPosition.first) +
-                std::abs(wallPosition.second - playerPosition.second);
-
-            if (distance <= explosionRadius) {
-                player.TakeDamage();
-                std::cout << "Player at position " << playerPosition.first << ", " << playerPosition.second
-                    << " took damage from explosion!" << std::endl;
-            }
         }
     }
 }
