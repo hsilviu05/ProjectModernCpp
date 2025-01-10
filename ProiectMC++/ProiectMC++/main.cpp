@@ -125,62 +125,11 @@ int main()
         }
         });
 
-
-    CROW_ROUTE(app, "/map").methods(crow::HTTPMethod::GET)([]() {
-        std::lock_guard<std::mutex> lock(mapMutex); // Ensure synchronization when accessing the map
-
-        if (!mapReady) {
-            return crow::response(400, "Map is not ready yet.");
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(lobbyMutex);
-            if (lobby.size() < MIN_PLAYERS) {
-                return crow::response(400, "Not enough players to start the game.");
-            }
-        }
-
-        crow::json::wvalue result;
-        result["height"] = gameMap.getHeight();
-        result["width"] = gameMap.getWidth();
-
-        crow::json::wvalue::list mapArray;
-        crow::json::wvalue::list wallsArray;
-
-        for (size_t i = 0; i < gameMap.getHeight(); ++i) {
-            crow::json::wvalue::list rowArray;
-            for (size_t j = 0; j < gameMap.getWidth(); ++j) {
-                TileType tile = gameMap.GetTile({ i, j });
-                rowArray.push_back(static_cast<int>(tile));
-
-                // Add walls if present
-                if (tile == TileType::DestrucitbleWall ||
-                    tile == TileType::IndestrucitbleWall ||
-                    tile == TileType::DestrucitbleWallWithBomb) {
-                    crow::json::wvalue wallJson;
-                    wallJson["x"] = i;
-                    wallJson["y"] = j;
-                    wallJson["type"] = static_cast<int>(tile);
-                    wallsArray.push_back(std::move(wallJson));
-                }
-            }
-            mapArray.push_back(std::move(rowArray));
-        }
-
-        result["map"] = std::move(mapArray);
-        result["walls"] = std::move(wallsArray);
-
-        return crow::response(result);
-        });
-
-
-
-
     // Game thread
     std::thread gameThread([]() {
         while (true) {
             std::unique_lock<std::mutex> lock(lobbyMutex);
-            lobbyCondition.wait(lock, []() { return lobby.size() == 4; });
+            lobbyCondition.wait(lock, []() { return lobby.size() == 2; });
             startGame();
         }
         });
