@@ -38,12 +38,6 @@ void Game::update()
     handleInput('S', player, m_map, bulletManager);
     handleInput(VK_SPACE, player, m_map, bulletManager);
 
-    //handleInputForPlayer2(VK_LEFT, player2, gameMap, bulletManager);
-    //handleInputForPlayer2(VK_RIGHT, player2, gameMap, bulletManager);
-   // handleInputForPlayer2(VK_UP, player2, gameMap, bulletManager);
-    //handleInputForPlayer2(VK_DOWN, player2, gameMap, bulletManager);
-   // handleInputForPlayer2('M', player2, gameMap, bulletManager);
-
     std::array<Player, 4> players = { player, player2 };
     bulletManager.UpdateBullets();
 

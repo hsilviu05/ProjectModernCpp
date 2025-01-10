@@ -16,9 +16,14 @@
 
 using namespace sqlite_orm;
 
+const size_t MIN_PLAYERS = 2;
+
 std::vector<Player> lobby;
 std::mutex lobbyMutex;
 std::condition_variable lobbyCondition;
+Map gameMap;
+bool mapReady = false;
+std::mutex mapMutex;
 
 void startGame() {
     Game game;
@@ -28,9 +33,14 @@ void startGame() {
         // Initialize players in the game from the lobby
         for (size_t i = 0; i < lobby.size(); ++i) {
             lobby[i].SetPlayerID(i);
-            //game.addPlayer(lobby[i]);
         }
         lobby.clear(); // Clear the lobby
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mapMutex);
+        gameMap.GenerateMap(); // Generate the map
+        mapReady = true;
     }
 
     game.start();
@@ -39,9 +49,9 @@ void startGame() {
 int main()
 {
     AccountManager account;
-    const std::string dbFile = "account_data.db";
+    const std::string dbfile = "account_data.db";
 
-    /*Game game;
+   /* Game game;
     game.start();
     return 0;*/
 
@@ -93,12 +103,17 @@ int main()
                 double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
                 bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
 
-                std::unique_lock<std::mutex> lock(lobbyMutex);
-                Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
-                lobby.push_back(player);
-                if (lobby.size() == 4) {
-                    lobbyCondition.notify_one(); // Notify the game-start thread
+                {
+                    std::unique_lock<std::mutex> lock(lobbyMutex);
+                    Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded);
+                    lobby.push_back(player);
+
+                    // Verifica dacă numarul minim de jucatori este atins
+                    if (lobby.size() >= MIN_PLAYERS) {
+                        lobbyCondition.notify_one(); // Notifica firul de joc
+                    }
                 }
+
                 return crow::response(200, "Login successful!");
             }
             else {
@@ -110,6 +125,58 @@ int main()
         }
         });
 
+
+    CROW_ROUTE(app, "/map").methods(crow::HTTPMethod::GET)([]() {
+        std::lock_guard<std::mutex> lock(mapMutex); // Ensure synchronization when accessing the map
+
+        if (!mapReady) {
+            return crow::response(400, "Map is not ready yet.");
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(lobbyMutex);
+            if (lobby.size() < MIN_PLAYERS) {
+                return crow::response(400, "Not enough players to start the game.");
+            }
+        }
+
+        crow::json::wvalue result;
+        result["height"] = gameMap.getHeight();
+        result["width"] = gameMap.getWidth();
+
+        crow::json::wvalue::list mapArray;
+        crow::json::wvalue::list wallsArray;
+
+        for (size_t i = 0; i < gameMap.getHeight(); ++i) {
+            crow::json::wvalue::list rowArray;
+            for (size_t j = 0; j < gameMap.getWidth(); ++j) {
+                TileType tile = gameMap.GetTile({ i, j });
+                rowArray.push_back(static_cast<int>(tile));
+
+                // Add walls if present
+                if (tile == TileType::DestrucitbleWall ||
+                    tile == TileType::IndestrucitbleWall ||
+                    tile == TileType::DestrucitbleWallWithBomb) {
+                    crow::json::wvalue wallJson;
+                    wallJson["x"] = i;
+                    wallJson["y"] = j;
+                    wallJson["type"] = static_cast<int>(tile);
+                    wallsArray.push_back(std::move(wallJson));
+                }
+            }
+            mapArray.push_back(std::move(rowArray));
+        }
+
+        result["map"] = std::move(mapArray);
+        result["walls"] = std::move(wallsArray);
+
+        return crow::response(result);
+        });
+
+
+
+
+    // Game thread
     std::thread gameThread([]() {
         while (true) {
             std::unique_lock<std::mutex> lock(lobbyMutex);

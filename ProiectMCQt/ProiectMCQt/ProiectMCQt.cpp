@@ -134,19 +134,45 @@ void ProiectMCQt::fetchData()
         size_t width = jsonObj["width"].toInt();
         QJsonArray mapArray = jsonObj["map"].toArray();
 
-        QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+        qDebug() << "Height:" << height << ", Width:" << width;
 
+        // Ensure the number of rows matches the height and the number of columns matches the width
+        if (mapArray.size() != static_cast<int>(height)) {
+            qWarning() << "Error: Map rows mismatch!";
+            return;
+        }
+
+        for (size_t i = 0; i < height; ++i) {
+            QJsonArray rowArray = mapArray[i].toArray();
+            if (rowArray.size() != static_cast<int>(width)) {
+                qWarning() << "Error: Map columns mismatch at row" << i;
+                return;
+            }
+        }
+
+        // Clear existing widgets
+        QLayout* layout = centralWidget->layout();
+        if (layout) {
+            QLayoutItem* item;
+            while ((item = layout->takeAt(0)) != nullptr) {
+                delete item->widget();
+                delete item;
+            }
+        }
+
+        // Add new widgets for map
         for (size_t i = 0; i < height; ++i) {
             QJsonArray rowArray = mapArray[i].toArray();
             for (size_t j = 0; j < width; ++j) {
                 int tileValue = rowArray[j].toInt();
                 QLabel* label = new QLabel();
-                label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
+                label->setFixedSize(20, 20); // Set tile size
                 colorTile(label, tileValue);
-                layout->addWidget(label, i, j);
+                layout->addWidget(label);
             }
         }
 
+        // Process walls if present
         QJsonArray wallsArray = jsonObj["walls"].toArray();
         for (const auto& wallJson : wallsArray) {
             QJsonObject wallObj = wallJson.toObject();
@@ -154,15 +180,23 @@ void ProiectMCQt::fetchData()
             size_t y = wallObj["y"].toInt();
             int type = wallObj["type"].toInt();
             QLabel* label = new QLabel();
-            label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
+            label->setFixedSize(20, 20);
             colorTile(label, type);
-            layout->addWidget(label, x, y);
+            layout->addWidget(label);
         }
     }
     else {
-        QMessageBox::critical(this, "Error", QString::fromStdString(response.error.message));
+        if (response.status_code == 400) {
+            QMessageBox::warning(this, "Not Enough Players", "There are not enough players to start the game.");
+        }
+        else {
+            QString error = QString("Error %1: %2").arg(response.status_code).arg(QString::fromStdString(response.text));
+            QMessageBox::critical(this, "Error", error);
+        }
     }
 }
+
+
 
 void ProiectMCQt::colorTile(QLabel* label, int type)
 {
