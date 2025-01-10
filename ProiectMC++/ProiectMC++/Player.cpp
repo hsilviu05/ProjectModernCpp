@@ -16,6 +16,8 @@ Player::Player()
 {
 }
 
+//const std::string& GetUsername() const { return m_username; }
+
 void Player::TakeDamage() {
     if (m_health > 0) {
         m_health--;
@@ -79,6 +81,11 @@ uint8_t Player::GetPlayerID() const
 void Player::SetPlayerID(const uint8_t& playerID)
 {
     m_playerID = playerID;
+}
+
+const std::string& Player::GetUsername() const
+{
+    return m_username;
 }
 
 std::chrono::milliseconds Player::GetFireRate() const

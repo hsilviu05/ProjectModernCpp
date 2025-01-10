@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
     ProiectMCQt window; 
     window.show();
-    QWidget mainWidget;
+    /*QWidget mainWidget;
     QVBoxLayout mainLayout(&mainWidget);
 
     RegisterWidget registerWidget;
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     mainLayout.addWidget(&loginWidget);
 
     mainWidget.setLayout(&mainLayout);
-    mainWidget.show();
+    mainWidget.show();*/
 
     return app.exec();
 }

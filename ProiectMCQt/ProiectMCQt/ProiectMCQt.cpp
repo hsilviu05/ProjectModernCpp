@@ -14,13 +14,14 @@
 #include <QGraphicsOpacityEffect>
 #include<QLineEdit>
 #include<QPushButton>
+#include<QTimer>
 
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
 {
     setAttribute(Qt::WA_TranslucentBackground); // Permite transparența pentru fereastra principală
     setupUI();
-    fetchData();
+    //fetchData();
 }
 
 ProiectMCQt::~ProiectMCQt()
@@ -28,32 +29,29 @@ ProiectMCQt::~ProiectMCQt()
     // Curățarea resurselor, dacă este necesar
 }
 
-//void ProiectMCQt::setupUI()
-//{
-//    centralWidget = new QWidget(this);
-//    setCentralWidget(centralWidget);
-//
-//    QGridLayout* layout = new QGridLayout(centralWidget);
-//    centralWidget->setLayout(layout);
-//
-//    // Setează imaginea de fundal
-//    QPixmap background("C:/Users/Cezar/Desktop/football-pitch.png");
-//    QPalette palette;
-//    palette.setBrush(QPalette::Window, QBrush(background));
-//    centralWidget->setAutoFillBackground(true);
-//    centralWidget->setPalette(palette);
-//}
-
-
 void ProiectMCQt::setupUI()
 {
+    // Create central widget and layout
     centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
-
     QGridLayout* layout = new QGridLayout(centralWidget);
     centralWidget->setLayout(layout);
 
-    // Adaugă câmpuri pentru username și password
+    // Initialize the UI state
+    showLoginRegisterUI();
+}
+
+void ProiectMCQt::showLoginRegisterUI()
+{
+    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+    // Clear any existing layout items
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+
+    // Add fields for username and password
     QLabel* usernameLabel = new QLabel("Username:", this);
     QLineEdit* usernameLineEdit = new QLineEdit(this);
     layout->addWidget(usernameLabel, 0, 0);
@@ -61,17 +59,17 @@ void ProiectMCQt::setupUI()
 
     QLabel* passwordLabel = new QLabel("Password:", this);
     QLineEdit* passwordLineEdit = new QLineEdit(this);
-    passwordLineEdit->setEchoMode(QLineEdit::Password); // Setați câmpul parolei să ascundă caracterele
+    passwordLineEdit->setEchoMode(QLineEdit::Password); // Hide password characters
     layout->addWidget(passwordLabel, 1, 0);
     layout->addWidget(passwordLineEdit, 1, 1);
 
-    // Adaugă butoanele pentru register și login
+    // Add buttons for register and login
     QPushButton* registerButton = new QPushButton("Register", this);
     QPushButton* loginButton = new QPushButton("Login", this);
     layout->addWidget(registerButton, 2, 0);
     layout->addWidget(loginButton, 2, 1);
 
-    // Conectează butoanele la funcțiile respective
+    // Connect buttons to their respective functions
     QObject::connect(registerButton, &QPushButton::clicked, [=]() {
         std::string username = usernameLineEdit->text().toStdString();
         std::string password = passwordLineEdit->text().toStdString();
@@ -83,6 +81,45 @@ void ProiectMCQt::setupUI()
         std::string password = passwordLineEdit->text().toStdString();
         loginUser(username, password);
         });
+}
+
+void ProiectMCQt::showGameMenuUI()
+{
+    // Clear any existing layout items
+    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+
+    // Add a label and buttons for game selection
+    QLabel* menuLabel = new QLabel("Choose a game:", this);
+    layout->addWidget(menuLabel, 0, 0);
+
+    QPushButton* game1Button = new QPushButton("Game 1", this);
+    QPushButton* game2Button = new QPushButton("Game 2", this);
+    layout->addWidget(game1Button, 1, 0);
+    layout->addWidget(game2Button, 1, 1);
+
+    // Connect buttons to functions that handle game selection
+    QObject::connect(game1Button, &QPushButton::clicked, this, &ProiectMCQt::joinGame);
+    QObject::connect(game2Button, &QPushButton::clicked, this, &ProiectMCQt::joinGame);
+}
+
+void ProiectMCQt::loginUser(const std::string& username, const std::string& password) {
+    cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/login" },
+        cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
+        cpr::Header{ {"Content-Type", "application/json"} });
+
+    if (response.status_code == 200) {
+        qDebug() << "Login successful!";
+        // Show game menu after successful login
+        showGameMenuUI();
+    }
+    else {
+        qDebug() << "Failed to login: " << QString::fromStdString(response.text);
+    }
 }
 
 
@@ -218,15 +255,42 @@ void ProiectMCQt::registerUser(const std::string& username, const std::string& p
     }
 }
 
-void ProiectMCQt::loginUser(const std::string& username, const std::string& password) {
-    cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/login" },
-        cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
+void ProiectMCQt::joinGame() {
+    auto response = cpr::Post(cpr::Url{ "http://localhost:18080/join_game" },
+        cpr::Body{ R"({"username":")" + username + R"("})" },
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (response.status_code == 200) {
-        qDebug() << "Login successful!";
+        qDebug() << "Joined game successfully!";
+        waitForMatch(); // Wait for players to join the match
     }
     else {
-        qDebug() << "Failed to login: " << QString::fromStdString(response.text);
+        qDebug() << "Failed to join game: " << QString::fromStdString(response.text);
     }
 }
+
+void ProiectMCQt::waitForMatch() {
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [=]() {
+        auto response = cpr::Get(cpr::Url{ "http://localhost:18080/check_match" },
+            cpr::Parameters{ { "username", username } });
+        if (response.status_code == 200) {
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+            QJsonObject jsonObj = jsonDoc.object();
+
+            bool matchFound = jsonObj["match_found"].toBool();
+            if (matchFound) {
+                playerID = jsonObj["player_id"].toInt();
+                playerPosition = { jsonObj["x"].toInt(), jsonObj["y"].toInt() };
+                fetchData(); // Fetch initial game state
+                timer->stop(); // Stop the timer
+            }
+        }
+        else {
+            qDebug() << "Error checking match status: " << QString::fromStdString(response.error.message);
+        }
+        });
+    timer->start(5000); // Check every 5 seconds
+}
+
+

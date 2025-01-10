@@ -28,6 +28,7 @@ public:
     bool UpgradeBulletSpeed();
     uint8_t GetPlayerID() const;
     void SetPlayerID(const uint8_t& playerID);
+    const std::string& GetUsername() const;
 
     std::chrono::milliseconds GetFireRate() const;
     void SetFireRate(const std::chrono::milliseconds m_fireRate);
