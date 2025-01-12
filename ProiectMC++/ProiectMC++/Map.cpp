@@ -30,13 +30,30 @@ void Map::GeneratePortals(std::mt19937& gen)
 			entryMap[portal.entry] = portal;
 			exitMap[portal.exit] = portal;
 		}
-
-
 	}
-
 }
 
-std::pair<size_t,size_t> Map::GeneratePortalPart(std::mt19937& gen, std::bernoulli_distribution& bernoulli, const bool& part)
+void Map::GenerateBombs(std::mt19937& gen)
+{
+	std::uniform_int_distribution<int> dist_bombs(1, 3);
+	int bombWallsCount = dist_bombs(gen);
+
+	std::uniform_int_distribution<size_t> dist_x(1, m_height - 2);
+	std::uniform_int_distribution<size_t> dist_y(1, m_width - 2);
+
+	int bombWallsPlaced = 0;
+	while (bombWallsPlaced < bombWallsCount) {
+		size_t x = dist_x(gen);
+		size_t y = dist_y(gen);
+
+		if (m_gameArea[x][y] == TileType::DestrucitbleWall) {
+			m_gameArea[x][y] = TileType::DestrucitbleWallWithBomb;
+			bombWallsPlaced++;
+		}
+	}
+}
+
+std::pair<size_t,size_t> Map::GeneratePortalPart(std::mt19937& gen, std::bernoulli_distribution& bernoulli, const bool& part) const
 {
 	size_t x, y;
 	std::uniform_int_distribution<size_t>dist_x(0, m_height - 1);
@@ -60,7 +77,7 @@ Map::Map()
 	GenerateMap();
 }
 
-size_t Map::getHeight() const{
+size_t Map::GetHeight() const{
 	return m_height;
 }
 
@@ -92,22 +109,8 @@ void Map::GenerateMap(){
 			}
 		}
 	}
-	std::uniform_int_distribution<int> dist_bombs(1, 3);
-	int bombWallsCount = dist_bombs(gen);
 
-	std::uniform_int_distribution<size_t> dist_x(1, m_height - 2);
-	std::uniform_int_distribution<size_t> dist_y(1, m_width - 2);
-
-	int bombWallsPlaced = 0;
-	while (bombWallsPlaced < bombWallsCount) {
-		size_t x = dist_x(gen);
-		size_t y = dist_y(gen);
-
-		if (m_gameArea[x][y] == TileType::DestrucitbleWall) {
-			m_gameArea[x][y] = TileType::DestrucitbleWallWithBomb;
-			bombWallsPlaced++;
-		}
-	}
+	GenerateBombs(gen);
 	GeneratePortals(gen);
 
 }
@@ -124,7 +127,7 @@ std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const
 }
 
 
-size_t Map::getWidth() const{
+size_t Map::GetWidth() const{
 	return m_width;
 }
 

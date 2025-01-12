@@ -208,16 +208,16 @@ int main()
         std::lock_guard<std::mutex> lock(mapMutex); // Lock the map during the entire operation
 
         crow::json::wvalue result;
-        result["height"] = map.getHeight();
-        result["width"] = map.getWidth();
+        result["height"] = map.GetHeight();
+        result["width"] = map.GetWidth();
 
         // Serialize the map tiles into JSON
         crow::json::wvalue::list mapArray;
         crow::json::wvalue::list wallsArray;
 
-        for (size_t i = 0; i < map.getHeight(); ++i) {
+        for (size_t i = 0; i < map.GetHeight(); ++i) {
             crow::json::wvalue::list rowArray;
-            for (size_t j = 0; j < map.getWidth(); ++j) {
+            for (size_t j = 0; j < map.GetWidth(); ++j) {
                 TileType tile = map.GetTile({ i, j });
                 rowArray.push_back(static_cast<int>(tile));
 

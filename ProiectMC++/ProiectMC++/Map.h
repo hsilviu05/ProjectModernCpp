@@ -46,12 +46,13 @@ class Map
 		std::array<std::pair<size_t, size_t>,4>m_playersPositions;
 		std::vector<Wall> walls;
 		void GeneratePortals(std::mt19937& gen);
-		std::pair<size_t, size_t> GeneratePortalPart(std::mt19937& gen, std::bernoulli_distribution& bernoulli,const bool& part);
+		void GenerateBombs(std::mt19937& gen);
+		std::pair<size_t, size_t> GeneratePortalPart(std::mt19937& gen, std::bernoulli_distribution& bernoulli,const bool& part) const;
 
 	public:
 		Map();
-		size_t getHeight() const;
-		size_t getWidth() const;
+		size_t GetHeight() const;
+		size_t GetWidth() const;
 		const Portal* GetPortalByEntry(const std::pair<size_t, size_t>& position) const;
 		void GenerateMap();
 

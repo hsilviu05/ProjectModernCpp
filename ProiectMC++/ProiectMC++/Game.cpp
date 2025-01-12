@@ -53,22 +53,22 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
         switch (key) {
         case 'A':
             newPosition.second -= 1;
-            player.setDirection(Direction::Left);
+            player.SetDirection(Direction::Left);
             break;
         case 'D':
             newPosition.second += 1;
-            player.setDirection(Direction::Right);
+            player.SetDirection(Direction::Right);
             break;
         case 'W':
             newPosition.first -= 1;
-            player.setDirection(Direction::Up);
+            player.SetDirection(Direction::Up);
             break;
         case 'S':
             newPosition.first += 1;
-            player.setDirection(Direction::Down);
+            player.SetDirection(Direction::Down);
             break;
         case VK_SPACE:
-            bulletManager.ShootBullet(player.getPosition(), player.getDirection(), player.GetPlayerID(), GameSettings::DEFAULT_BULLET_SPEED);
+            bulletManager.ShootBullet(player.getPosition(), player.GetDirection(), player.GetPlayerID(), GameSettings::DEFAULT_BULLET_SPEED);
             break;
         default:
             return;
@@ -76,7 +76,7 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
 
         if (gameMap.InBounds(newPosition) == true && gameMap.GetTile(newPosition) == TileType::EmptySpace) {
             gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
-            player.move(key);
+            player.Move(key);
         }
         else if (!gameMap.InBounds(newPosition))
         {
@@ -88,16 +88,16 @@ void Game::handleInput(const char& key, Player& player, Map& gameMap, BulletMana
                 {
                     gameMap.SetTile(player.getPosition(), TileType::EmptySpace);
                     if (exitY == 0) {
-                        player.setDirection(Direction::Right);
+                        player.SetDirection(Direction::Right);
                     }
-                    else if (exitY == gameMap.getWidth() - 1) {
-                        player.setDirection(Direction::Left);
+                    else if (exitY == gameMap.GetWidth() - 1) {
+                        player.SetDirection(Direction::Left);
                     }
                     else if (exitX == 0) {
-                        player.setDirection(Direction::Down);
+                        player.SetDirection(Direction::Down);
                     }
-                    else if (exitX == gameMap.getHeight() - 1) {
-                        player.setDirection(Direction::Up);
+                    else if (exitX == gameMap.GetHeight() - 1) {
+                        player.SetDirection(Direction::Up);
                     }
                     player.SetPosition({ exitX,exitY });
                 }
@@ -113,29 +113,29 @@ void Game::handleInputForPlayer2(const char& key, Player& player2, Map& gameMap,
         switch (key) {
         case VK_LEFT:
             newPosition2.second -= 1;
-            player2.setDirection(Direction::Left);
+            player2.SetDirection(Direction::Left);
             break;
         case VK_RIGHT:
             newPosition2.second += 1;
-            player2.setDirection(Direction::Right);
+            player2.SetDirection(Direction::Right);
             break;
         case VK_UP:
             newPosition2.first -= 1;
-            player2.setDirection(Direction::Up);
+            player2.SetDirection(Direction::Up);
             break;
         case VK_DOWN:
             newPosition2.first += 1;
-            player2.setDirection(Direction::Down);
+            player2.SetDirection(Direction::Down);
             break;
         case 'M':
-            bulletManager.ShootBullet(player2.getPosition(), player2.getDirection(), player2.GetPlayerID(), GameSettings::DEFAULT_BULLET_SPEED);
+            bulletManager.ShootBullet(player2.getPosition(), player2.GetDirection(), player2.GetPlayerID(), GameSettings::DEFAULT_BULLET_SPEED);
             break;
         default:
             return;
         }
 
         if (gameMap.InBounds(newPosition2) == true && gameMap.GetTile(newPosition2) == TileType::EmptySpace) {
-            player2.move(key);
+            player2.Move(key);
         }
     }
 }
@@ -145,7 +145,7 @@ int Game::checkWinner() {
     int lastAliveIndex = -1;
 
     for (size_t i = 0; i < m_players.size(); ++i) {
-        if (m_players[i].isAlive()) {
+        if (m_players[i].IsAlive()) {
             aliveCount++;
             lastAliveIndex = static_cast<int>(i);
         }

@@ -106,13 +106,18 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
     const auto bulletPosition = bullet.getPosition();
     const auto shooterID = bullet.GetShooterID();
 
-    for (auto& player : m_players) {
+    for (auto& player : m_players |
+        std::views::filter([](const Player& player){
+            return player.IsEliminated();
+    }))
+    {
 
         if (bulletPosition == player.getPosition() && shooterID != player.GetPlayerID()) {
             player.TakeDamage();
-            player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+            if(player.GetHealth()>0){
+                player.Respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+            }
             bulletOpt.reset();
-
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
 
             //m_players[shooterID].AddPoints(); cu baza de date
@@ -181,7 +186,7 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
             for (auto& player : m_players) {
                 if (player.getPosition() == std::make_pair(x, y)) {
                     player.TakeDamage();
-                    player.respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+                    player.Respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
                     break;
                 }
             }
@@ -202,9 +207,9 @@ bool BulletManager::HandlePortal(Bullet& bullet, const std::pair<size_t, size_t>
     }
 
     if (exitY == 0) bullet.SetDirection(Direction::Right);
-    else if (exitY == m_gameMap.getWidth() - 1) bullet.SetDirection(Direction::Left);
+    else if (exitY == m_gameMap.GetWidth() - 1) bullet.SetDirection(Direction::Left);
     else if (exitX == 0) bullet.SetDirection(Direction::Down);
-    else if (exitX == m_gameMap.getHeight() - 1) bullet.SetDirection(Direction::Up);
+    else if (exitX == m_gameMap.GetHeight() - 1) bullet.SetDirection(Direction::Up);
 
     bullet.SetPosition({ exitX,exitY });
     return true;

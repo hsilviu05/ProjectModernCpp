@@ -12,14 +12,12 @@ public:
     
     Player(const std::string& username, std::chrono::milliseconds& fireRate, uint8_t& fireRateUpgrades, double& bulletSpeed, bool& bulletSpeedUpgraded);
     Player();
-    void move(const char& key);
+    void Move(const char& key);
     void TakeDamage();
-    bool isAlive() const;
-    void respawn(const std::pair<size_t, size_t>& initialPosition);
-    size_t getHealth() const;
-    bool isEliminated() const;
-    Direction getDirection() const;
-    void setDirection(Direction player_direction);
+    bool IsAlive() const;
+    void Respawn(const std::pair<size_t, size_t>& initialPosition);
+    size_t GetHealth() const;
+    bool IsEliminated() const;
 
     void AddWinBonus();
     bool UpgradeWeapon();
@@ -37,13 +35,13 @@ public:
 private:
     uint8_t m_playerID;
     std::string m_username;
-	size_t m_health;
+	uint16_t m_health;
     uint16_t m_score = 0;
     std::chrono::milliseconds m_fireRate;
     uint8_t m_fireRateUpgrades;
     double m_bulletSpeed;
     bool m_bulletSpeedUpgraded;
-    //am eliminat points ca ar trebui sa fie doar in baza de date si upgrade-urile sa se faca pe baza informatiilor din baza de date
+    
 
 };
 

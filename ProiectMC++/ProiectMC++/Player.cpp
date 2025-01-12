@@ -1,6 +1,6 @@
 ﻿#include "Player.h"
 
-void Player::move(const char& key) {
+void Player::Move(const char& key) {
     switch (key) {
     case 'W':  m_position.first--; break;
     case 'S':  m_position.first++; break;
@@ -24,24 +24,13 @@ void Player::TakeDamage() {
     }
 }
 
-bool Player::isAlive() const {
+bool Player::IsAlive() const {
     return m_health > 0;
 }
 
-bool Player::isEliminated() const {
+bool Player::IsEliminated() const {
     return m_health <= 0;
 }
-
-Direction Player::getDirection() const
-{
-    return m_direction;
-}
-
-void Player::setDirection(Direction playerDirection)
-{
-    m_direction = playerDirection;
-}
-
 
 void Player::AddWinBonus()
 {
@@ -107,10 +96,10 @@ uint16_t Player::GetScore() const {
     return m_score;
 }
 
-void Player::respawn(const std::pair<size_t,size_t>& initialPosition) {
+void Player::Respawn(const std::pair<size_t,size_t>& initialPosition) {
     m_position = initialPosition;
 }
 
-size_t Player::getHealth() const {
+size_t Player::GetHealth() const {
     return m_health;
 }
