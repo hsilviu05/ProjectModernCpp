@@ -140,7 +140,8 @@ void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const 
     if(CanShoot(shooterID))
     {
         m_lastShotTime[shooterID] = std::chrono::steady_clock::now();
-        std::optional<Bullet> newBullet = Bullet(position, direction, shooterID, speed);
+        //std::optional<Bullet> newBullet = Bullet(position, direction, shooterID, speed);
+        std::optional<Bullet> newBullet = CreateEntity<Bullet>(position, direction, shooterID, speed);
         m_bullets.emplace_back(newBullet);
 	}
 }

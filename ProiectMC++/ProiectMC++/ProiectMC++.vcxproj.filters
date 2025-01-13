@@ -77,6 +77,9 @@
     <ClInclude Include="Routing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EntityFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -41,7 +41,5 @@ private:
     uint8_t m_fireRateUpgrades;
     double m_bulletSpeed;
     bool m_bulletSpeedUpgraded;
-    
-
 };
 

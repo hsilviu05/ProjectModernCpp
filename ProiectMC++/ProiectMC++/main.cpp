@@ -43,11 +43,11 @@ int main()
     Map map;  // Assuming the Map object is instantiated
     map.GenerateMap();  // Generate the map
 
-    /*Game game;
+    Game game;
     game.start();
-    return 0;*/
+    return 0;
 
-
+    /*
     std::mutex mapMutex;  // Mutex for thread-safety
 
     crow::SimpleApp app;
@@ -102,7 +102,7 @@ int main()
                 player.SetPosition(startPosition);
                 map.SetPlayerPosition(player.GetPlayerID(),startPosition);
                 map.SetTile(startPosition,TileType::Player);
-                player.respawn(startPosition);
+                player.Respawn(startPosition);
                 lobby.push_back(player);
                 if (lobby.size() == 4) {
                     lobbyCondition.notify_one(); // Notify the game-start thread
@@ -264,9 +264,9 @@ int main()
 
         // Now return the updated map after the move
         crow::json::wvalue::list mapArray;
-        for (size_t i = 0; i < map.getHeight(); ++i) {
+        for (size_t i = 0; i < map.GetHeight(); ++i) {
             crow::json::wvalue::list rowArray;
-            for (size_t j = 0; j < map.getWidth(); ++j) {
+            for (size_t j = 0; j < map.GetWidth(); ++j) {
                 TileType tile = map.GetTile({ i, j });
                 rowArray.push_back(static_cast<int>(tile));
             }
@@ -280,7 +280,10 @@ int main()
 
 
     app.port(18080).multithreaded().run();
+
+    */
 }
+
 
 //CROW_ROUTE(app, "/move")
 //    .methods("POST"_method)

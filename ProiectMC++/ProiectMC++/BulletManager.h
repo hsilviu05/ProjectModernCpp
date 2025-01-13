@@ -3,6 +3,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "TileType.h"
+#include "EntityFactory.h"
 
 #include <vector>
 #include <unordered_map>
