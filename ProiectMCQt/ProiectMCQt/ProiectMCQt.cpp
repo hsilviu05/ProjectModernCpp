@@ -113,7 +113,9 @@ void ProiectMCQt::loginUser(const std::string& username, const std::string& pass
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (response.status_code == 200) {
-        qDebug() << "Login successful!";
+		this->username = username;
+        //qDebug() << "Login successful!";
+        qDebug() << "Saved username:" << QString::fromStdString(this->username);
         // Show game menu after successful login
         showGameMenuUI();
     }
@@ -243,6 +245,7 @@ void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
 
 
 void ProiectMCQt::registerUser(const std::string& username, const std::string& password) {
+	//this->username = username;
     cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/signup" },
         cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
         cpr::Header{ {"Content-Type", "application/json"} });
@@ -257,7 +260,7 @@ void ProiectMCQt::registerUser(const std::string& username, const std::string& p
 
 void ProiectMCQt::joinGame() {
     auto response = cpr::Post(cpr::Url{ "http://localhost:18080/join_game" },
-        cpr::Body{ R"({"username":")" + username + R"("})" },
+        cpr::Body{ R"({"username":")" + this->username + R"("})" },
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (response.status_code == 200) {
@@ -273,7 +276,7 @@ void ProiectMCQt::waitForMatch() {
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [=]() {
         auto response = cpr::Get(cpr::Url{ "http://localhost:18080/check_match" },
-            cpr::Parameters{ { "username", username } });
+            cpr::Parameters{ { "username", this->username } });
         if (response.status_code == 200) {
             QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
             QJsonObject jsonObj = jsonDoc.object();

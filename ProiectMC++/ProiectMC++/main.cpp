@@ -26,7 +26,7 @@ void startGame() {
     {
         std::unique_lock<std::mutex> lock(lobbyMutex);
         // Initialize players in the game from the lobby
-        for (size_t i = 0; i < lobby.size(); ++i) {
+        for (size_t i = 1; i < lobby.size(); ++i) {
             lobby[i].SetPlayerID(i);
         }
         lobby.clear(); // Clear the lobby
@@ -44,10 +44,10 @@ int main()
     map.GenerateMap();  // Generate the map
 
     Game game;
-    game.start();
-    return 0;
+    //game.start();
+    //return 0;
 
-    /*
+    
     std::mutex mapMutex;  // Mutex for thread-safety
 
     crow::SimpleApp app;
@@ -74,7 +74,52 @@ int main()
         });
 
     // Route pentru autentificare
-    CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager,&map](const crow::request& req) {
+    //CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager,&map](const crow::request& req) {
+    //    auto x = crow::json::load(req.body);
+    //    if (!x)
+    //        return crow::response(400);
+
+    //    std::string username = x["username"].s();
+    //    std::string password = x["password"].s();
+    //    std::string dbFile = "account_data.db";
+
+    //    try {
+    //        accountManager.LoadDataFromDatabase(dbFile, username);
+
+    //        if (accountManager.Authenticate(username, password)) {
+
+    //            uint16_t points = accountManager.GetPoints();
+
+    //            std::chrono::milliseconds fireRate(accountManager.GetFireRate());
+    //            uint8_t fireRateUpgrades = GameSettings::MAX_FIRE_RATE_UPGRADES;
+    //            double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
+    //            bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
+
+    //            std::unique_lock<std::mutex> lock(lobbyMutex);
+    //            Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
+    //            player.SetPlayerID(lobby.size());
+    //            auto startPosition = map.getStartPosition(player.GetPlayerID());
+    //            player.SetPosition(startPosition);
+    //            map.SetPlayerPosition(player.GetPlayerID(),startPosition);
+    //            map.SetTile(startPosition,TileType::Player);
+    //            player.Respawn(startPosition);
+    //            lobby.push_back(player);
+    //            if (lobby.size() == 4) {
+    //                lobbyCondition.notify_one(); // Notify the game-start thread
+    //            }
+    //            return crow::response(200, "Login successful!");
+    //        }
+    //        else {
+    //            return crow::response(403, "Invalid credentials.");
+    //        }
+    //    }
+    //    catch (const std::exception& e) {
+    //        return crow::response(500, e.what());
+    //    }
+    //    });
+
+
+    CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager, &map](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x)
             return crow::response(400);
@@ -87,7 +132,6 @@ int main()
             accountManager.LoadDataFromDatabase(dbFile, username);
 
             if (accountManager.Authenticate(username, password)) {
-
                 uint16_t points = accountManager.GetPoints();
 
                 std::chrono::milliseconds fireRate(accountManager.GetFireRate());
@@ -96,14 +140,21 @@ int main()
                 bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
 
                 std::unique_lock<std::mutex> lock(lobbyMutex);
-                Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
-                player.SetPlayerID(lobby.size());
-                auto startPosition = map.getStartPosition(player.GetPlayerID());
-                player.SetPosition(startPosition);
-                map.SetPlayerPosition(player.GetPlayerID(),startPosition);
-                map.SetTile(startPosition,TileType::Player);
-                player.Respawn(startPosition);
-                lobby.push_back(player);
+                auto it = std::find_if(lobby.begin(), lobby.end(), [&username](const Player& player) {
+                    return player.GetUsername() == username;
+                    });
+
+                if (it == lobby.end()) {
+                    Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
+                    player.SetPlayerID(lobby.size());
+                    auto startPosition = map.getStartPosition(player.GetPlayerID());
+                    player.SetPosition(startPosition);
+                    map.SetPlayerPosition(player.GetPlayerID(), startPosition);
+                    map.SetTile(startPosition, TileType::Player);
+                    player.Respawn(startPosition);
+                    lobby.push_back(player);
+                }
+
                 if (lobby.size() == 4) {
                     lobbyCondition.notify_one(); // Notify the game-start thread
                 }
@@ -117,6 +168,7 @@ int main()
             return crow::response(500, e.what());
         }
         });
+
 
     std::thread gameThread([]() {
         while (true) {
@@ -133,14 +185,22 @@ int main()
         auto x = crow::json::load(req.body);
         if (!x) return crow::response(400);
 
+
         std::string username = x["username"].s();
+        std::cout << "Received join_game request for username: " << username << std::endl;
+
+        if (username.empty()) {
+            std::cout << "Username is empty" << std::endl;
+            return crow::response(400, "Missing username in request body");
+        }
+
         std::unique_lock<std::mutex> lock(lobbyMutex);
 
         // Find player in lobby or create new player
         auto it = std::find_if(lobby.begin(), lobby.end(), [&username](const Player& player) {
             return player.GetUsername() == username;
             });
-
+        /*
         if (it == lobby.end()) {
             std::chrono::milliseconds fireRate(300);
             uint8_t fireRateUpgrades = 3;
@@ -149,7 +209,7 @@ int main()
             Player newPlayer(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded);
             lobby.push_back(newPlayer);
         }
-
+        */
         if (lobby.size() >= 4) {
             lobbyCondition.notify_one(); // Notify the game-start thread
         }
@@ -239,6 +299,7 @@ int main()
         size_t newX = x["x"].i();
         size_t newY = x["y"].i();
         size_t playerID = x["playerID"].i();
+        if (playerID >= 4) return crow::response(403, "Invalid playerID.");
 
         {
             std::lock_guard<std::mutex> lock(mapMutex);
@@ -281,7 +342,7 @@ int main()
 
     app.port(18080).multithreaded().run();
 
-    */
+    
 }
 
 
