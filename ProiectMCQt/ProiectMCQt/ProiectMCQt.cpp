@@ -231,6 +231,9 @@ void ProiectMCQt::keyPressEvent(QKeyEvent* event)
     default:
         return;
     }
+
+    playerPosition = { x, y };
+
     sendMoveRequest(x, y, playerID);
 }
 
@@ -241,8 +244,19 @@ void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
         cpr::Body{ R"({"x":)" + std::to_string(x) + R"(,"y":)" + std::to_string(y) + R"(,"playerID":)" + std::to_string(playerID) + R"(})" },
         cpr::Header{ {"Content-Type", "application/json"} });
     if (response.status_code == 200) {
-        // Actualizează harta după mutare
-        fetchData();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        QJsonObject jsonObj = jsonDoc.object();
+
+        QJsonArray mapArray = jsonObj["map"].toArray();
+        QJsonArray playersArray = jsonObj["players"].toArray();
+        for (const auto& player : playersArray) {
+            QJsonObject playerObj = player.toObject();
+            int id = playerObj["id"].toInt();
+            int playerX = playerObj["x"].toInt();
+            int playerY = playerObj["y"].toInt();
+            // Actualizează harta după mutare
+            fetchData();
+        }
     }
     else {
         QMessageBox::critical(this, "Error", QString::fromStdString(response.error.message));
