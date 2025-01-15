@@ -20,20 +20,42 @@ std::vector<Player> lobby;
 std::mutex lobbyMutex;
 std::condition_variable lobbyCondition;
 
+//void startGame() {
+//    Game game;
+//
+//    {
+//        std::unique_lock<std::mutex> lock(lobbyMutex);
+//        // Initialize players in the game from the lobby
+//        for (size_t i = 1; i < lobby.size(); ++i) {
+//            lobby[i].SetPlayerID(i);
+//        }
+//        lobby.clear(); // Clear the lobby
+//    }
+//
+//    game.start();
+//}
+
 void startGame() {
     Game game;
+	Map map;
 
     {
         std::unique_lock<std::mutex> lock(lobbyMutex);
         // Initialize players in the game from the lobby
-        for (size_t i = 1; i < lobby.size(); ++i) {
+        for (size_t i = 0; i < lobby.size(); ++i) {
             lobby[i].SetPlayerID(i);
+            //auto startPosition = map.getStartPosition(lobby[i].GetPlayerID());
+            std::pair<size_t, size_t> startPosition = map.getStartPosition(lobby[i].GetPlayerID());
+            lobby[i].SetPosition(startPosition);
+            map.SetPlayerPosition(lobby[i].GetPlayerID(), startPosition);
+            map.SetTile(startPosition, TileType::Player);
         }
         lobby.clear(); // Clear the lobby
     }
 
     game.start();
 }
+
 
 int main()
 {
@@ -310,13 +332,16 @@ int main()
                 return crow::response(403, "Invalid move.");
             }
 
+
+            auto oldPosition = map.GetPlayerPosition(playerID);
+            map.SetTile(oldPosition, TileType::EmptySpace);
             // Update player's position
             map.SetPlayerPosition(playerID, newPosition);
             map.SetTile(newPosition, TileType::Player);  // Mark the new position as player position
 
             // Optional: If previous position was set to a player tile, mark it as empty
-            auto oldPosition = map.GetPlayerPosition(playerID);
-            map.SetTile(oldPosition, TileType::EmptySpace); // Clear the previous position
+            /*auto oldPosition = map.GetPlayerPosition(playerID);
+            map.SetTile(oldPosition, TileType::EmptySpace); */// Clear the previous position
         }
 
         // Notify the client that the move was successful and return the updated map

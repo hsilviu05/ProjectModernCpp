@@ -114,7 +114,7 @@ void ProiectMCQt::loginUser(const std::string& username, const std::string& pass
 
     if (response.status_code == 200) {
 		this->username = username;
-        //qDebug() << "Login successful!";
+        qDebug() << "Login successful!";
         qDebug() << "Saved username:" << QString::fromStdString(this->username);
         // Show game menu after successful login
         showGameMenuUI();
@@ -137,6 +137,12 @@ void ProiectMCQt::fetchData()
         QJsonArray mapArray = jsonObj["map"].toArray();
 
         QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+
+        QLayoutItem* item;
+		while ((item = layout->takeAt(0)) != nullptr) {
+			delete item->widget();
+			delete item;
+		}
 
         for (size_t i = 0; i < height; ++i) {
             QJsonArray rowArray = mapArray[i].toArray();
@@ -287,6 +293,7 @@ void ProiectMCQt::waitForMatch() {
                 playerPosition = { jsonObj["x"].toInt(), jsonObj["y"].toInt() };
                 fetchData(); // Fetch initial game state
                 timer->stop(); // Stop the timer
+				showGameUI(); // Show the game UI
             }
         }
         else {
@@ -296,4 +303,17 @@ void ProiectMCQt::waitForMatch() {
     timer->start(5000); // Check every 5 seconds
 }
 
+void ProiectMCQt::showGameUI()
+{
+    // Clear any existing layout items
+    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+
+    // Fetch and display the map data
+    fetchData();
+}
 

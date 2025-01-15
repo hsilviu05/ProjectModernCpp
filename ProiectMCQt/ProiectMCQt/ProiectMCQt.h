@@ -28,6 +28,7 @@ private slots:
     void waitForMatch();
     void showLoginRegisterUI();
     void showGameMenuUI();
+    void showGameUI();
 
 
 
