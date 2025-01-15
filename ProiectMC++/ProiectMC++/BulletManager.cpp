@@ -107,15 +107,15 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
     const auto shooterID = bullet.GetShooterID();
 
     for (auto& player : m_players |
-        std::views::filter([](const Player& player){
-            return player.IsEliminated();
+        std::views::filter([](const std::shared_ptr<Player>& player){
+            return player->IsEliminated();
     }))
     {
 
-        if (bulletPosition == player.getPosition() && shooterID != player.GetPlayerID()) {
-            player.TakeDamage();
-            if(player.GetHealth()>0){
-                player.Respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+        if (bulletPosition == player->getPosition() && shooterID != player->GetPlayerID()) {
+            player->TakeDamage();
+            if(player->GetHealth()>0){
+                player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
             }
             bulletOpt.reset();
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
@@ -132,7 +132,7 @@ bool BulletManager::CanShoot(const size_t& shooterID)
     if (m_lastShotTime.find(shooterID) == m_lastShotTime.end()) {
         return true;
     }
-    return (now - m_lastShotTime[shooterID]) >= m_players[shooterID].GetFireRate();
+    return (now - m_lastShotTime[shooterID]) >= m_players[shooterID]->GetFireRate();
 }
 
 void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction, const uint8_t shooterID,size_t speed)
@@ -140,14 +140,13 @@ void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const 
     if(CanShoot(shooterID))
     {
         m_lastShotTime[shooterID] = std::chrono::steady_clock::now();
-        //std::optional<Bullet> newBullet = Bullet(position, direction, shooterID, speed);
         std::optional<Bullet> newBullet = CreateEntity<Bullet>(position, direction, shooterID, speed);
         m_bullets.emplace_back(newBullet);
 	}
 }
 
-BulletManager::BulletManager(Map& map, std::array<Player, 4>& playerArray)
-    : m_gameMap(map), m_players(playerArray) {}
+BulletManager::BulletManager(Map& map, std::array < std::shared_ptr <Player>, 4>& players)
+    : m_gameMap(map), m_players(players) {}
 
 void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 {
@@ -185,9 +184,9 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 
 
             for (auto& player : m_players) {
-                if (player.getPosition() == std::make_pair(x, y)) {
-                    player.TakeDamage();
-                    player.Respawn(m_gameMap.getStartPosition(player.GetPlayerID()));
+                if (player->getPosition() == std::make_pair(x, y)) {
+                    player->TakeDamage();
+                    player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
                     break;
                 }
             }

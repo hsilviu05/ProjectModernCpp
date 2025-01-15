@@ -11,6 +11,7 @@
 #include <optional>
 #include <algorithm>
 #include <ranges>
+#include <memory>
 
 
 class BulletManager
@@ -23,11 +24,11 @@ class BulletManager
 		void CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp);
 		bool CanShoot(const size_t& shooterID);
 		void ShootBullet(const std::pair<size_t, size_t>& position,const Direction& direction, const uint8_t shooterID,size_t speed);
-		BulletManager(Map& map, std::array<Player, 4>& playerArray);
+		BulletManager(Map& map, std::array < std::shared_ptr <Player>, 4>& m_players);
 		
 	private:
 		Map& m_gameMap;
-		std::array<Player, 4>& m_players;
+		std::array < std::shared_ptr <Player> ,4> &m_players;
 		void ProcessCollisions(std::optional<Bullet>& bulletOpt);
 		void BombExplosion(const std::pair<size_t, size_t>& bombPosition);
 		std::vector<std::optional<Bullet>> m_bullets;

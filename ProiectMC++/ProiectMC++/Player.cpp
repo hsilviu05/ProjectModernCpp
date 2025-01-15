@@ -1,6 +1,6 @@
 ﻿#include "Player.h"
 
-void Player::Move(const char& key) {
+void Player::Move(char key) {
     switch (key) {
     case 'W':  m_position.first--; break;
     case 'S':  m_position.first++; break;
@@ -67,7 +67,7 @@ uint8_t Player::GetPlayerID() const
     return m_playerID;
 }
 
-void Player::SetPlayerID(const uint8_t& playerID)
+void Player::SetPlayerID(uint8_t playerID)
 {
     m_playerID = playerID;
 }
@@ -96,10 +96,20 @@ uint16_t Player::GetScore() const {
     return m_score;
 }
 
+void Player::SetScore(uint16_t score)
+{
+    m_score = score;
+}
+
 void Player::Respawn(const std::pair<size_t,size_t>& initialPosition) {
     m_position = initialPosition;
 }
 
 size_t Player::GetHealth() const {
     return m_health;
+}
+
+void Player::SetHealth(uint16_t health)
+{
+    m_health = health;
 }

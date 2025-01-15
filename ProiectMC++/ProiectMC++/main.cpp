@@ -20,7 +20,7 @@ std::vector<Player> lobby;
 std::mutex lobbyMutex;
 std::condition_variable lobbyCondition;
 
-
+/*
 void startGame() {
     Game game;
 	Map map;
@@ -41,6 +41,7 @@ void startGame() {
 
     game.start();
 }
+*/
 
 
 int main()
@@ -51,9 +52,11 @@ int main()
     Map map;  // Assuming the Map object is instantiated
     map.GenerateMap();  // Generate the map
 
+    /*
     Game game;
     //game.start();
     //return 0;
+
 
     
     std::mutex mapMutex;  // Mutex for thread-safety
@@ -138,7 +141,7 @@ int main()
         while (true) {
             std::unique_lock<std::mutex> lock(lobbyMutex);
             lobbyCondition.wait(lock, []() { return lobby.size() == 4; });
-            startGame();
+            //startGame();
         }
         });
 
@@ -307,7 +310,6 @@ int main()
 
     app.port(18080).multithreaded().run();
 
-    
 }
 
 
