@@ -62,10 +62,10 @@ class Map
 
 		std::vector<Wall>& GetWalls();
 
-		TileType GetTile(const std::pair<size_t, size_t>&t_position) ;
+		TileType GetTile(const std::pair<size_t, size_t>&t_position) const ;
 		void SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_tile);
 
-		bool InBounds(const std::pair<size_t,size_t>&position);
+		bool InBounds(const std::pair<size_t,size_t>&position) const;
 
 		std::pair<size_t,size_t> GetPlayerPosition(const size_t& playerNumber);
 		void SetPlayerPosition(const size_t& playerNumber,const std::pair<size_t,size_t>& playerPosition);

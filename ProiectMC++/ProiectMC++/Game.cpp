@@ -19,9 +19,6 @@ Game::Game(PlayerManager& pm):m_map(),bulletManager(m_map,m_players)
 
 void Game::start()
 {
-    
-    m_map.Draw();
-
     BulletManager bulletManager(m_map, m_players);
 
     while (true) {
@@ -45,14 +42,12 @@ void Game::update()
 
     for (auto& player : m_players |
         std::views::filter([](const std::shared_ptr<Player>& player) {
-            return player->IsEliminated();
+            return player->IsAlive();
             }))
     {
         m_map.SetPlayerPosition(player->GetPlayerID(), player->getPosition());
         m_map.SetTile(player->getPosition(), TileType::Player);
     }
-
-
 }
 
 void Game::handleInput(const char& key, std::shared_ptr<Player> player, Map& gameMap, BulletManager& bulletManager)
@@ -139,5 +134,36 @@ int Game::checkWinner() {
 void Game::render()
 {
     m_map.Draw();
+}
+
+Map Game::GetMap() const
+{
+    return m_map;
+}
+
+void Game::ReceiveInput(const std::string& username, char input)
+{
+    for (auto& player : m_players) {
+        if (player->GetUsername() == username) {
+            currentInputs.emplace_back(username, input); // Adaugă inputul pentru jucătorul găsit
+            return;
+        }
+    }
+}
+
+void Game::ProcessInput()
+{
+    for (const auto& [username, input] : currentInputs) {
+        // Găsește player-ul asociat cu username
+        for (auto& player : m_players) {
+            if (player && player->GetUsername() == username) { // Verifică player-ul și username-ul
+                handleInput(input, player, m_map, bulletManager);
+                break; 
+            }
+        }
+    }
+
+    // Golește lista de inputuri după procesare
+    currentInputs.clear();
 }
 

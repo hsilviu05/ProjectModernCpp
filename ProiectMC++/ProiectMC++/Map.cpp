@@ -138,7 +138,7 @@ const Portal* Map::GetPortalByEntry(const std::pair<size_t, size_t>& position) c
 }
 
 
-TileType Map::GetTile(const std::pair<size_t,size_t>& t_position)
+TileType Map::GetTile(const std::pair<size_t,size_t>& t_position) const
 {
 	if (InBounds(t_position)) {
 		return m_gameArea[t_position.first][t_position.second];
@@ -179,7 +179,7 @@ void Map::SetTile(const std::pair<size_t, size_t>& t_position,const TileType& t_
 	}
 }
 
-bool Map::InBounds(const std::pair<size_t, size_t>& position)
+bool Map::InBounds(const std::pair<size_t, size_t>& position) const
 {
 	return position.first <= m_height-1 && position.second <= m_width-1;
 }

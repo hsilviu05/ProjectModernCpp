@@ -77,6 +77,11 @@ const std::string& Player::GetUsername() const
     return m_username;
 }
 
+std::string Player::GetUsername()
+{
+    return m_username;
+}
+
 std::chrono::milliseconds Player::GetFireRate() const
 {
     return m_fireRate;

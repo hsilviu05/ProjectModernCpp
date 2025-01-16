@@ -30,6 +30,8 @@ public:
     void SetPlayerID(uint8_t playerID);
     const std::string& GetUsername() const;
 
+    std::string GetUsername();
+
     std::chrono::milliseconds GetFireRate() const;
     void SetFireRate(const std::chrono::milliseconds m_fireRate);
 
