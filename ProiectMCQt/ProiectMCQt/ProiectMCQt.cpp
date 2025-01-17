@@ -39,6 +39,10 @@ void ProiectMCQt::setupUI()
 
     // Initialize the UI state
     showLoginRegisterUI();
+
+    bulletUpdateTimer = new QTimer(this);
+    connect(bulletUpdateTimer, &QTimer::timeout, this, &ProiectMCQt::updateBullets);
+    bulletUpdateTimer->start(100);
 }
 
 void ProiectMCQt::showLoginRegisterUI()
@@ -113,7 +117,7 @@ void ProiectMCQt::loginUser(const std::string& username, const std::string& pass
         cpr::Header{ {"Content-Type", "application/json"} });
 
     if (response.status_code == 200) {
-		this->username = username;
+        this->username = username;
         qDebug() << "Login successful!";
         qDebug() << "Saved username:" << QString::fromStdString(this->username);
         // Show game menu after successful login
@@ -138,33 +142,63 @@ void ProiectMCQt::fetchData()
 
         QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
 
+        // Clear existing layout
         QLayoutItem* item;
-		while ((item = layout->takeAt(0)) != nullptr) {
-			delete item->widget();
-			delete item;
-		}
+        while ((item = layout->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
 
+        // First, render the base map with bullets
         for (size_t i = 0; i < height; ++i) {
             QJsonArray rowArray = mapArray[i].toArray();
             for (size_t j = 0; j < width; ++j) {
                 int tileValue = rowArray[j].toInt();
                 QLabel* label = new QLabel();
-                label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
-                colorTile(label, tileValue);
+                label->setFixedSize(20, 20);
+
+                // Check if there's a bullet at this position
+                bool hasBullet = false;
+                for (const auto& bullet : bullets) {
+                    if (bullet.x == i && bullet.y == j) {
+                        colorTile(label, 5); // 5 is for bullet
+                        hasBullet = true;
+                        break;
+                    }
+                }
+
+                if (!hasBullet) {
+                    colorTile(label, tileValue);
+                }
+
                 layout->addWidget(label, i, j);
             }
         }
 
+        // Then overlay the walls (this ensures walls are always on top)
         QJsonArray wallsArray = jsonObj["walls"].toArray();
         for (const auto& wallJson : wallsArray) {
             QJsonObject wallObj = wallJson.toObject();
             size_t x = wallObj["x"].toInt();
             size_t y = wallObj["y"].toInt();
             int type = wallObj["type"].toInt();
-            QLabel* label = new QLabel();
-            label->setFixedSize(20, 20); // Setați dimensiunea pătratelor
-            colorTile(label, type);
-            layout->addWidget(label, x, y);
+
+            // Check if there's a bullet at this position (walls should block bullets)
+            bool hasBullet = false;
+            for (const auto& bullet : bullets) {
+                if (bullet.x == x && bullet.y == y) {
+                    hasBullet = true;
+                    break;
+                }
+            }
+
+            // Only render wall if there's no bullet (or you could choose to always render the wall)
+            if (!hasBullet) {
+                QLabel* label = new QLabel();
+                label->setFixedSize(20, 20);
+                colorTile(label, type);
+                layout->addWidget(label, x, y);
+            }
         }
     }
     else {
@@ -202,6 +236,11 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         label->setAutoFillBackground(true);
         label->setPalette(QPalette(Qt::yellow));
         break;
+    case 5: // Bullet
+        label->setAutoFillBackground(true);
+        label->setPalette(QPalette(Qt::white));
+        label->setFixedSize(10, 10); // Make bullets smaller than other tiles
+        break;
     default:
         label->setAutoFillBackground(true);
         label->setPalette(QPalette(Qt::gray));
@@ -228,6 +267,8 @@ void ProiectMCQt::keyPressEvent(QKeyEvent* event)
     case Qt::Key_D:
         y++;
         break;
+    case Qt::Key_Space:
+        shootBullet(playerID, "up", x, y, 2);
     default:
         return;
     }
@@ -265,7 +306,7 @@ void ProiectMCQt::sendMoveRequest(int x, int y, int playerID)
 
 
 void ProiectMCQt::registerUser(const std::string& username, const std::string& password) {
-	//this->username = username;
+    //this->username = username;
     cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/signup" },
         cpr::Body{ R"({"username":")" + username + R"(","password":")" + password + R"("})" },
         cpr::Header{ {"Content-Type", "application/json"} });
@@ -307,7 +348,7 @@ void ProiectMCQt::waitForMatch() {
                 playerPosition = { jsonObj["x"].toInt(), jsonObj["y"].toInt() };
                 fetchData(); // Fetch initial game state
                 timer->stop(); // Stop the timer
-				showGameUI(); // Show the game UI
+                showGameUI(); // Show the game UI
             }
         }
         else {
@@ -331,3 +372,40 @@ void ProiectMCQt::showGameUI()
     fetchData();
 }
 
+void ProiectMCQt::shootBullet(int playerID, const std::string& direction, int x, int y, int speed)
+{
+    // Create the JSON body for the request
+    cpr::Response response = cpr::Post(cpr::Url{ "http://localhost:18080/shoot" },
+        cpr::Body{ R"({"playerID":)" + std::to_string(playerID) + R"(,"direction":")" + direction + R"(","x":)" + std::to_string(x) + R"(,"y":)" + std::to_string(y) + R"(,"speed":)" + std::to_string(speed) + R"(})" },
+        cpr::Header{ {"Content-Type", "application/json"} });
+
+    // Check if the shooting was successful
+    if (response.status_code == 200) {
+        qDebug() << "Bullet fired successfully!";
+    }
+    else {
+        qDebug() << "Failed to fire bullet: " << QString::fromStdString(response.text);
+    }
+}
+
+void ProiectMCQt::updateBullets()
+{
+    cpr::Response response = cpr::Get(cpr::Url{ "http://localhost:18080/bullets" });
+    if (response.status_code == 200) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response.text.c_str());
+        QJsonArray bulletsArray = jsonDoc.array();
+
+        bullets.clear();
+        for (const auto& bulletJson : bulletsArray) {
+            QJsonObject bulletObj = bulletJson.toObject();
+            Bullet bullet{
+                bulletObj["x"].toInt(),
+                bulletObj["y"].toInt(),
+                bulletObj["direction"].toString().toStdString(),
+                bulletObj["playerID"].toInt()
+            };
+            bullets.push_back(bullet);
+        }
+        fetchData(); // Refresh the map display
+    }
+}

@@ -29,17 +29,27 @@ private slots:
     void showLoginRegisterUI();
     void showGameMenuUI();
     void showGameUI();
+    void shootBullet(int playerID, const std::string& direction, int x, int y, int speed);
 
 
 
 private:
     QWidget* centralWidget;
+    struct Bullet {
+        int x;
+        int y;
+        std::string direction;
+        int playerID;
+    };
+    std::vector<Bullet> bullets;
+    QTimer* bulletUpdateTimer;
+    void updateBullets();
     //QGridLayout* layout;
 
     void setupUI(); // Noua metodă pentru configurarea UI-ului
     std::pair<int, int> playerPosition = { 1, 1 };
     int playerID = 1;
-   // QWidget* centralWidget;
+    // QWidget* centralWidget;
     std::string username;
 };
 

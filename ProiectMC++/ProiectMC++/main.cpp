@@ -19,33 +19,62 @@ using namespace sqlite_orm;
 std::vector<Player> lobby;
 std::mutex lobbyMutex;
 std::condition_variable lobbyCondition;
+std::vector<Bullet> activeBullets;
 
-/*
-void startGame() {
-    Game game;
-	Map map;
 
-    {
-        std::unique_lock<std::mutex> lock(lobbyMutex);
-        // Initialize players in the game from the lobby
-        for (size_t i = 0; i < lobby.size(); ++i) {
-            lobby[i].SetPlayerID(i);
-            //auto startPosition = map.getStartPosition(lobby[i].GetPlayerID());
-            std::pair<size_t, size_t> startPosition = map.getStartPosition(lobby[i].GetPlayerID());
-            lobby[i].SetPosition(startPosition);
-            map.SetPlayerPosition(lobby[i].GetPlayerID(), startPosition);
-            map.SetTile(startPosition, TileType::Player);
+#include <thread>
+#include <vector>
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
+
+class ThreadPool {
+public:
+    ThreadPool(size_t numThreads) {
+        for (size_t i = 0; i < numThreads; ++i) {
+            workers.emplace_back([this] {
+                while (true) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(queueMutex);
+                        cv.wait(lock, [this] { return !tasks.empty(); });
+                        task = std::move(tasks.front());
+                        tasks.pop();
+                    }
+                    task();  // Execute the task
+                }
+                });
         }
-        lobby.clear(); // Clear the lobby
     }
 
-    game.start();
-}
-*/
+    // Add tasks to the pool
+    void enqueue(std::function<void()> task) {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            tasks.push(std::move(task));
+        }
+        cv.notify_one();
+    }
+
+    ~ThreadPool() {
+        for (auto& worker : workers) {
+            worker.join();
+        }
+    }
+
+private:
+    std::vector<std::thread> workers;
+    std::queue<std::function<void()>> tasks;
+    std::mutex queueMutex;
+    std::condition_variable cv;
+};
 
 
 int main()
 {
+
     AccountManager account;
     const std::string dbFile = "account_data.db";
 
@@ -57,12 +86,11 @@ int main()
     //return 0;
 
 
-    
     std::mutex mapMutex;  // Mutex for thread-safety
+    std::mutex bulletsMutex;
 
     crow::SimpleApp app;
     AccountManager accountManager;
-
 
     // Route pentru înregistrare
     CROW_ROUTE(app, "/signup").methods(crow::HTTPMethod::POST)([&accountManager](const crow::request& req) {
@@ -83,7 +111,7 @@ int main()
         }
         });
 
-    
+
 
     CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager, &map](const crow::request& req) {
         auto x = crow::json::load(req.body);
@@ -134,16 +162,6 @@ int main()
             return crow::response(500, e.what());
         }
         });
-
-
-    std::thread gameThread([]() {
-        while (true) {
-            std::unique_lock<std::mutex> lock(lobbyMutex);
-            lobbyCondition.wait(lock, []() { return lobby.size() == 4; });
-            //startGame();
-        }
-        });
-
 
     // Route for joining a game
     CROW_ROUTE(app, "/join_game").methods(crow::HTTPMethod::POST)([](const crow::request& req) {
@@ -244,41 +262,35 @@ int main()
         return crow::response(result);
             });
 
-    CROW_ROUTE(app, "/move").methods(crow::HTTPMethod::POST)([&map, &mapMutex](const crow::request& req) {
+    ThreadPool threadPool(4);  // Create a thread pool with 4 threads
+
+    CROW_ROUTE(app, "/move").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &threadPool](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x) return crow::response(400);
-
         size_t newX = x["x"].i();
         size_t newY = x["y"].i();
         size_t playerID = x["playerID"].i();
         if (playerID >= 4) return crow::response(403, "Invalid playerID.");
 
-        {
+        // The thread pool enqueues the task
+        threadPool.enqueue([&map, &mapMutex, newX, newY, playerID] {
             std::lock_guard<std::mutex> lock(mapMutex);
-
-            // Check if the new position is valid (within bounds and not blocked)
+            // Validate and perform the movement here
             std::pair<size_t, size_t> newPosition(newX, newY);
             if (!map.InBounds(newPosition) || map.GetTile(newPosition) != TileType::EmptySpace) {
-                return crow::response(403, "Invalid move.");
+                // Handle invalid move
+                return;
             }
-
-
             auto oldPosition = map.GetPlayerPosition(playerID);
             map.SetTile(oldPosition, TileType::EmptySpace);
-            // Update player's position
             map.SetPlayerPosition(playerID, newPosition);
-            map.SetTile(newPosition, TileType::Player);  // Mark the new position as player position
+            map.SetTile(newPosition, TileType::Player);
+            });
 
-            // Optional: If previous position was set to a player tile, mark it as empty
-            /*auto oldPosition = map.GetPlayerPosition(playerID);
-            map.SetTile(oldPosition, TileType::EmptySpace); */// Clear the previous position
-        }
+        // Respond to client with the updated map and player positions
+        crow::json::wvalue resultMap;
+        resultMap["status"] = "Move successful";
 
-        // Notify the client that the move was successful and return the updated map
-        crow::json::wvalue result;
-        result["status"] = "Move successful";
-
-        // Now return the updated map after the move
         crow::json::wvalue::list mapArray;
         for (size_t i = 0; i < map.GetHeight(); ++i) {
             crow::json::wvalue::list rowArray;
@@ -289,10 +301,10 @@ int main()
             mapArray.push_back(std::move(rowArray));
         }
 
-        result["map"] = std::move(mapArray);
+        resultMap["map"] = std::move(mapArray);
 
         crow::json::wvalue::list playersArray;
-        for (size_t i = 0; i < 4; ++i) { // presupunem 4 jucători
+        for (size_t i = 0; i < 4; ++i) { // Assuming 4 players
             auto position = map.GetPlayerPosition(i);
             crow::json::wvalue player;
             player["id"] = i;
@@ -300,83 +312,68 @@ int main()
             player["y"] = position.second;
             playersArray.push_back(std::move(player));
         }
-        result["players"] = std::move(playersArray);
+        resultMap["players"] = std::move(playersArray);
+
+        return crow::response(resultMap);
+        });
+
+CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &threadPool](const crow::request& req) {
+        auto x = crow::json::load(req.body);
+        if (!x) return crow::response(400);
+
+        size_t playerID = x["playerID"].i();
+        std::string direction = x["direction"].s();
+        size_t xPos = x["x"].i();
+        size_t yPos = x["y"].i();
+        size_t speed = x["speed"].i();
+
+        if (playerID >= 4) {
+            return crow::response(400, "Invalid player ID");
+        }
+
+        Direction shootDirection;
+        if (direction == "up") shootDirection = Direction::Up;
+        else if (direction == "down") shootDirection = Direction::Down;
+        else if (direction == "left") shootDirection = Direction::Left;
+        else if (direction == "right") shootDirection = Direction::Right;
+        else {
+            return crow::response(400, "Invalid direction");
+        }
+
+        std::lock_guard<std::mutex> lock(mapMutex);
+
+        std::array<std::shared_ptr<Player>, 4> playersArray;
+        for (size_t i = 0; i < 4; ++i) {
+            if (i < lobby.size()) {
+                playersArray[i] = std::make_shared<Player>(lobby[i]);
+            }
+            else {
+                playersArray[i] = nullptr;
+            }
+        }
+
+        BulletManager bulletManager(map, playersArray);
+        auto bulletPosition = std::make_pair(xPos, yPos);
+        bulletManager.ShootBullet(bulletPosition, shootDirection, playerID, speed);
+
+        // Return bullet information in the response
+        crow::json::wvalue result;
+        result["status"] = "Bullet fired";
+        result["bullet"] = {
+            {"x", xPos},
+            {"y", yPos},
+            {"direction", direction},
+            {"playerID", playerID},
+            {"speed", speed}
+        };
 
         return crow::response(result);
         });
 
 
 
-     
+
+    app.port(18080).multithreaded().run();
+
 
 }
-
-
-//CROW_ROUTE(app, "/move")
-//    .methods("POST"_method)
-//    ([&map](const crow::request& req) {
-//    auto jsonReq = crow::json::load(req.body);
-//    if (!jsonReq) {
-//        return crow::response(400, "Invalid JSON");
-//    }
-
-//    int x = jsonReq["x"].i();
-//    int y = jsonReq["y"].i();
-//    int playerID = jsonReq["playerID"].i();
-
-//    // Validarea noii poziții
-//    std::pair<size_t, size_t> newPosition = { static_cast<size_t>(x), static_cast<size_t>(y) };
-//    if (map.InBounds(newPosition) && map.GetTile(newPosition) == TileType::EmptySpace) {
-//        // Update the player's position
-//        map.SetTile(map.GetPlayerPosition(playerID), TileType::EmptySpace);
-//        map.SetPlayerPosition(playerID, newPosition);
-//        map.SetTile(newPosition, TileType::Player);
-//        playerPosition = newPosition;
-//    }
-
-//    crow::json::wvalue result;
-//    result["x"] = playerPosition.first;
-//    result["y"] = playerPosition.second;
-//    return crow::response(result);
-//        });
-
-//Player player(1, 1);  // poziția de start (1, 1)
-//map.SetTile({ 1, 1 }, TileType::Player);
-
-//CROW_ROUTE(app, "/move")
-//    .methods("POST"_method)
-//    ([&map, &player, &mapMutex](const crow::request& req) {
-//    std::lock_guard<std::mutex> lock(mapMutex);
-
-//    auto body = crow::json::load(req.body);
-//    if (!body) {
-//        return crow::response(400, "Invalid JSON");
-//    }
-
-//    // Verificăm dacă "direction" este un string și dacă are cel puțin un caracter
-//    if (body["direction"].t() != crow::json::type::String || body["direction"].s().length() == 0) {
-//        return crow::response(400, "Invalid direction");
-//    }
-//    char direction = body["direction"].s()[0];
-//    player.move(direction);
-
-//    // Actualizăm harta
-//    auto playerPos = player.getPosition();
-//    map.SetTile(playerPos, TileType::Player);
-
-//    // Construim obiectul JSON pentru "new_position"
-//    crow::json::wvalue new_position;
-//    new_position["x"] = playerPos.first;
-//    new_position["y"] = playerPos.second;
-
-//    crow::json::wvalue result;
-//    result["new_position"] = new_position;
-
-//    return crow::response(result);
-//        });
-
-
-
-
-    //app.port(18080).multithreaded().run();
-
