@@ -123,6 +123,11 @@ Map Game::GetMap() const
     return m_map;
 }
 
+const std::array<std::shared_ptr<Player>, 4>& Game::GetPlayers() const
+{
+    return m_players;
+}
+
 void Game::ReceiveInput(const std::string& username, char input)
 {
     for (auto& player : m_players) {

@@ -23,6 +23,9 @@ public:
 	Game(PlayerManager& pm);
 	void Start();
 	Map GetMap() const;
+	const std::array<std::shared_ptr<Player>, 4>& GetPlayers() const;
+
+
 	void ReceiveInput(const std::string& username, char input);
 	void ProcessInput();
 

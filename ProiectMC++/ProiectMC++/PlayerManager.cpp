@@ -10,9 +10,11 @@ void PlayerManager::AddToLobby(std::shared_ptr<Player> player)
 	m_lobbyPlayers.push_back(player);
 }
 
-const std::vector<std::shared_ptr<Player>>& PlayerManager::GetLobbyPlayers() const {
+const std::vector<std::shared_ptr<Player>>& PlayerManager::GetLobbyPlayersConst() const {
 	return m_lobbyPlayers;
 }
 
-
+ std::vector<std::shared_ptr<Player>>& PlayerManager::GetLobbyPlayers() {
+	return m_lobbyPlayers;
+}
 

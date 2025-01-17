@@ -13,6 +13,7 @@ public:
 	void ResetGame();
 private:
 	std::mutex mapMutex;
+	std::mutex lobbyMutex;
 	PlayerManager playerManager;
 	AccountManager accountManager;
 	std::unique_ptr<Game> game;

@@ -1,4 +1,4 @@
-﻿#include "ProiectMCQt.h"
+﻿ #include "ProiectMCQt.h"
 #include <cpr/cpr.h>
 #include <QMessageBox>
 #include <QGridLayout>

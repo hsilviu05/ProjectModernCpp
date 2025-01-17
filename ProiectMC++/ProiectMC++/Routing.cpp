@@ -44,8 +44,8 @@ void Routing::Run()
             });
 
 
-    CROW_ROUTE(app, "/move")
-.methods(crow::HTTPMethod::POST)
+	CROW_ROUTE(app, "/move")
+	.methods(crow::HTTPMethod::POST)
 ([this](const crow::request& req) {
     auto body = crow::json::load(req.body);
     if (!body || !body.has("username") || !body.has("input")) {
@@ -121,7 +121,7 @@ void Routing::Run()
                 bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
 
 
-                const auto& lobbyPlayers = playerManager.GetLobbyPlayers();
+                const auto& lobbyPlayers = playerManager.GetLobbyPlayersConst();
                 auto it = std::find_if(lobbyPlayers.begin(), lobbyPlayers.end(), [&username](const std::shared_ptr<Player>& player) {
                     return player->GetUsername() == username;
                     });
@@ -144,17 +144,159 @@ void Routing::Run()
         }
     });
 
-    app.port(8080).multithreaded().run();
-	
 
+
+    CROW_ROUTE(app, "/join_game").methods(crow::HTTPMethod::POST)([this](const crow::request& req) {
+        auto body = crow::json::load(req.body);
+        if (!body) return crow::response(400, "Invalid request body");
+
+
+        std::string username = body["username"].s();
+        std::cout << "Received join_game request for username: " << username << std::endl;
+
+        if (username.empty()) {
+            std::cout << "Username is empty" << std::endl;
+            return crow::response(400, "Missing username in request body");
+        }
+
+        std::unique_lock<std::mutex> lock(lobbyMutex);
+
+        auto& lobbyPlayers = playerManager.GetLobbyPlayers();
+        auto it = std::find_if(lobbyPlayers.begin(), lobbyPlayers.end(), [&username](const std::shared_ptr<Player>& player) {
+            return player->GetUsername() == username;
+            });
+
+        if (it == lobbyPlayers.end()) {
+            std::cout << "Player not found in lobby: " << username << std::endl;
+            return crow::response(404, "Player not found in lobby");
+        }
+
+        auto& activePlayers = playerManager.GetActivePlayers();
+        if (activePlayers.size() < 4) {
+            for (size_t i = 0; i < activePlayers.size(); ++i) {
+                if (!activePlayers[i]) {
+                    auto player = std::move(*it);
+                    it = lobbyPlayers.erase(it);
+                    activePlayers[i] = std::move(player);
+                    std::cout << "Player " << username << " added to active players.\n";
+                    break;
+                }
+            }
+        }
+        else {
+            return crow::response(400, "Game is already full");
+        }
+
+        if (std::count_if(activePlayers.begin(), activePlayers.end(), [](const std::shared_ptr<Player>& player) {
+            return player != nullptr;
+            }) >= 2) {
+            static bool gameStarting = false;
+            if (!gameStarting) {
+                gameStarting = true;
+                StartGame();
+            }
+        }
+    });
+    	
+
+
+
+    CROW_ROUTE(app, "/get_current_score").methods(crow::HTTPMethod::GET)([this](const crow::request& req) {
+        auto username = req.url_params.get("username");
+        if (!username) {
+            return crow::response(400, "Missing username parameter");
+        }
+
+        std::string userStr = username;
+
+
+        const auto& players = game->GetPlayers(); // Metodă pentru a accesa m_players
+        for (const auto& player : players) {
+            if (player && player->GetUsername() == userStr) {
+                crow::json::wvalue result;
+                result["username"] = player->GetUsername();
+                result["current_score"] = player->GetScore(); // Scorul curent al jucătorului
+                return crow::response(result);
+            }
+        }
+
+        return crow::response(404, "Player not found in current game");
+        });
+
+
+    CROW_ROUTE(app, "/get_total_score_and_points").methods(crow::HTTPMethod::GET)([this](const crow::request& req) {
+        auto username = req.url_params.get("username");
+        if (!username) {
+            return crow::response(400, "Missing username parameter");
+        }
+
+        std::string userStr = username;
+        std::string dbFile = "account_data.db";
+
+        try {
+            accountManager.LoadDataFromDatabase(dbFile, userStr);
+
+            uint16_t totalScore = accountManager.GetScore();
+            uint16_t totalPoints = accountManager.GetPoints();
+
+            // Returnează scorul în format JSON
+            crow::json::wvalue result;
+            result["username"] = userStr;
+            result["total_score"] = totalScore;
+            result["total_points"] = totalPoints;
+            return crow::response(result);
+        }
+        catch (const std::exception& e) {
+            return crow::response(500, e.what());
+        }
+    });
+
+
+
+
+	app.port(8080).multithreaded().run();
 }
+
+	
 
 void Routing::StartGame()
 {
-    if (game) {
-        ResetGame();
+
+    static bool gameStarting = false;
+
+    if (gameStarting) {
+        std::cout << "A game is already starting.\n";
+        return;
     }
-    //game = std::make_unique<Game>();
+
+    gameStarting = true;
+
+    std::thread([this]() {
+        std::this_thread::sleep_for(std::chrono::seconds(30)); // Așteptăm 30 de secunde pentru mai mulți jucători
+
+        {
+            std::unique_lock<std::mutex> lock(lobbyMutex); // Blocăm accesul la lobby pentru verificare
+            auto& activePlayers = playerManager.GetActivePlayers();
+
+            // Re-verificăm numărul de jucători la expirarea timer-ului
+            size_t activeCount = std::count_if(activePlayers.begin(), activePlayers.end(), [](const std::shared_ptr<Player>& player) {
+                return player != nullptr;
+                });
+
+            if (activeCount >= 2) {
+                std::cout << "Starting game with " << activeCount << " players.\n";
+
+                // Mutăm logica de creare a jocului aici
+                game = std::make_unique<Game>(playerManager);
+                game->Start(); // Pornește bucla principală a jocului
+            }
+            else {
+                std::cout << "Not enough players to start the game. Resetting...\n";
+            }
+        }
+
+        gameStarting = false;
+        }).detach();
 }
 
 void Routing::ResetGame()
