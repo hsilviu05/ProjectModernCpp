@@ -52,8 +52,7 @@ int main()
     Map map;  // Assuming the Map object is instantiated
     map.GenerateMap();  // Generate the map
 
-    /*
-    Game game;
+    //Game game;
     //game.start();
     //return 0;
 

@@ -21,10 +21,7 @@ private:
 public:
 	Game();
 	Game(PlayerManager& pm);
-	void start();
-	void update();
-	void handleInput(const char& key, std::shared_ptr<Player> player, Map& gameMap, BulletManager& bulletManager);
-	void render();
+	void Start();
 	Map GetMap() const;
 	void ReceiveInput(const std::string& username, char input);
 	void ProcessInput();
@@ -37,4 +34,6 @@ private:
 	std::vector<std::pair<std::string, char>> currentInputs; 
 	std::unordered_map<std::string, size_t> userToPlayerID;
 	std::vector<Wall> m_walls;
+	void Update();
+	void handleInput(const char& key, std::shared_ptr<Player> player, Map& gameMap, BulletManager& bulletManager);
 };

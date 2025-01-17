@@ -17,27 +17,17 @@ Game::Game(PlayerManager& pm):m_map(),bulletManager(m_map,m_players)
     }
 }
 
-void Game::start()
+void Game::Start()
 {
-    BulletManager bulletManager(m_map, m_players);
-
     while (true) {
-        update();
-        render();
+        ProcessInput();
+        Update();
         Sleep(200);
     }
 }
 
-void Game::update()
+void Game::Update()
 {
-    for (auto& [playerID, inputQueue] : playerInputs) {
-        while (!inputQueue.empty()) {
-            char input = inputQueue.front();
-            inputQueue.pop();
-
-            handleInput(input, m_players[playerID], m_map, bulletManager);
-        }
-    }
     bulletManager.UpdateBullets();
 
     for (auto& player : m_players |
@@ -128,14 +118,6 @@ int Game::checkWinner() {
     return -1;
 }
 
-
-
-
-void Game::render()
-{
-    m_map.Draw();
-}
-
 Map Game::GetMap() const
 {
     return m_map;
@@ -145,7 +127,7 @@ void Game::ReceiveInput(const std::string& username, char input)
 {
     for (auto& player : m_players) {
         if (player->GetUsername() == username) {
-            currentInputs.emplace_back(username, input); // Adaugă inputul pentru jucătorul găsit
+            currentInputs.emplace_back(username, input);
             return;
         }
     }
@@ -162,8 +144,6 @@ void Game::ProcessInput()
             }
         }
     }
-
-    // Golește lista de inputuri după procesare
     currentInputs.clear();
 }
 
