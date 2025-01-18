@@ -1,9 +1,10 @@
 ﻿#include "Game.h"
 
 
-Game::Game(PlayerManager& pm):m_map(),bulletManager(m_map,m_players)
+Game::Game(PlayerManager& playerManager, AccountManager& accountManager):m_map(),bulletManager(m_map,m_players,m_playersAlive),m_accountManager(accountManager)
 {
-    auto& activePlayers = pm.GetActivePlayers();
+    auto& activePlayers = playerManager.GetActivePlayers();
+    m_playersAlive = activePlayers.size();
     for (size_t i = 0; i < activePlayers.size(); ++i)
     {
         m_players[i] = std::move(activePlayers[i]);
@@ -17,11 +18,39 @@ Game::Game(PlayerManager& pm):m_map(),bulletManager(m_map,m_players)
     }
 }
 
+void Game::HandleGameOver(int winnerID)
+{
+    std::cout << "Game Over! Final standings:\n";
+    std::string dbFile = "account_data.db";
+    for (const auto& player : m_players) {
+        if (player) {
+            std::cout << "Player " << player->GetUsername()
+                << " finished in place " << player->GetPlace() << "\n";
+
+
+            m_accountManager.LoadDataFromDatabase(dbFile, player->GetUsername());
+
+            int bonusPoints = (player->GetPlace() == 1) ? 2 : (player->GetPlace() == 2) ? 1 : 0;
+
+            m_accountManager.SetScore(player->GetScore() + m_accountManager.GetScore());
+            m_accountManager.SetPoints(bonusPoints + m_accountManager.GetPoints());
+            m_accountManager.SaveDataToDatabase(dbFile);
+        }
+    }
+}
+
+
+
 void Game::Start()
 {
     while (true) {
         ProcessInput();
         Update();
+        int winnerID = checkWinner();
+        if (winnerID != -1) {
+            HandleGameOver(winnerID); 
+            break;
+        }
         Sleep(200);
     }
 }
@@ -112,9 +141,10 @@ int Game::checkWinner() {
     }
 
     if (aliveCount == 1) {
+        m_players[lastAliveIndex]->SetPlace(m_playersAlive);
+        m_players[lastAliveIndex]->AddWinBonus();
         return lastAliveIndex;
     }
-
     return -1;
 }
 
@@ -127,6 +157,7 @@ const std::array<std::shared_ptr<Player>, 4>& Game::GetPlayers() const
 {
     return m_players;
 }
+
 
 void Game::ReceiveInput(const std::string& username, char input)
 {

@@ -18,8 +18,9 @@ AccountManager::AccountManager(const std::string& user, const std::string& pass,
 
 void AccountManager::SetUsername(const std::string& user) { username = user; }
 void AccountManager::SetPassword(const std::string& pass) { password = pass; }
-void AccountManager::SetFireRate(uint16_t& fRate) { fireRate = fRate; }
-void AccountManager::SetPoints(uint16_t& pts) { points = pts; }
+void AccountManager::SetFireRate(uint16_t fRate) { fireRate = fRate; }
+void AccountManager::SetPoints(uint16_t pts) { points = pts; }
+void AccountManager::SetScore(uint16_t scr) { score = scr; }
 
 std::string AccountManager::GetUsername() const { return username; }
 std::string AccountManager::GetPassword() const { return password; }

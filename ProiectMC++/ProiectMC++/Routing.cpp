@@ -287,7 +287,7 @@ void Routing::StartGame()
                 std::cout << "Starting game with " << activeCount << " players.\n";
 
                 // Mutăm logica de creare a jocului aici
-                game = std::make_unique<Game>(playerManager);
+                game = std::make_unique<Game>(playerManager,accountManager);
                 game->Start(); // Pornește bucla principală a jocului
             }
             else {

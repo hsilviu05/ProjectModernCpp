@@ -352,9 +352,9 @@ CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &thr
             }
         }
 
-        BulletManager bulletManager(map, playersArray);
+        //BulletManager bulletManager(map, playersArray);
         auto bulletPosition = std::make_pair(xPos, yPos);
-        bulletManager.ShootBullet(bulletPosition, shootDirection, playerID, speed);
+        //bulletManager.ShootBullet(bulletPosition, shootDirection, playerID, speed);
 
         // Return bullet information in the response
         crow::json::wvalue result;

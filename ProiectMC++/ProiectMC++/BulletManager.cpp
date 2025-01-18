@@ -117,10 +117,14 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
             if(player->GetHealth()>0){
                 player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
             }
+            else
+            {
+                player->SetPlace(m_playersAlive--);
+            }
             bulletOpt.reset();
             m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
 
-            //m_players[shooterID].AddPoints(); cu baza de date
+            m_players[shooterID]->AddScore();
             return;
         }
     }
@@ -145,8 +149,8 @@ void BulletManager::ShootBullet(const std::pair<size_t, size_t>& position,const 
 	}
 }
 
-BulletManager::BulletManager(Map& map, std::array < std::shared_ptr <Player>, 4>& players)
-    : m_gameMap(map), m_players(players) {}
+BulletManager::BulletManager(Map& map, std::array < std::shared_ptr <Player>, 4>& players,int& playersAlive)
+    : m_gameMap(map), m_players(players),m_playersAlive(playersAlive) {}
 
 void BulletManager::ProcessCollisions(std::optional<Bullet>& bulletOpt)
 {

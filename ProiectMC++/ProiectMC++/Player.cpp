@@ -77,6 +77,16 @@ const std::string& Player::GetUsername() const
     return m_username;
 }
 
+void Player::SetPlace(uint8_t place)
+{
+    m_place = place;
+}
+
+uint8_t Player::GetPlace() const
+{
+    return m_place;
+}
+
 std::string Player::GetUsername()
 {
     return m_username;

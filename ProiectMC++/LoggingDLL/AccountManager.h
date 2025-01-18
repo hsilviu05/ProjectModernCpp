@@ -36,8 +36,9 @@ public:
 
     void SetUsername(const std::string& user);
     void SetPassword(const std::string& pass);
-    void SetFireRate(uint16_t& fireRate);
-    void SetPoints(uint16_t& pts);
+    void SetFireRate(uint16_t fireRate);
+    void SetPoints(uint16_t pts);
+    void SetScore(uint16_t scr);
 
     std::string GetUsername() const;
     std::string GetPassword() const;

@@ -29,6 +29,9 @@ public:
     uint8_t GetPlayerID() const;
     void SetPlayerID(uint8_t playerID);
     const std::string& GetUsername() const;
+    void SetPlace(uint8_t place);
+    uint8_t GetPlace() const;
+
 
     std::string GetUsername();
 
@@ -37,6 +40,7 @@ public:
 
 
 private:
+    uint8_t m_place;
     uint8_t m_playerID;
     std::string m_username;
 	uint16_t m_health;
