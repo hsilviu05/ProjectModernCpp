@@ -116,9 +116,16 @@ void Routing::Run()
                 uint16_t points = accountManager.GetPoints();
 
                 std::chrono::milliseconds fireRate(accountManager.GetFireRate());
-                uint8_t fireRateUpgrades = GameSettings::MAX_FIRE_RATE_UPGRADES;
-                double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
-                bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
+                uint16_t fireRateUpgrades = accountManager.GetFireRateUpgrades();
+                bool isbulletSpeedUpgraded = accountManager.GetIsSpeedUpgrade();
+                double bulletSpeed;
+                if(!isbulletSpeedUpgraded){
+                     bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
+                }
+                else{
+                     bulletSpeed = GameSettings::BULLET_SPEED_UPGRADED;
+                }
+                
 
 
                 const auto& lobbyPlayers = playerManager.GetLobbyPlayersConst();
@@ -130,7 +137,7 @@ void Routing::Run()
                     return crow::response(403, "Player is already logged in and in the lobby.");
                 }
 
-                auto player = std::make_shared<Player>(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded);
+                auto player = std::make_shared<Player>(username, fireRate, fireRateUpgrades, bulletSpeed, isbulletSpeedUpgraded);
 
                 playerManager.AddToLobby(player);
 
@@ -197,9 +204,6 @@ void Routing::Run()
             }
         }
     });
-    	
-
-
 
     CROW_ROUTE(app, "/get_current_score").methods(crow::HTTPMethod::GET)([this](const crow::request& req) {
         auto username = req.url_params.get("username");
@@ -250,6 +254,96 @@ void Routing::Run()
             return crow::response(500, e.what());
         }
     });
+
+
+
+    CROW_ROUTE(app, "/upgrade_bullet_speed").methods(crow::HTTPMethod::POST)([this](const crow::request& req) {
+        auto body = crow::json::load(req.body);
+        if (!body || !body.has("username")) {
+            return crow::response(400, "Missing username or invalid data");
+        }
+
+        std::string username = body["username"].s();
+        std::string dbFile = "account_data.db";
+
+        try {
+            accountManager.LoadDataFromDatabase(dbFile, username);
+        }
+        catch (const std::exception& e) {
+            return crow::response(500, "Error loading data: " + std::string(e.what()));
+        }
+
+        uint16_t currentPoints = accountManager.GetPoints();
+
+        if (currentPoints >= 10 && !accountManager.GetIsSpeedUpgrade()) {
+            auto& lobbyPlayers = playerManager.GetLobbyPlayers();
+            auto it = std::find_if(lobbyPlayers.begin(), lobbyPlayers.end(), [&username](const std::shared_ptr<Player>& player) {
+                return player->GetUsername() == username;
+                });
+
+            if (it != lobbyPlayers.end()) {
+                auto& player = *it;
+                player->UpgradeBulletSpeed();
+                accountManager.SetBulletSpeedUpgrade(true);  
+                accountManager.SaveDataToDatabase(dbFile);
+
+            }
+            return crow::response(200, "Bullet speed upgraded!");
+        }
+        else {
+            return crow::response(400, "Not enough points or bullet speed already upgraded.");
+        }
+    });
+
+
+    CROW_ROUTE(app, "/upgrade_fire_rate").methods(crow::HTTPMethod::POST)([this](const crow::request& req) {
+        auto body = crow::json::load(req.body);
+        if (!body || !body.has("username")) {
+            return crow::response(400, "Missing username or invalid data");
+        }
+
+        std::string username = body["username"].s();
+        std::string dbFile = "account_data.db";
+
+        try {
+            accountManager.LoadDataFromDatabase(dbFile, username);
+        }
+        catch (const std::exception& e) {
+            return crow::response(500, "Error loading data: " + std::string(e.what()));
+        }
+
+        uint16_t currentScore = accountManager.GetPoints();
+
+        if (currentScore >= 500 && accountManager.GetFireRateUpgrades()<4) {
+            auto& lobbyPlayers = playerManager.GetLobbyPlayers();
+            auto it = std::find_if(lobbyPlayers.begin(), lobbyPlayers.end(), [&username](const std::shared_ptr<Player>& player) {
+                return player->GetUsername() == username;
+                });
+
+            if (it != lobbyPlayers.end()) {
+                auto& player = *it;
+                player->UpgradeFireRate();  // Funcție în Player care îmbunătățește fire rate-ul
+                accountManager.SetFireRateUpgrades(accountManager.GetFireRateUpgrades()+1);  // Setează flag-ul de upgrade
+                accountManager.SetFireRate(accountManager.GetFireRate() / 2);  // Împărțim fire rate-ul la 2
+                accountManager.SaveDataToDatabase(dbFile);  // Salvăm modificările în baza de date
+            }
+
+            return crow::response(200, "Fire rate upgraded!");
+        }
+        else {
+            return crow::response(400, "Not enough points or fire rate already upgraded.");
+        }
+        });
+
+
+
+
+
+
+
+
+
+
 
 
 

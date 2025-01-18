@@ -9,12 +9,12 @@ template class __declspec(dllimport) std::basic_string<char, std::char_traits<ch
 
 AccountManager::AccountManager()
     : username(""), password(""), fireRate(2000),
-    points(0), score(0), isFireRateUpgrade(false), SpeedUpgrade(0) {}
+    points(0), score(0), FireRateUpgrade(0), isSpeedUpgrade(false) {}
 
 AccountManager::AccountManager(const std::string& user, const std::string& pass, 
-    uint16_t fRate, uint16_t pts, uint16_t scr, bool iFRU, uint16_t sU)
+    uint16_t fRate, uint16_t pts, uint16_t scr, uint16_t iFRU, bool sU)
     : username(user), password(pass), fireRate(fRate),
-    points(pts), score(scr), isFireRateUpgrade(iFRU), SpeedUpgrade(sU) {}
+    points(pts), score(scr), FireRateUpgrade(iFRU), isSpeedUpgrade(sU) {}
 
 void AccountManager::SetUsername(const std::string& user) { username = user; }
 void AccountManager::SetPassword(const std::string& pass) { password = pass; }
@@ -22,15 +22,23 @@ void AccountManager::SetFireRate(uint16_t fRate) { fireRate = fRate; }
 void AccountManager::SetPoints(uint16_t pts) { points = pts; }
 void AccountManager::SetScore(uint16_t scr) { score = scr; }
 
+void AccountManager::SetBulletSpeedUpgrade(bool upgr) { isSpeedUpgrade = upgr; }
+
+void AccountManager::SetFireRateUpgrades(uint16_t fru)
+{
+    FireRateUpgrade = fru;
+}
+
+
 std::string AccountManager::GetUsername() const { return username; }
 std::string AccountManager::GetPassword() const { return password; }
 uint16_t AccountManager::GetPoints() const { return points; }
 uint16_t AccountManager::GetScore() const { return score; }
 
 uint16_t AccountManager::GetFireRate() const { return fireRate; }
-uint16_t AccountManager::GetSpeedUpgrade() const { return SpeedUpgrade; }
+bool AccountManager::GetIsSpeedUpgrade() const { return isSpeedUpgrade; }
 
-bool AccountManager::GetSpeedBoost() const { return isFireRateUpgrade; }
+uint16_t AccountManager::GetFireRateUpgrades() const { return FireRateUpgrade; }
 
 bool AccountManager::Authenticate(const std::string& user, const std::string& pass) const {
     return username == user && password == HashPassword(pass);
@@ -47,8 +55,8 @@ inline auto AccountManager::InItStorage(const std::string& dbFile) const
             make_column("FireRate", &AccountManager::fireRate),
             make_column("Points", &AccountManager::points),
             make_column("Score", &AccountManager::score),
-            make_column("isFireRateUpgrade", &AccountManager::isFireRateUpgrade),
-            make_column("SpeedUpgradeCount", &AccountManager::SpeedUpgrade))
+            make_column("isFireRateUpgrade", &AccountManager::FireRateUpgrade),
+            make_column("SpeedUpgradeCount", &AccountManager::isSpeedUpgrade))
     );
 }
 

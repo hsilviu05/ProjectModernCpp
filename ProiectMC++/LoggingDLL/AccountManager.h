@@ -27,27 +27,29 @@ private:
     uint16_t fireRate;
     uint16_t points;
     uint16_t score; 
-    uint16_t SpeedUpgrade;
-    bool isFireRateUpgrade; 
+    bool isSpeedUpgrade;
+    uint16_t FireRateUpgrade;
 
 public:
     AccountManager();
-    AccountManager(const std::string& user, const std::string& pass, uint16_t fRate, uint16_t pts, uint16_t scr, bool iFRU, uint16_t sU);
+    AccountManager(const std::string& user, const std::string& pass, uint16_t fRate, uint16_t pts, uint16_t scr, uint16_t iFRU, bool sU);
 
     void SetUsername(const std::string& user);
     void SetPassword(const std::string& pass);
     void SetFireRate(uint16_t fireRate);
     void SetPoints(uint16_t pts);
     void SetScore(uint16_t scr);
+    void SetBulletSpeedUpgrade(bool upgr);
+    void SetFireRateUpgrades(uint16_t fru);
 
     std::string GetUsername() const;
     std::string GetPassword() const;
     uint16_t GetPoints() const;
     uint16_t GetScore() const;
     uint16_t GetFireRate() const;
-    uint16_t GetSpeedUpgrade() const;
+    bool GetIsSpeedUpgrade() const;
     
-    bool GetSpeedBoost() const;
+    uint16_t GetFireRateUpgrades() const;
 
     bool Authenticate(const std::string& user, const std::string& pass) const;
 

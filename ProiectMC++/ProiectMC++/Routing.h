@@ -1,4 +1,5 @@
 #pragma once
+import GameSettings;
 #include <crow.h>
 #include "Game.h"
 #include "TileType.h"

@@ -9,7 +9,7 @@ void Player::Move(char key) {
     }
 }
 
-Player::Player(const std::string& username, std::chrono::milliseconds& fireRate, uint8_t& fireRateUpgrades, double& bulletSpeed, bool& bulletSpeedUpgraded)
+Player::Player(const std::string& username, std::chrono::milliseconds& fireRate, uint16_t& fireRateUpgrades, double& bulletSpeed, bool& bulletSpeedUpgraded)
     : m_score(0), m_health(3), m_username(username), m_fireRate(fireRate), m_fireRateUpgrades(fireRateUpgrades), m_bulletSpeed(bulletSpeed), m_bulletSpeedUpgraded(bulletSpeedUpgraded) {};
 
 Player::Player()
@@ -32,34 +32,24 @@ bool Player::IsEliminated() const {
     return m_health <= 0;
 }
 
+double Player::GetBulletSpeed() const
+{
+    return m_bulletSpeed;
+}
+
 void Player::AddWinBonus()
 {
     m_score += GameSettings::WIN_BONUS;
 }
-bool Player::UpgradeWeapon()
+void Player::UpgradeFireRate()
 {
-    /*
-    if (m_points >= GameSettings::UPGRADE_COST && m_fireRateUpgrades < GameSettings::MAX_FIRE_RATE_UPGRADES) {
-        m_points -= GameSettings::UPGRADE_COST;
-        m_fireRate -= GameSettings::FIRE_RATE_REDUCTION;
-        m_fireRateUpgrades++;
-        return true;
-    }*/
-    return false;
-	
-}
 
-bool Player::UpgradeBulletSpeed() {
-    /*
-    if (!m_bulletSpeedUpgraded && m_points >= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS) {
-        m_points -= GameSettings::BULLET_SPEED_MULTIPLIER_POINTS;
-        m_bulletSpeed *= 2;
-        m_bulletSpeedUpgraded = true;
-        return true;
-    }*/
-    return false;
-	
-    //direct cu baza de date
+        m_fireRate /=2;
+        m_fireRateUpgrades++;
+}
+void Player::UpgradeBulletSpeed() {
+	m_bulletSpeed *= 2;
+	m_bulletSpeedUpgraded = true;
 }
 
 uint8_t Player::GetPlayerID() const

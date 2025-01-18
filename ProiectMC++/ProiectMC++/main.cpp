@@ -112,7 +112,7 @@ int main()
         });
 
 
-
+    /*
     CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager, &map](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x)
@@ -131,7 +131,7 @@ int main()
                 std::chrono::milliseconds fireRate(accountManager.GetFireRate());
                 uint8_t fireRateUpgrades = GameSettings::MAX_FIRE_RATE_UPGRADES;
                 double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
-                bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
+               // bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
 
                 std::unique_lock<std::mutex> lock(lobbyMutex);
                 auto it = std::find_if(lobby.begin(), lobby.end(), [&username](const Player& player) {
@@ -162,7 +162,7 @@ int main()
             return crow::response(500, e.what());
         }
         });
-
+    */
     // Route for joining a game
     CROW_ROUTE(app, "/join_game").methods(crow::HTTPMethod::POST)([](const crow::request& req) {
         auto x = crow::json::load(req.body);
