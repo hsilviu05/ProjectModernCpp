@@ -11,7 +11,6 @@
 
 #include "BulletManager.h"
 
-
 #include "..\LoggingDLL\AccountManager.h"
 
 using namespace sqlite_orm;
@@ -21,7 +20,6 @@ std::mutex lobbyMutex;
 std::condition_variable lobbyCondition;
 std::vector<Bullet> activeBullets;
 
-
 #include <thread>
 #include <vector>
 #include <functional>
@@ -29,17 +27,17 @@ std::vector<Bullet> activeBullets;
 #include <mutex>
 #include <condition_variable>
 
-
 class ThreadPool {
 public:
     ThreadPool(size_t numThreads) {
         for (size_t i = 0; i < numThreads; ++i) {
-            workers.emplace_back([this] {
+            workers.emplace_back([this, i] {
                 while (true) {
                     std::function<void()> task;
                     {
                         std::unique_lock<std::mutex> lock(queueMutex);
-                        cv.wait(lock, [this] { return !tasks.empty(); });
+                        cv.wait(lock, [this] { return !tasks.empty() || stop; });
+                        if (stop && tasks.empty()) return;
                         task = std::move(tasks.front());
                         tasks.pop();
                     }
@@ -59,6 +57,11 @@ public:
     }
 
     ~ThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            stop = true;
+        }
+        cv.notify_all();
         for (auto& worker : workers) {
             worker.join();
         }
@@ -69,28 +72,24 @@ private:
     std::queue<std::function<void()>> tasks;
     std::mutex queueMutex;
     std::condition_variable cv;
+    bool stop = false;
 };
-
 
 int main()
 {
-
     AccountManager account;
     const std::string dbFile = "account_data.db";
 
     Map map;  // Assuming the Map object is instantiated
     map.GenerateMap();  // Generate the map
 
-    //Game game;
-    //game.start();
-    //return 0;
-
-
     std::mutex mapMutex;  // Mutex for thread-safety
     std::mutex bulletsMutex;
 
     crow::SimpleApp app;
     AccountManager accountManager;
+
+    std::atomic<bool> isShootActive{ false };
 
     // Route pentru înregistrare
     CROW_ROUTE(app, "/signup").methods(crow::HTTPMethod::POST)([&accountManager](const crow::request& req) {
@@ -111,8 +110,6 @@ int main()
         }
         });
 
-
-    /*
     CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST)([&accountManager, &map](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x)
@@ -129,9 +126,15 @@ int main()
                 uint16_t points = accountManager.GetPoints();
 
                 std::chrono::milliseconds fireRate(accountManager.GetFireRate());
-                uint8_t fireRateUpgrades = GameSettings::MAX_FIRE_RATE_UPGRADES;
-                double bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
-               // bool bulletSpeedUpgraded = accountManager.GetSpeedBoost();
+                uint16_t fireRateUpgrades = accountManager.GetFireRateUpgrades();
+                bool isbulletSpeedUpgraded = accountManager.GetIsSpeedUpgrade();
+                double bulletSpeed;
+                if (!isbulletSpeedUpgraded) {
+                    bulletSpeed = GameSettings::DEFAULT_BULLET_SPEED;
+                }
+                else {
+                    bulletSpeed = GameSettings::BULLET_SPEED_UPGRADED;
+                }
 
                 std::unique_lock<std::mutex> lock(lobbyMutex);
                 auto it = std::find_if(lobby.begin(), lobby.end(), [&username](const Player& player) {
@@ -139,7 +142,7 @@ int main()
                     });
 
                 if (it == lobby.end()) {
-                    Player player(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded); // Create a Player instance
+                    Player player(username, fireRate, fireRateUpgrades, bulletSpeed, isbulletSpeedUpgraded); // Create a Player instance
                     player.SetPlayerID(lobby.size());
                     auto startPosition = map.getStartPosition(player.GetPlayerID());
                     player.SetPosition(startPosition);
@@ -162,12 +165,11 @@ int main()
             return crow::response(500, e.what());
         }
         });
-    */
+
     // Route for joining a game
     CROW_ROUTE(app, "/join_game").methods(crow::HTTPMethod::POST)([](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x) return crow::response(400);
-
 
         std::string username = x["username"].s();
         std::cout << "Received join_game request for username: " << username << std::endl;
@@ -183,16 +185,7 @@ int main()
         auto it = std::find_if(lobby.begin(), lobby.end(), [&username](const Player& player) {
             return player.GetUsername() == username;
             });
-        /*
-        if (it == lobby.end()) {
-            std::chrono::milliseconds fireRate(300);
-            uint8_t fireRateUpgrades = 3;
-            double bulletSpeed = 1.0;
-            bool bulletSpeedUpgraded = false;
-            Player newPlayer(username, fireRate, fireRateUpgrades, bulletSpeed, bulletSpeedUpgraded);
-            lobby.push_back(newPlayer);
-        }
-        */
+
         if (lobby.size() >= 4) {
             lobbyCondition.notify_one(); // Notify the game-start thread
         }
@@ -317,7 +310,7 @@ int main()
         return crow::response(resultMap);
         });
 
-CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &threadPool](const crow::request& req) {
+    CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &threadPool, &isShootActive](const crow::request& req) {
         auto x = crow::json::load(req.body);
         if (!x) return crow::response(400);
 
@@ -356,6 +349,8 @@ CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &thr
         auto bulletPosition = std::make_pair(xPos, yPos);
         //bulletManager.ShootBullet(bulletPosition, shootDirection, playerID, speed);
 
+        isShootActive.store(true);
+
         // Return bullet information in the response
         crow::json::wvalue result;
         result["status"] = "Bullet fired";
@@ -370,10 +365,46 @@ CROW_ROUTE(app, "/shoot").methods(crow::HTTPMethod::POST)([&map, &mapMutex, &thr
         return crow::response(result);
         });
 
+    CROW_ROUTE(app, "/bullets")
+        .methods(crow::HTTPMethod::POST)([&isShootActive](const crow::request& req) {
+        if (!isShootActive.load()) {
+            return crow::response(403, "Cannot fetch bullets before shooting.");
+        }
+        auto x = crow::json::load(req.body);
+        if (!x) {
+            return crow::response(400);  // Bad request if JSON is invalid
+        }
 
+        size_t playerID = x["playerID"].i();
+        size_t xPos = x["x"].i();
+        size_t yPos = x["y"].i();
+        size_t speed = x["speed"].i();
+        std::string direction = x["direction"].s();
 
+        if (playerID >= 4) {
+            return crow::response(400, "Invalid player ID");
+        }
+
+        Direction shootDirection;
+        if (direction == "up") shootDirection = Direction::Up;
+        else if (direction == "down") shootDirection = Direction::Down;
+        else if (direction == "left") shootDirection = Direction::Left;
+        else if (direction == "right") shootDirection = Direction::Right;
+        else {
+            return crow::response(400, "Invalid direction");
+        }
+
+        // Create a new bullet (this could be part of a BulletManager)
+        Bullet newBullet({ xPos, yPos }, shootDirection, playerID, speed);
+        activeBullets.push_back(newBullet);
+
+        // Return response with bullet details
+        crow::json::wvalue result;
+        result["status"] = "Bullet fired";
+        result["bullet"] = { {"x", xPos}, {"y", yPos}, {"direction", direction}, {"playerID", playerID}, {"speed", speed} };
+
+        return crow::response(result);
+            });
 
     app.port(18080).multithreaded().run();
-
-
 }
