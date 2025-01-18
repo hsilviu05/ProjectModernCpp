@@ -149,6 +149,16 @@ void ProiectMCQt::fetchData()
             delete item;
         }
 
+       /* QLabel* backgroundLabel = new QLabel(centralWidget);
+        backgroundLabel->setPixmap(QPixmap("C:/Users/Cezar/Desktop/football-pitch.png").scaled(centralWidget->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        backgroundLabel->lower();
+        layout->addWidget(backgroundLabel, 0, 0, height, width);*/
+        QPalette palette;
+        QPixmap backgroundPixmap(":/images/Untitled.png");
+        palette.setBrush(QPalette::Window, QBrush(backgroundPixmap));
+        centralWidget->setAutoFillBackground(true);
+        centralWidget->setPalette(palette);
+
         // First, render the base map with bullets
         for (size_t i = 0; i < height; ++i) {
             QJsonArray rowArray = mapArray[i].toArray();
@@ -215,7 +225,7 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         label->clear();
         break;
     case 1: // DestructibleWall
-        pixmap = QPixmap("C:/Users/Cezar/Desktop/pngwing.com.png");
+        pixmap = QPixmap(":/images/poza4.png");
         if (pixmap.isNull()) {
             qDebug() << "Failed to load image!";
         }
@@ -225,12 +235,18 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         }
         break;
     case 2: // IndestructibleWall
-        label->setAutoFillBackground(true);
-        label->setPalette(QPalette(Qt::red));
+        //label->setAutoFillBackground(true);
+        //label->setPalette(QPalette(Qt::red))
+        // ;
+        pixmap = QPixmap(":/images/pngwing.com.png");
+        label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
         break;
     case 3: // DestructibleWallWithBomb
-        label->setAutoFillBackground(true);
-        label->setPalette(QPalette(Qt::green));
+        //label->setAutoFillBackground(true);
+        //label->setPalette(QPalette(Qt::green));
+        pixmap = QPixmap(":/images/poza4.png");
+        label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
     case 4: // Player
         label->setAutoFillBackground(true);

@@ -1,4 +1,10 @@
 <RCC>
-    <qresource prefix="ProiectMCQt">
+    <qresource prefix="/ProiectMCQt"/>
+    <qresource prefix="/">
+        <file>images/pngwing.com.png</file>
+        <file>images/poza2.png</file>
+        <file>images/poza4.png</file>
+        <file>images/Untitled.png</file>
+        <file>images/football-pitch.png</file>
     </qresource>
 </RCC>
