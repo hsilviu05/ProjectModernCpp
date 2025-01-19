@@ -1,4 +1,4 @@
-﻿ #include "ProiectMCQt.h"
+﻿#include "ProiectMCQt.h"
 #include <cpr/cpr.h>
 #include <QMessageBox>
 #include <QGridLayout>
@@ -23,6 +23,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QMessageBox>
+#include <QUrlQuery>
 
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
@@ -90,6 +91,62 @@ void ProiectMCQt::showLoginRegisterUI()
         QString password = passwordLineEdit->text();
         loginUser(username, password);
         });
+}
+
+void ProiectMCQt::showUpgradesUI()
+{
+    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+    while (QLayoutItem* item = layout->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
+
+    // Add upgrades page elements
+    QLabel* upgradesLabel = new QLabel("Upgrades", this);
+    QPushButton* upgradeBulletSpeedButton = new QPushButton("Upgrade Bullet Speed", this);
+    QPushButton* upgradeFireRateButton = new QPushButton("Upgrade Fire Rate", this);
+    QLabel* scoreLabel = new QLabel("Score: 0", this); // Placeholder for actual score
+    QLabel* pointsLabel = new QLabel("Points: 0", this); // Placeholder for actual points
+    QPushButton* backButton = new QPushButton("Back to Menu", this);
+
+    // Style the title
+    upgradesLabel->setAlignment(Qt::AlignCenter);
+    QFont titleFont = upgradesLabel->font();
+    titleFont.setPointSize(16);
+    upgradesLabel->setFont(titleFont);
+
+    // Add widgets to the layout
+    layout->addWidget(upgradesLabel, 0, 0, 1, 2);
+    layout->addWidget(scoreLabel, 1, 0, 1, 2);
+    layout->addWidget(pointsLabel, 2, 0, 1, 2);
+    layout->addWidget(upgradeBulletSpeedButton, 3, 0, 1, 2);
+    layout->addWidget(upgradeFireRateButton, 4, 0, 1, 2);
+    layout->addWidget(backButton, 5, 0, 1, 2);
+
+    // Center widgets in the layout
+    layout->setAlignment(Qt::AlignCenter);
+
+    // Connect buttons to their respective functions
+    connect(upgradeBulletSpeedButton, &QPushButton::clicked, this, [this]() {
+        if (!m_currentUsername.isEmpty()) {
+            upgradeBulletSpeed(m_currentUsername);
+        }
+        });
+
+    connect(upgradeFireRateButton, &QPushButton::clicked, this, [this]() {
+        if (!m_currentUsername.isEmpty()) {
+            upgradeFireRate(m_currentUsername);
+        }
+        });
+
+    connect(backButton, &QPushButton::clicked, this, [this]() {
+        showGameMenuUI();
+        });
+
+    // Fetch and display current score and points
+    if (!m_currentUsername.isEmpty()) {
+        fetchScoreAndPoints(m_currentUsername);
+    }
 }
 
 void ProiectMCQt::updateBullets()

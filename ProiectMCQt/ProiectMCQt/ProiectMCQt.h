@@ -36,6 +36,7 @@ private slots:
     void upgradeBulletSpeed(const QString& username);
     void upgradeFireRate(const QString& username);
     void fetchScoreAndPoints(const QString& username);
+    void showUpgradesUI();
 
     void colorTile(QLabel* label, int type);
     void showGameMenuUI();
