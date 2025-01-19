@@ -284,10 +284,50 @@ void ProiectMCQt::fetchBulletData()
 
 void ProiectMCQt::upgradeBulletSpeed(const QString& username)
 {
+    QNetworkRequest request(QUrl(m_baseUrl + "/upgrade_bullet_speed"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject jsonObj;
+    jsonObj["username"] = username;
+    QJsonDocument doc(jsonObj);
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
+        if (reply->error() == QNetworkReply::NoError) {
+            // Handle successful upgrade
+        }
+        else {
+            handleNetworkError("Upgrade Bullet Speed", reply->errorString());
+        }
+        reply->deleteLater();
+        sender()->deleteLater();
+        });
+
+    manager->post(request, doc.toJson());
 }
 
 void ProiectMCQt::upgradeFireRate(const QString& username)
 {
+    QNetworkRequest request(QUrl(m_baseUrl + "/upgrade_fire_rate"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject jsonObj;
+    jsonObj["username"] = username;
+    QJsonDocument doc(jsonObj);
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
+        if (reply->error() == QNetworkReply::NoError) {
+            // Handle successful upgrade
+        }
+        else {
+            handleNetworkError("Upgrade Fire Rate", reply->errorString());
+        }
+        reply->deleteLater();
+        sender()->deleteLater();
+        });
+
+    manager->post(request, doc.toJson());
 }
 
 void ProiectMCQt::fetchScoreAndPoints(const QString& username)
@@ -323,6 +363,7 @@ void ProiectMCQt::handleNetworkError(const QString& operation, const QString& er
 void ProiectMCQt::colorTile(QLabel* label, int type)
 {
     QPixmap pixmap;
+    QPixmap backgroundPixmap(":/images/Untitled.png");
     switch (type) {
     case 0: // EmptySpace
         label->setAutoFillBackground(false);
@@ -380,6 +421,7 @@ void ProiectMCQt::showGameMenuUI() {
     QLabel* menuLabel = new QLabel("Game Menu", this);
     QPushButton* joinGameButton = new QPushButton("Join Game", this);
     QPushButton* logoutButton = new QPushButton("Logout", this);
+    QPushButton* upgradesButton = new QPushButton("Upgrades", this);  // New button for upgrades
 
     // Style the menu
     menuLabel->setAlignment(Qt::AlignCenter);
@@ -390,7 +432,8 @@ void ProiectMCQt::showGameMenuUI() {
     // Add widgets to layout
     layout->addWidget(menuLabel, 0, 0, 1, 2);
     layout->addWidget(joinGameButton, 1, 0, 1, 2);
-    layout->addWidget(logoutButton, 2, 0, 1, 2);
+    layout->addWidget(upgradesButton, 2, 0, 1, 2); // Add the upgrades button here
+    layout->addWidget(logoutButton, 3, 0, 1, 2);
 
     // Connect buttons
     connect(joinGameButton, &QPushButton::clicked, this, [this]() {
@@ -403,6 +446,10 @@ void ProiectMCQt::showGameMenuUI() {
         m_currentUsername.clear();
         // Return to login screen
         showLoginRegisterUI();
+        });
+
+    connect(upgradesButton, &QPushButton::clicked, this, [this]() {
+        showUpgradesUI();  // Show upgrades UI when the button is clicked
         });
 
     // Center the widgets in the layout
@@ -502,4 +549,3 @@ void ProiectMCQt::updateMapDisplay(const QJsonObject& mapData) {
     layout->setSpacing(1);
     layout->setContentsMargins(10, 10, 10, 10);
 }
-
