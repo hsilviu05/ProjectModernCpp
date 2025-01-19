@@ -16,7 +16,6 @@
 class Game
 {
 private:
-	Player player;
 	BulletManager bulletManager;
 	int checkWinner();
 	bool m_isGameOver = false;

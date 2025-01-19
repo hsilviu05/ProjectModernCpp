@@ -18,7 +18,7 @@ void Routing::Run()
         result["height"] = map.GetHeight();
         result["width"] = map.GetWidth();
 
-        // Serialize the map tiles into JSON
+        
         crow::json::wvalue::list mapArray;
         crow::json::wvalue::list wallsArray;
 
@@ -28,7 +28,7 @@ void Routing::Run()
                 TileType tile = map.GetTile({ i, j });
                 rowArray.push_back(static_cast<int>(tile));
 
-                // Check for wall types and add to wallsArray
+                
                 if (tile == TileType::DestrucitbleWall ||
                     tile == TileType::IndestrucitbleWall ||
                     tile == TileType::DestrucitbleWallWithBomb) {
@@ -60,7 +60,7 @@ void Routing::Run()
     std::string username = body["username"].s();
 	std::string input = body["input"].s();
 
-    // Verifică dacă inputul este valid pentru mișcare
+    
     if (input[0] != 'W' && input[0] != 'A' && input[0] != 'S' && input[0] != 'D') {
         return crow::response(400, "Invalid move input");
     }
@@ -181,11 +181,6 @@ void Routing::Run()
             return crow::response(400, "Missing username in request body");
         }
 
-        //if (username.empty()) {
-       //     std::cout << "Username is empty" << std::endl;
-        //    return crow::response(400, "Missing username in request body");
-        //}
-
         std::unique_lock<std::mutex> lock(lobbyMutex);
 
         auto& lobbyPlayers = playerManager.GetLobbyPlayers();
@@ -237,12 +232,12 @@ void Routing::Run()
         std::string userStr = username;
 
 
-        const auto& players = game->GetPlayers(); // Metodă pentru a accesa m_players
+        const auto& players = game->GetPlayers(); 
         for (const auto& player : players) {
             if (player && player->GetUsername() == userStr) {
                 crow::json::wvalue result;
                 result["username"] = player->GetUsername();
-                result["current_score"] = player->GetScore(); // Scorul curent al jucătorului
+                result["current_score"] = player->GetScore();
                 return crow::response(result);
             }
         }
@@ -266,7 +261,6 @@ void Routing::Run()
             uint16_t totalScore = accountManager.GetScore();
             uint16_t totalPoints = accountManager.GetPoints();
 
-            // Returnează scorul în format JSON
             crow::json::wvalue result;
             result["username"] = userStr;
             result["total_score"] = totalScore;
@@ -345,10 +339,10 @@ void Routing::Run()
 
             if (it != lobbyPlayers.end()) {
                 auto& player = *it;
-                player->UpgradeFireRate();  // Funcție în Player care îmbunătățește fire rate-ul
-                accountManager.SetFireRateUpgrades(accountManager.GetFireRateUpgrades()+1);  // Setează flag-ul de upgrade
-                accountManager.SetFireRate(accountManager.GetFireRate() / 2);  // Împărțim fire rate-ul la 2
-                accountManager.SaveDataToDatabase(dbFile);  // Salvăm modificările în baza de date
+                player->UpgradeFireRate();  
+                accountManager.SetFireRateUpgrades(accountManager.GetFireRateUpgrades()+1);  
+                accountManager.SetFireRate(accountManager.GetFireRate() / 2);  
+                accountManager.SaveDataToDatabase(dbFile); 
             }
 
             return crow::response(200, "Fire rate upgraded!");
@@ -386,13 +380,13 @@ void Routing::StartGame()
     gameStarting = true;
 
     std::thread([this]() {
-        std::this_thread::sleep_for(std::chrono::seconds(30)); // Așteptăm 30 de secunde pentru mai mulți jucători
+        std::this_thread::sleep_for(std::chrono::seconds(30)); 
 
         {
-            std::unique_lock<std::mutex> lock(lobbyMutex); // Blocăm accesul la lobby pentru verificare
+            std::unique_lock<std::mutex> lock(lobbyMutex); 
             auto& activePlayers = playerManager.GetActivePlayers();
 
-            // Re-verificăm numărul de jucători la expirarea timer-ului
+            
             size_t activeCount = std::count_if(activePlayers.begin(), activePlayers.end(), [](const std::shared_ptr<Player>& player) {
                 return player != nullptr;
                 });
@@ -400,10 +394,10 @@ void Routing::StartGame()
             if (activeCount >= 2) {
                 std::cout << "Starting game with " << activeCount << " players.\n";
 
-                // Mutăm logica de creare a jocului aici
+                
                 game = std::make_unique<Game>(playerManager,accountManager);
                 game->SetIsRunning(true);
-                game->Start(); // Pornește bucla principală a jocului
+                game->Start(); 
             }
             else {
                 std::cout << "Not enough players to start the game. Resetting...\n";

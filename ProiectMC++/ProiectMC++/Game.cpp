@@ -12,7 +12,7 @@ Game::Game(PlayerManager& playerManager, AccountManager& accountManager):m_map()
         }
         m_players[i] = std::move(activePlayers[i]);
 
-        m_players[i]->SetPosition(m_map.getStartPosition(i));
+        m_players[i]->SetPosition(m_map.GetStartPosition(i));
         m_players[i]->SetPlayerID(i);
         m_map.SetPlayerPosition(i, m_players[i]->getPosition());
         m_map.SetTile(m_players[i]->getPosition(), TileType::Player);
@@ -23,14 +23,9 @@ Game::Game(PlayerManager& playerManager, AccountManager& accountManager):m_map()
 
 void Game::HandleGameOver(int winnerID)
 {
-    std::cout << "Game Over! Final standings:\n";
     std::string dbFile = "account_data.db";
     for (const auto& player : m_players) {
         if (player) {
-            std::cout << "Player " << player->GetUsername()
-                << " finished in place " << player->GetPlace() << "\n";
-
-
             m_accountManager.LoadDataFromDatabase(dbFile, player->GetUsername());
 
             int bonusPoints = (player->GetPlace() == 1) ? 2 : (player->GetPlace() == 2) ? 1 : 0;
@@ -49,7 +44,6 @@ void Game::Start()
 
     m_isRunning = true;
 
-    // Rulează logica jocului într-un thread separat
     std::thread([this]() {
         while (m_isRunning) {
             ProcessInput();
@@ -58,25 +52,13 @@ void Game::Start()
             int winnerID = checkWinner();
             if (winnerID != -1) {
                 HandleGameOver(winnerID);
-                m_isRunning = false; // Oprește jocul după ce avem un câștigător
+                m_isRunning = false;
                 break;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Pauză pentru a controla rata de actualizare
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         }
         }).detach();
-    /*
-    while (true) {
-        ProcessInput();
-        Update();
-        int winnerID = checkWinner();
-        if (winnerID != -1) {
-            HandleGameOver(winnerID); 
-            break;
-        }
-        Sleep(200);
-    }
-	*/
 }
 
 void Game::Update()
@@ -211,11 +193,10 @@ void Game::ReceiveInput(const std::string& username, char input)
 void Game::ProcessInput()
 {
     for (const auto& [username, input] : currentInputs) {
-        // Găsește player-ul asociat cu username
         for (auto& player : m_players) {
             if (player == nullptr)
                 continue;
-            if (player && player->GetUsername() == username) { // Verifică player-ul și username-ul
+            if (player && player->GetUsername() == username) { 
                 handleInput(input, player, m_map, bulletManager);
                 break; 
             }

@@ -12,14 +12,14 @@ class Wall
 		TileType wallType;
 
 	public:
-		bool getIsDestructible() const;
-		bool getIsDestroyed() const;
-		bool getHasBomb() const;
-		std::pair<size_t, size_t> getPosition() const;
-		void setPosition(const std::pair<int, int>& newPosition);
-		void setWallType(TileType newWallType);
-		TileType getWallType() const;
+		bool GetIsDestructible() const;
+		bool GetIsDestroyed() const;
+		bool GetHasBomb() const;
+		std::pair<size_t, size_t> GetPosition() const;
+		void SetPosition(const std::pair<int, int>& newPosition);
+		void SetWallType(TileType newWallType);
+		TileType GetWallType() const;
 
-		int getExplosionRadius() const;
+		int GetExplosionRadius() const;
 };
 

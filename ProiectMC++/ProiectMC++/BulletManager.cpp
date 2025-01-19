@@ -116,7 +116,7 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
             if (bulletPosition == player->getPosition() && shooterID != player->GetPlayerID()) {
                 player->TakeDamage();
                 if (player->GetHealth() > 0) {
-                    player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
+                    player->Respawn(m_gameMap.GetStartPosition(player->GetPlayerID()));
                 }
                 else
                 {
@@ -195,7 +195,7 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
                         if (player->getPosition() == std::make_pair(x, y)) {
                             m_gameMap.SetTile({ x,y }, TileType::EmptySpace);
                             player->TakeDamage();
-                            player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
+                            player->Respawn(m_gameMap.GetStartPosition(player->GetPlayerID()));
                             break;
                         }
 					}

@@ -1,36 +1,36 @@
 #include "Wall.h"
 
-bool Wall::getIsDestructible() const
+bool Wall::GetIsDestructible() const
 {
 	return isDestructible;
 }
 
-bool Wall::getIsDestroyed() const
+bool Wall::GetIsDestroyed() const
 {
 	return isDestroyed;
 }
 
-bool Wall::getHasBomb() const
+bool Wall::GetHasBomb() const
 {
 	return hasBomb;
 }
 
-std::pair<size_t, size_t> Wall::getPosition() const
+std::pair<size_t, size_t> Wall::GetPosition() const
 {
 	return position;
 }
 
-void Wall::setPosition(const std::pair<int, int>& newPosition)
+void Wall::SetPosition(const std::pair<int, int>& newPosition)
 {
 	position = newPosition;
 }
 
-int Wall::getExplosionRadius() const
+int Wall::GetExplosionRadius() const
 {
 	return explosionRadius;
 }
 
-void Wall::setWallType(TileType newWallType)
+void Wall::SetWallType(TileType newWallType)
 {
      TileType wallType = newWallType;
 
@@ -56,7 +56,7 @@ void Wall::setWallType(TileType newWallType)
     }
 }
 
-TileType Wall::getWallType() const
+TileType Wall::GetWallType() const
 {
     return wallType;
 }

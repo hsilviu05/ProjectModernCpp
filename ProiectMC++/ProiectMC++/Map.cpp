@@ -102,8 +102,8 @@ void Map::GenerateMap(){
 
 				if (tile == TileType::DestrucitbleWall || tile == TileType::IndestrucitbleWall) {
 					Wall wall;
-					wall.setPosition({ i, j });
-					wall.setWallType(tile);
+					wall.SetPosition({ i, j });
+					wall.SetWallType(tile);
 					walls.push_back(wall);
 				}
 			}
@@ -115,7 +115,7 @@ void Map::GenerateMap(){
 
 }
 
-std::pair<size_t, size_t> Map::getStartPosition(const size_t& playerID) const
+std::pair<size_t, size_t> Map::GetStartPosition(const size_t& playerID) const
 {
 	switch (playerID) {
 	case 0: return { 0, 0 };                            

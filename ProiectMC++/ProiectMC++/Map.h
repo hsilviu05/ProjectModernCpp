@@ -56,7 +56,7 @@ class Map
 		const Portal* GetPortalByEntry(const std::pair<size_t, size_t>& position) const;
 		void GenerateMap();
 
-		std::pair<size_t,size_t> getStartPosition(const size_t& playerID) const;
+		std::pair<size_t,size_t> GetStartPosition(const size_t& playerID) const;
 
 		void Draw() const;
 
