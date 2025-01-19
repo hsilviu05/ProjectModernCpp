@@ -27,6 +27,8 @@ public:
 	void Start();
 	Map GetMap() const;
 	const std::array<std::shared_ptr<Player>, 4>& GetPlayers() const;
+	bool IsRunning() const;
+	void SetIsRunning(bool isRunning);
 
 
 
@@ -39,6 +41,7 @@ private:
 	Map m_map;
 	int m_playersAlive;
 	std::vector<Bullet> m_bullets;
+	bool m_isRunning=false;
 	std::array<std::shared_ptr<Player>,4>m_players;
 	std::vector<std::pair<std::string, char>> currentInputs; 
 	std::unordered_map<std::string, size_t> userToPlayerID;

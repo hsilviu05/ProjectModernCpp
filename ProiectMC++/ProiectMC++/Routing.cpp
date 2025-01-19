@@ -1,5 +1,10 @@
 ﻿#include "Routing.h"
 
+Routing::Routing():playerManager(),accountManager(),game(nullptr)
+{
+
+}
+
 void Routing::Run()
 {
     crow::SimpleApp app;
@@ -154,17 +159,32 @@ void Routing::Run()
 
 
     CROW_ROUTE(app, "/join_game").methods(crow::HTTPMethod::POST)([this](const crow::request& req) {
+        std::cout << "Received request: " << req.body << std::endl;
         auto body = crow::json::load(req.body);
-        if (!body) return crow::response(400, "Invalid request body");
+        if (!body)
+        {
+            std::cout << "Invalid JSON format: " << req.body << std::endl;
+            return crow::response(400, "Invalid request body");
+        }
 
+        if (!body.has("username")) {
+            std::cout << "Missing 'username' field in request body." << std::endl;
+            return crow::response(400, "Missing username in request body");
+        }
 
         std::string username = body["username"].s();
         std::cout << "Received join_game request for username: " << username << std::endl;
+
 
         if (username.empty()) {
             std::cout << "Username is empty" << std::endl;
             return crow::response(400, "Missing username in request body");
         }
+
+        //if (username.empty()) {
+       //     std::cout << "Username is empty" << std::endl;
+        //    return crow::response(400, "Missing username in request body");
+        //}
 
         std::unique_lock<std::mutex> lock(lobbyMutex);
 
@@ -179,7 +199,9 @@ void Routing::Run()
         }
 
         auto& activePlayers = playerManager.GetActivePlayers();
-        if (activePlayers.size() < 4) {
+        if (std::count_if(activePlayers.begin(), activePlayers.end(), [](const std::shared_ptr<Player>& player) {
+            return player != nullptr;
+            }) < 4) {
             for (size_t i = 0; i < activePlayers.size(); ++i) {
                 if (!activePlayers[i]) {
                     auto player = std::move(*it);
@@ -202,7 +224,8 @@ void Routing::Run()
                 gameStarting = true;
                 StartGame();
             }
-        }
+        };
+        return crow::response(200, "Player entered in looby");
     });
 
     CROW_ROUTE(app, "/get_current_score").methods(crow::HTTPMethod::GET)([this](const crow::request& req) {
@@ -335,20 +358,17 @@ void Routing::Run()
         }
         });
 
+    CROW_ROUTE(app, "/game_started").methods(crow::HTTPMethod::GET)([this]() {
+        std::unique_lock<std::mutex> lock(lobbyMutex);
+        if (game && game->IsRunning()) {
+            return crow::response(200, "Game has started");
+        }
+        else {
+            return crow::response(400, "Game has not started yet");
+        }
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-	app.port(8080).multithreaded().run();
+	app.port(18080).multithreaded().run();
 }
 
 	
@@ -382,6 +402,7 @@ void Routing::StartGame()
 
                 // Mutăm logica de creare a jocului aici
                 game = std::make_unique<Game>(playerManager,accountManager);
+                game->SetIsRunning(true);
                 game->Start(); // Pornește bucla principală a jocului
             }
             else {

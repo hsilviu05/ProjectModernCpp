@@ -7,6 +7,9 @@ Game::Game(PlayerManager& playerManager, AccountManager& accountManager):m_map()
     m_playersAlive = activePlayers.size();
     for (size_t i = 0; i < activePlayers.size(); ++i)
     {
+        if (!activePlayers[i]) {
+            continue;
+        }
         m_players[i] = std::move(activePlayers[i]);
 
         m_players[i]->SetPosition(m_map.getStartPosition(i));
@@ -43,6 +46,26 @@ void Game::HandleGameOver(int winnerID)
 
 void Game::Start()
 {
+
+    m_isRunning = true;
+
+    // Rulează logica jocului într-un thread separat
+    std::thread([this]() {
+        while (m_isRunning) {
+            ProcessInput();
+            Update();
+
+            int winnerID = checkWinner();
+            if (winnerID != -1) {
+                HandleGameOver(winnerID);
+                m_isRunning = false; // Oprește jocul după ce avem un câștigător
+                break;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000)); // Pauză pentru a controla rata de actualizare
+        }
+        }).detach();
+    /*
     while (true) {
         ProcessInput();
         Update();
@@ -53,6 +76,7 @@ void Game::Start()
         }
         Sleep(200);
     }
+	*/
 }
 
 void Game::Update()
@@ -61,11 +85,14 @@ void Game::Update()
 
     for (auto& player : m_players |
         std::views::filter([](const std::shared_ptr<Player>& player) {
-            return player->IsAlive();
+            return player!=nullptr;
             }))
     {
-        m_map.SetPlayerPosition(player->GetPlayerID(), player->getPosition());
-        m_map.SetTile(player->getPosition(), TileType::Player);
+        if(player->IsAlive())
+        {
+            m_map.SetPlayerPosition(player->GetPlayerID(), player->getPosition());
+            m_map.SetTile(player->getPosition(), TileType::Player);
+        }
     }
 }
 
@@ -134,6 +161,8 @@ int Game::checkWinner() {
     int lastAliveIndex = -1;
 
     for (size_t i = 0; i < m_players.size(); ++i) {
+        if (!m_players[i])
+            continue;
         if (m_players[i]->IsAlive()) {
             aliveCount++;
             lastAliveIndex = static_cast<int>(i);
@@ -158,6 +187,16 @@ const std::array<std::shared_ptr<Player>, 4>& Game::GetPlayers() const
     return m_players;
 }
 
+bool Game::IsRunning() const
+{
+    return m_isRunning;
+}
+
+void Game::SetIsRunning(bool isRunning)
+{
+    m_isRunning = isRunning;
+}
+
 
 void Game::ReceiveInput(const std::string& username, char input)
 {
@@ -174,6 +213,8 @@ void Game::ProcessInput()
     for (const auto& [username, input] : currentInputs) {
         // Găsește player-ul asociat cu username
         for (auto& player : m_players) {
+            if (player == nullptr)
+                continue;
             if (player && player->GetUsername() == username) { // Verifică player-ul și username-ul
                 handleInput(input, player, m_map, bulletManager);
                 break; 

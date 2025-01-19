@@ -108,24 +108,26 @@ void BulletManager::CheckBulletPlayersCollisions(std::optional<Bullet>& bulletOp
 
     for (auto& player : m_players |
         std::views::filter([](const std::shared_ptr<Player>& player){
-            return player->IsEliminated();
+            return player!=nullptr;
     }))
     {
+        if(!player->IsEliminated())
+        {
+            if (bulletPosition == player->getPosition() && shooterID != player->GetPlayerID()) {
+                player->TakeDamage();
+                if (player->GetHealth() > 0) {
+                    player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
+                }
+                else
+                {
+                    player->SetPlace(m_playersAlive--);
+                }
+                bulletOpt.reset();
+                m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
 
-        if (bulletPosition == player->getPosition() && shooterID != player->GetPlayerID()) {
-            player->TakeDamage();
-            if(player->GetHealth()>0){
-                player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
+                m_players[shooterID]->AddScore();
+                return;
             }
-            else
-            {
-                player->SetPlace(m_playersAlive--);
-            }
-            bulletOpt.reset();
-            m_gameMap.SetTile(bulletPosition, TileType::EmptySpace);
-
-            m_players[shooterID]->AddScore();
-            return;
         }
     }
 }
@@ -188,11 +190,15 @@ void BulletManager::BombExplosion(const std::pair<size_t, size_t>& bombPosition)
 
 
             for (auto& player : m_players) {
-                if (player->getPosition() == std::make_pair(x, y)) {
-                    player->TakeDamage();
-                    player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
-                    break;
-                }
+					if(player!=nullptr)
+					{
+                        if (player->getPosition() == std::make_pair(x, y)) {
+                            m_gameMap.SetTile({ x,y }, TileType::EmptySpace);
+                            player->TakeDamage();
+                            player->Respawn(m_gameMap.getStartPosition(player->GetPlayerID()));
+                            break;
+                        }
+					}
             }
         }
     }

@@ -9,6 +9,7 @@ import GameSettings;
 class Routing
 {
 public:
+	Routing();
 	void Run();
 	void StartGame();
 	void ResetGame();

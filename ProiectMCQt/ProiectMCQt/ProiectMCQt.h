@@ -11,6 +11,11 @@
 class ProiectMCQt : public QMainWindow {
     Q_OBJECT
 
+
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+
 public:
     ProiectMCQt(QWidget* parent = nullptr);
     ~ProiectMCQt();
@@ -44,6 +49,7 @@ private slots:
     void updateMapDisplay(const QJsonObject& mapData);
 
 private:
+    QTimer* m_mapUpdateTimer=nullptr;
     QString m_currentUsername;
     QString m_baseUrl = "http://localhost:18080";
     void handleNetworkError(const QString& operation, const QString& error);

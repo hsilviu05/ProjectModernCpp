@@ -85,7 +85,7 @@ void Map::GenerateMap(){
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_int_distribution<size_t> dist_size(23, 25);
+	std::uniform_int_distribution<size_t> dist_size(10, 11);
 	m_height = dist_size(gen);
 	m_width = dist_size(gen);
 

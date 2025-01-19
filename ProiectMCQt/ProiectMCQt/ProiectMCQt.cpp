@@ -205,6 +205,62 @@ void ProiectMCQt::loginUser(const QString& username, const QString& password) {
 }
 
 void ProiectMCQt::joinGame(const QString& username) {
+
+    if (username.isEmpty()) {
+        qDebug() << "Username is empty!";
+        handleNetworkError("Join Game", "Username cannot be empty.");
+        return;
+    }
+
+    QNetworkRequest request(QUrl(m_baseUrl + "/join_game"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject jsonObj;
+    jsonObj["username"] = username;
+    QJsonDocument doc(jsonObj);
+
+    // Debug pentru a verifica JSON-ul generat
+    qDebug() << "Request JSON:" << doc.toJson(QJsonDocument::Compact);
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    connect(manager, &QNetworkAccessManager::finished, this, [this, username](QNetworkReply* reply) {
+        if (reply->error() == QNetworkReply::NoError) {
+            int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+            switch (statusCode) {
+            case 200: {
+                qDebug() << "Player" << username << "successfully joined the game.";
+                waitForMatch();
+                break;
+            }
+            case 400: {
+                QString errorMsg = reply->readAll();
+                qDebug() << "Failed to join game:" << errorMsg;
+                handleNetworkError("Join Game", errorMsg);
+                break;
+            }
+            case 404: {
+                qDebug() << "Player" << username << "not found in lobby.";
+                handleNetworkError("Join Game", "Player not found in lobby.");
+                break;
+            }
+            default: {
+                qDebug() << "Unexpected server response:" << reply->readAll();
+                handleNetworkError("Join Game", "Unexpected server response.");
+                break;
+            }
+            }
+        }
+        else {
+            qDebug() << "Network error occurred:" << reply->errorString();
+            handleNetworkError("Join Game", reply->errorString());
+        }
+        reply->deleteLater();
+        sender()->deleteLater();
+        });
+
+    manager->post(request, doc.toJson());
+    /*
     QNetworkRequest request(QUrl(m_baseUrl + "/join_game"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -225,6 +281,7 @@ void ProiectMCQt::joinGame(const QString& username) {
         });
 
     manager->post(request, doc.toJson());
+	*/
 }
 
 void ProiectMCQt::checkMatchStatus(const QString& username)
@@ -243,7 +300,7 @@ void ProiectMCQt::sendMoveRequest(const QString& username, const QString& input)
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() == QNetworkReply::NoError) {
-            fetchMapData(); // Update the map after movement
+            //fetchMapData(); // Update the map after movement
         }
         else {
             handleNetworkError("Move", reply->errorString());
@@ -266,7 +323,8 @@ void ProiectMCQt::sendShootRequest(const QString& username) {
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() == QNetworkReply::NoError) {
-            // Handle successful shoot
+            qDebug() << "Shoot request successful.";
+            
         }
         else {
             handleNetworkError("Shoot", reply->errorString());
@@ -276,6 +334,33 @@ void ProiectMCQt::sendShootRequest(const QString& username) {
         });
 
     manager->post(request, doc.toJson());
+}
+
+
+void ProiectMCQt::keyPressEvent(QKeyEvent* event)
+{
+    std::string input;
+
+    switch (event->key()) {
+    case Qt::Key_W:
+        input = "W";
+        break;
+    case Qt::Key_S:
+        input = "S";
+        break;
+    case Qt::Key_A:
+        input = "A";
+        break;
+    case Qt::Key_D:
+        input = "D";
+        break;
+    case Qt::Key_Space:
+        sendShootRequest(m_currentUsername);
+    default:
+        return;
+    }
+
+    sendMoveRequest( m_currentUsername, QString::fromStdString(input));
 }
 
 void ProiectMCQt::fetchBulletData()
@@ -399,6 +484,20 @@ void ProiectMCQt::handleNetworkError(const QString& operation, const QString& er
         "An error occurred during " + operation.toLower() + ": " + error);
 }
 
+QMap<QString, QPixmap> imageCache;
+QPixmap loadImage(const QString& path) {
+    if (imageCache.contains(path)) {
+        return imageCache.value(path);
+    }
+    else {
+        QPixmap pixmap(path);
+        if (!pixmap.isNull()) {
+            imageCache.insert(path, pixmap);
+        }
+        return pixmap;
+    }
+}
+
 void ProiectMCQt::colorTile(QLabel* label, int type)
 {
     QPixmap pixmap;
@@ -409,7 +508,7 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         label->clear();
         break;
     case 1: // DestructibleWall
-        pixmap = QPixmap(":/images/poza4.png");
+        pixmap = loadImage(":/images/poza4.png");
         if (pixmap.isNull()) {
             qDebug() << "Failed to load image!";
         }
@@ -422,14 +521,14 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
         //label->setAutoFillBackground(true);
         //label->setPalette(QPalette(Qt::red))
         // ;
-        pixmap = QPixmap(":/images/pngwing.com.png");
+        pixmap = loadImage(":/images/pngwing.com.png");
         label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
         break;
     case 3: // DestructibleWallWithBomb
         //label->setAutoFillBackground(true);
         //label->setPalette(QPalette(Qt::green));
-        pixmap = QPixmap(":/images/poza4.png");
+        pixmap = loadImage(":/images/poza4.png");
         label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
     case 4: // Player
@@ -496,6 +595,52 @@ void ProiectMCQt::showGameMenuUI() {
 }
 
 void ProiectMCQt::waitForMatch() {
+
+    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
+    while (QLayoutItem* item = layout->takeAt(0)) {
+        delete item->widget();
+        delete item;
+    }
+
+    // Add waiting message
+    QLabel* waitingLabel = new QLabel("Waiting for other players...", this);
+    waitingLabel->setAlignment(Qt::AlignCenter);
+    layout->addWidget(waitingLabel, 0, 0);
+
+    // Create and start timer for polling match status
+    QTimer* matchTimer = new QTimer(this);
+    connect(matchTimer, &QTimer::timeout, this, [this, matchTimer]() {
+        QNetworkRequest request(QUrl(m_baseUrl + "/game_started"));
+
+        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+        connect(manager, &QNetworkAccessManager::finished, this, [this, matchTimer](QNetworkReply* reply) {
+            if (reply->error() == QNetworkReply::NoError) {
+                int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+                if (statusCode == 200) {
+                    // Stop the timer
+                    matchTimer->stop();
+                    matchTimer->deleteLater();
+
+                    if (!m_mapUpdateTimer) {
+                        m_mapUpdateTimer = new QTimer(this);
+                        connect(m_mapUpdateTimer, &QTimer::timeout, this, &ProiectMCQt::fetchMapData);
+                    }
+                    m_mapUpdateTimer->start(2000);
+
+                    // Fetch and display the map
+                    fetchMapData();
+                }
+            }
+            reply->deleteLater();
+            sender()->deleteLater();
+            });
+
+        manager->get(request);
+        });
+
+    matchTimer->start(2000); // Check every 2 seconds
+    /*
     // Clear existing layout
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
     while (QLayoutItem* item = layout->takeAt(0)) {
@@ -539,6 +684,7 @@ void ProiectMCQt::waitForMatch() {
         });
 
     matchTimer->start(2000); // Check every 2 seconds
+    */
 }
 
 void ProiectMCQt::updateMapDisplay(const QJsonObject& mapData) {
