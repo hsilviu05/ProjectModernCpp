@@ -19,40 +19,37 @@ protected:
 public:
     ProiectMCQt(QWidget* parent = nullptr);
     ~ProiectMCQt();
-    QWidget* centralWidget = nullptr; // Define centralWidget
-    QTimer* bulletUpdateTimer = nullptr; // Define timer for bullets
-    void setupUI(); // Declare setupUI
-    void showLoginRegisterUI(); // Declare showLoginRegisterUI
-    void updateBullets();
+    QWidget* centralWidget = nullptr;
+    QTimer* bulletUpdateTimer = nullptr;
+    void SetupUI();
+    void ShowLoginRegisterUI();
+    void UpdateBullets();
 private slots:
-    // Player management routes
-    void registerUser(const QString& username, const QString& password);
-    void loginUser(const QString& username, const QString& password);
-    void joinGame(const QString& username);
-    void checkMatchStatus(const QString& username);
+    void RegisterUser(const QString& username, const QString& password);
+    void LoginUser(const QString& username, const QString& password);
+    void JoinGame(const QString& username);
+    void CheckMatchStatus(const QString& username);
 
-    // Game state routes
-    void fetchMapData();
-    void sendMoveRequest(const QString& username, const QString& input);
-    void sendShootRequest(const QString& username);
-    void fetchBulletData();
+    void FetchMapData();
+    void SendMoveRequest(const QString& username, const QString& input);
+    void SendShootRequest(const QString& username);
+    void FetchBulletData();
 
-    // Game upgrade routes
-    void upgradeBulletSpeed(const QString& username);
-    void upgradeFireRate(const QString& username);
-    void fetchScoreAndPoints(const QString& username);
-    void showUpgradesUI();
+    void UpgradeBulletSpeed(const QString& username);
+    void UpgradeFireRate(const QString& username);
+    void FetchScoreAndPoints(const QString& username);
+    void ShowUpgradesUI();
 
-    void colorTile(QLabel* label, int type);
-    void showGameMenuUI();
-    void waitForMatch();
-    void updateMapDisplay(const QJsonObject& mapData);
+    void ColorTile(QLabel* label, int type);
+    void ShowGameMenuUI();
+    void WaitForMatch();
+    void UpdateMapDisplay(const QJsonObject& mapData);
 
 private:
     QTimer* m_mapUpdateTimer=nullptr;
     QString m_currentUsername;
     QString m_baseUrl = "http://localhost:18080";
-    void handleNetworkError(const QString& operation, const QString& error);
+    void HandleNetworkError(const QString& operation, const QString& error);
 };
 
 #endif // PROIECTMCQT_H

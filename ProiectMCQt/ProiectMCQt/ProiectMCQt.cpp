@@ -28,40 +28,34 @@
 ProiectMCQt::ProiectMCQt(QWidget* parent)
     : QMainWindow(parent)
 {
-    setAttribute(Qt::WA_TranslucentBackground); // Permite transparența pentru fereastra principală
-    setupUI();
-    //fetchData();
+    setAttribute(Qt::WA_TranslucentBackground);
+    SetupUI();
 }
 
 ProiectMCQt::~ProiectMCQt()
 {
-    // Curățarea resurselor, dacă este necesar
 }
 
-void ProiectMCQt::setupUI()
+void ProiectMCQt::SetupUI()
 {
-    // Create central widget and layout
     centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
     QGridLayout* layout = new QGridLayout(centralWidget);
     centralWidget->setLayout(layout);
 
-    // Initialize the UI state
-    showLoginRegisterUI();
+    ShowLoginRegisterUI();
 
 }
 
-void ProiectMCQt::showLoginRegisterUI()
+void ProiectMCQt::ShowLoginRegisterUI()
 {
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
-    // Clear any existing layout items
     QLayoutItem* item;
     while ((item = layout->takeAt(0)) != nullptr) {
         delete item->widget();
         delete item;
     }
 
-    // Add fields for username and password
     QLabel* usernameLabel = new QLabel("Username:", this);
     QLineEdit* usernameLineEdit = new QLineEdit(this);
     layout->addWidget(usernameLabel, 0, 0);
@@ -69,31 +63,29 @@ void ProiectMCQt::showLoginRegisterUI()
 
     QLabel* passwordLabel = new QLabel("Password:", this);
     QLineEdit* passwordLineEdit = new QLineEdit(this);
-    passwordLineEdit->setEchoMode(QLineEdit::Password); // Hide password characters
+    passwordLineEdit->setEchoMode(QLineEdit::Password);
     layout->addWidget(passwordLabel, 1, 0);
     layout->addWidget(passwordLineEdit, 1, 1);
 
-    // Add buttons for register and login
     QPushButton* registerButton = new QPushButton("Register", this);
     QPushButton* loginButton = new QPushButton("Login", this);
     layout->addWidget(registerButton, 2, 0);
     layout->addWidget(loginButton, 2, 1);
 
-    // Connect buttons to their respective functions
     QObject::connect(registerButton, &QPushButton::clicked, [=]() {
         QString username = usernameLineEdit->text();
         QString password = passwordLineEdit->text();
-        registerUser(username, password);
+        RegisterUser(username, password);
         });
 
     QObject::connect(loginButton, &QPushButton::clicked, [=]() {
         QString username = usernameLineEdit->text();
         QString password = passwordLineEdit->text();
-        loginUser(username, password);
+        LoginUser(username, password);
         });
 }
 
-void ProiectMCQt::showUpgradesUI()
+void ProiectMCQt::ShowUpgradesUI()
 {
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
     while (QLayoutItem* item = layout->takeAt(0)) {
@@ -101,21 +93,18 @@ void ProiectMCQt::showUpgradesUI()
         delete item;
     }
 
-    // Add upgrades page elements
     QLabel* upgradesLabel = new QLabel("Upgrades", this);
     QPushButton* upgradeBulletSpeedButton = new QPushButton("Upgrade Bullet Speed", this);
     QPushButton* upgradeFireRateButton = new QPushButton("Upgrade Fire Rate", this);
-    QLabel* scoreLabel = new QLabel("Score: 0", this); // Placeholder for actual score
-    QLabel* pointsLabel = new QLabel("Points: 0", this); // Placeholder for actual points
+    QLabel* scoreLabel = new QLabel("Score: 0", this);
+    QLabel* pointsLabel = new QLabel("Points: 0", this);
     QPushButton* backButton = new QPushButton("Back to Menu", this);
 
-    // Style the title
     upgradesLabel->setAlignment(Qt::AlignCenter);
     QFont titleFont = upgradesLabel->font();
     titleFont.setPointSize(16);
     upgradesLabel->setFont(titleFont);
 
-    // Add widgets to the layout
     layout->addWidget(upgradesLabel, 0, 0, 1, 2);
     layout->addWidget(scoreLabel, 1, 0, 1, 2);
     layout->addWidget(pointsLabel, 2, 0, 1, 2);
@@ -123,38 +112,35 @@ void ProiectMCQt::showUpgradesUI()
     layout->addWidget(upgradeFireRateButton, 4, 0, 1, 2);
     layout->addWidget(backButton, 5, 0, 1, 2);
 
-    // Center widgets in the layout
     layout->setAlignment(Qt::AlignCenter);
 
-    // Connect buttons to their respective functions
     connect(upgradeBulletSpeedButton, &QPushButton::clicked, this, [this]() {
         if (!m_currentUsername.isEmpty()) {
-            upgradeBulletSpeed(m_currentUsername);
+            UpgradeBulletSpeed(m_currentUsername);
         }
         });
 
     connect(upgradeFireRateButton, &QPushButton::clicked, this, [this]() {
         if (!m_currentUsername.isEmpty()) {
-            upgradeFireRate(m_currentUsername);
+            UpgradeFireRate(m_currentUsername);
         }
         });
 
     connect(backButton, &QPushButton::clicked, this, [this]() {
-        showGameMenuUI();
+        ShowGameMenuUI();
         });
 
-    // Fetch and display current score and points
     if (!m_currentUsername.isEmpty()) {
-        fetchScoreAndPoints(m_currentUsername);
+        FetchScoreAndPoints(m_currentUsername);
     }
 }
 
-void ProiectMCQt::updateBullets()
+void ProiectMCQt::UpdateBullets()
 {
 
 }
 
-void ProiectMCQt::registerUser(const QString& username, const QString& password) {
+void ProiectMCQt::RegisterUser(const QString& username, const QString& password) {
     QNetworkRequest request(QUrl(m_baseUrl + "/signup"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -169,7 +155,7 @@ void ProiectMCQt::registerUser(const QString& username, const QString& password)
             QMessageBox::information(this, "Success", "Account created successfully!");
         }
         else {
-            handleNetworkError("Registration", reply->errorString());
+            HandleNetworkError("Registration", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -178,7 +164,7 @@ void ProiectMCQt::registerUser(const QString& username, const QString& password)
     manager->post(request, doc.toJson());
 }
 
-void ProiectMCQt::loginUser(const QString& username, const QString& password) {
+void ProiectMCQt::LoginUser(const QString& username, const QString& password) {
     QNetworkRequest request(QUrl(m_baseUrl + "/login"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -192,10 +178,10 @@ void ProiectMCQt::loginUser(const QString& username, const QString& password) {
         if (reply->error() == QNetworkReply::NoError) {
             m_currentUsername = username;
             QMessageBox::information(this, "Success", "Login successful!");
-            showGameMenuUI();
+            ShowGameMenuUI();
         }
         else {
-            handleNetworkError("Login", reply->errorString());
+            HandleNetworkError("Login", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -204,11 +190,11 @@ void ProiectMCQt::loginUser(const QString& username, const QString& password) {
     manager->post(request, doc.toJson());
 }
 
-void ProiectMCQt::joinGame(const QString& username) {
+void ProiectMCQt::JoinGame(const QString& username) {
 
     if (username.isEmpty()) {
         qDebug() << "Username is empty!";
-        handleNetworkError("Join Game", "Username cannot be empty.");
+        HandleNetworkError("Join Game", "Username cannot be empty.");
         return;
     }
 
@@ -219,7 +205,6 @@ void ProiectMCQt::joinGame(const QString& username) {
     jsonObj["username"] = username;
     QJsonDocument doc(jsonObj);
 
-    // Debug pentru a verifica JSON-ul generat
     qDebug() << "Request JSON:" << doc.toJson(QJsonDocument::Compact);
 
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
@@ -230,65 +215,44 @@ void ProiectMCQt::joinGame(const QString& username) {
             switch (statusCode) {
             case 200: {
                 qDebug() << "Player" << username << "successfully joined the game.";
-                waitForMatch();
+                WaitForMatch();
                 break;
             }
             case 400: {
                 QString errorMsg = reply->readAll();
                 qDebug() << "Failed to join game:" << errorMsg;
-                handleNetworkError("Join Game", errorMsg);
+                HandleNetworkError("Join Game", errorMsg);
                 break;
             }
             case 404: {
                 qDebug() << "Player" << username << "not found in lobby.";
-                handleNetworkError("Join Game", "Player not found in lobby.");
+                HandleNetworkError("Join Game", "Player not found in lobby.");
                 break;
             }
             default: {
                 qDebug() << "Unexpected server response:" << reply->readAll();
-                handleNetworkError("Join Game", "Unexpected server response.");
+                HandleNetworkError("Join Game", "Unexpected server response.");
                 break;
             }
             }
         }
         else {
             qDebug() << "Network error occurred:" << reply->errorString();
-            handleNetworkError("Join Game", reply->errorString());
+            HandleNetworkError("Join Game", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
         });
 
     manager->post(request, doc.toJson());
-    /*
-    QNetworkRequest request(QUrl(m_baseUrl + "/join_game"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    QJsonObject jsonObj;
-    jsonObj["username"] = username;
-    QJsonDocument doc(jsonObj);
-
-    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-    connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
-        if (reply->error() == QNetworkReply::NoError) {
-            waitForMatch();
-        }
-        else {
-            handleNetworkError("Join Game", reply->errorString());
-        }
-        reply->deleteLater();
-        sender()->deleteLater();
-        });
-
-    manager->post(request, doc.toJson());
-	*/
+    
 }
 
-void ProiectMCQt::checkMatchStatus(const QString& username)
+void ProiectMCQt::CheckMatchStatus(const QString& username)
 {
 }
 
-void ProiectMCQt::sendMoveRequest(const QString& username, const QString& input) {
+void ProiectMCQt::SendMoveRequest(const QString& username, const QString& input) {
     QNetworkRequest request(QUrl(m_baseUrl + "/move"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -300,10 +264,9 @@ void ProiectMCQt::sendMoveRequest(const QString& username, const QString& input)
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() == QNetworkReply::NoError) {
-            //fetchMapData(); // Update the map after movement
         }
         else {
-            handleNetworkError("Move", reply->errorString());
+           HandleNetworkError("Move", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -312,7 +275,7 @@ void ProiectMCQt::sendMoveRequest(const QString& username, const QString& input)
     manager->post(request, doc.toJson());
 }
 
-void ProiectMCQt::sendShootRequest(const QString& username) {
+void ProiectMCQt::SendShootRequest(const QString& username) {
     QNetworkRequest request(QUrl(m_baseUrl + "/shoot"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -327,7 +290,7 @@ void ProiectMCQt::sendShootRequest(const QString& username) {
             
         }
         else {
-            handleNetworkError("Shoot", reply->errorString());
+            HandleNetworkError("Shoot", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -355,15 +318,15 @@ void ProiectMCQt::keyPressEvent(QKeyEvent* event)
         input = "D";
         break;
     case Qt::Key_Space:
-        sendShootRequest(m_currentUsername);
+        SendShootRequest(m_currentUsername);
     default:
         return;
     }
 
-    sendMoveRequest( m_currentUsername, QString::fromStdString(input));
+    SendMoveRequest( m_currentUsername, QString::fromStdString(input));
 }
 
-void ProiectMCQt::fetchBulletData()
+void ProiectMCQt::FetchBulletData()
 {
     QNetworkRequest request(QUrl(m_baseUrl + "/get_bullet_data"));
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
@@ -372,10 +335,9 @@ void ProiectMCQt::fetchBulletData()
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
             QJsonObject responseObj = jsonResponse.object();
-            // Process bullet data here
         }
         else {
-            handleNetworkError("Fetch Bullet Data", reply->errorString());
+            HandleNetworkError("Fetch Bullet Data", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -384,7 +346,7 @@ void ProiectMCQt::fetchBulletData()
     manager->get(request);
 }
 
-void ProiectMCQt::upgradeBulletSpeed(const QString& username)
+void ProiectMCQt::UpgradeBulletSpeed(const QString& username)
 {
     QNetworkRequest request(QUrl(m_baseUrl + "/upgrade_bullet_speed"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -396,10 +358,9 @@ void ProiectMCQt::upgradeBulletSpeed(const QString& username)
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() == QNetworkReply::NoError) {
-            // Handle successful upgrade
         }
         else {
-            handleNetworkError("Upgrade Bullet Speed", reply->errorString());
+            HandleNetworkError("Upgrade Bullet Speed", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -408,7 +369,7 @@ void ProiectMCQt::upgradeBulletSpeed(const QString& username)
     manager->post(request, doc.toJson());
 }
 
-void ProiectMCQt::upgradeFireRate(const QString& username)
+void ProiectMCQt::UpgradeFireRate(const QString& username)
 {
     QNetworkRequest request(QUrl(m_baseUrl + "/upgrade_fire_rate"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -420,10 +381,9 @@ void ProiectMCQt::upgradeFireRate(const QString& username)
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
         if (reply->error() == QNetworkReply::NoError) {
-            // Handle successful upgrade
         }
         else {
-            handleNetworkError("Upgrade Fire Rate", reply->errorString());
+            HandleNetworkError("Upgrade Fire Rate", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -432,7 +392,7 @@ void ProiectMCQt::upgradeFireRate(const QString& username)
     manager->post(request, doc.toJson());
 }
 
-void ProiectMCQt::fetchScoreAndPoints(const QString& username)
+void ProiectMCQt::FetchScoreAndPoints(const QString& username)
 {
     QUrl url(m_baseUrl + "/get_total_score_and_points");
     QUrlQuery query;
@@ -446,10 +406,9 @@ void ProiectMCQt::fetchScoreAndPoints(const QString& username)
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
             QJsonObject responseObj = jsonResponse.object();
-            // Process score and points data here
         }
         else {
-            handleNetworkError("Fetch Score and Points", reply->errorString());
+            HandleNetworkError("Fetch Score and Points", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -458,7 +417,7 @@ void ProiectMCQt::fetchScoreAndPoints(const QString& username)
     manager->get(request);
 }
 
-void ProiectMCQt::fetchMapData() {
+void ProiectMCQt::FetchMapData() {
     QNetworkRequest request(QUrl(m_baseUrl + "/map"));
 
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
@@ -466,11 +425,11 @@ void ProiectMCQt::fetchMapData() {
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             if (!doc.isNull()) {
-                updateMapDisplay(doc.object());
+                UpdateMapDisplay(doc.object());
             }
         }
         else {
-            handleNetworkError("Fetch Map", reply->errorString());
+            HandleNetworkError("Fetch Map", reply->errorString());
         }
         reply->deleteLater();
         sender()->deleteLater();
@@ -479,7 +438,7 @@ void ProiectMCQt::fetchMapData() {
     manager->get(request);
 }
 
-void ProiectMCQt::handleNetworkError(const QString& operation, const QString& error) {
+void ProiectMCQt::HandleNetworkError(const QString& operation, const QString& error) {
     QMessageBox::critical(this, operation + " Error",
         "An error occurred during " + operation.toLower() + ": " + error);
 }
@@ -498,16 +457,16 @@ QPixmap loadImage(const QString& path) {
     }
 }
 
-void ProiectMCQt::colorTile(QLabel* label, int type)
+void ProiectMCQt::ColorTile(QLabel* label, int type)
 {
     QPixmap pixmap;
     QPixmap backgroundPixmap(":/images/Untitled.png");
     switch (type) {
-    case 0: // EmptySpace
+    case 0:
         label->setAutoFillBackground(false);
         label->clear();
         break;
-    case 1: // DestructibleWall
+    case 1:
         pixmap = loadImage(":/images/poza4.png");
         if (pixmap.isNull()) {
             qDebug() << "Failed to load image!";
@@ -517,28 +476,23 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
             label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         }
         break;
-    case 2: // IndestructibleWall
-        //label->setAutoFillBackground(true);
-        //label->setPalette(QPalette(Qt::red))
-        // ;
+    case 2: 
         pixmap = loadImage(":/images/pngwing.com.png");
         label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
         break;
-    case 3: // DestructibleWallWithBomb
-        //label->setAutoFillBackground(true);
-        //label->setPalette(QPalette(Qt::green));
+    case 3:
         pixmap = loadImage(":/images/poza4.png");
         label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
-    case 4: // Player
+    case 4:
         label->setAutoFillBackground(true);
         label->setPalette(QPalette(Qt::yellow));
         break;
-    case 5: // Bullet
+    case 5:
         label->setAutoFillBackground(true);
         label->setPalette(QPalette(Qt::white));
-        label->setFixedSize(10, 10); // Make bullets smaller than other tiles
+        label->setFixedSize(10, 10);
         break;
     default:
         label->setAutoFillBackground(true);
@@ -547,54 +501,47 @@ void ProiectMCQt::colorTile(QLabel* label, int type)
     }
 }
 
-void ProiectMCQt::showGameMenuUI() {
-    // Clear any existing layout items
+void ProiectMCQt::ShowGameMenuUI() {
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
     while (QLayoutItem* item = layout->takeAt(0)) {
         delete item->widget();
         delete item;
     }
 
-    // Add game menu elements
     QLabel* menuLabel = new QLabel("Game Menu", this);
     QPushButton* joinGameButton = new QPushButton("Join Game", this);
     QPushButton* logoutButton = new QPushButton("Logout", this);
-    QPushButton* upgradesButton = new QPushButton("Upgrades", this);  // New button for upgrades
+    QPushButton* upgradesButton = new QPushButton("Upgrades", this);
 
-    // Style the menu
     menuLabel->setAlignment(Qt::AlignCenter);
     QFont titleFont = menuLabel->font();
     titleFont.setPointSize(16);
     menuLabel->setFont(titleFont);
 
-    // Add widgets to layout
     layout->addWidget(menuLabel, 0, 0, 1, 2);
     layout->addWidget(joinGameButton, 1, 0, 1, 2);
-    layout->addWidget(upgradesButton, 2, 0, 1, 2); // Add the upgrades button here
+    layout->addWidget(upgradesButton, 2, 0, 1, 2);
     layout->addWidget(logoutButton, 3, 0, 1, 2);
 
-    // Connect buttons
     connect(joinGameButton, &QPushButton::clicked, this, [this]() {
         if (!m_currentUsername.isEmpty()) {
-            joinGame(m_currentUsername);
+            JoinGame(m_currentUsername);
         }
         });
 
     connect(logoutButton, &QPushButton::clicked, this, [this]() {
         m_currentUsername.clear();
-        // Return to login screen
-        showLoginRegisterUI();
+        ShowLoginRegisterUI();
         });
 
     connect(upgradesButton, &QPushButton::clicked, this, [this]() {
-        showUpgradesUI();  // Show upgrades UI when the button is clicked
+        ShowUpgradesUI();
         });
 
-    // Center the widgets in the layout
     layout->setAlignment(Qt::AlignCenter);
 }
 
-void ProiectMCQt::waitForMatch() {
+void ProiectMCQt::WaitForMatch() {
 
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
     while (QLayoutItem* item = layout->takeAt(0)) {
@@ -602,12 +549,10 @@ void ProiectMCQt::waitForMatch() {
         delete item;
     }
 
-    // Add waiting message
     QLabel* waitingLabel = new QLabel("Waiting for other players...", this);
     waitingLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(waitingLabel, 0, 0);
 
-    // Create and start timer for polling match status
     QTimer* matchTimer = new QTimer(this);
     connect(matchTimer, &QTimer::timeout, this, [this, matchTimer]() {
         QNetworkRequest request(QUrl(m_baseUrl + "/game_started"));
@@ -618,18 +563,16 @@ void ProiectMCQt::waitForMatch() {
                 int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
                 if (statusCode == 200) {
-                    // Stop the timer
                     matchTimer->stop();
                     matchTimer->deleteLater();
 
                     if (!m_mapUpdateTimer) {
                         m_mapUpdateTimer = new QTimer(this);
-                        connect(m_mapUpdateTimer, &QTimer::timeout, this, &ProiectMCQt::fetchMapData);
+                        connect(m_mapUpdateTimer, &QTimer::timeout, this, &ProiectMCQt::FetchMapData);
                     }
                     m_mapUpdateTimer->start(2000);
 
-                    // Fetch and display the map
-                    fetchMapData();
+                    FetchMapData();
                 }
             }
             reply->deleteLater();
@@ -639,58 +582,12 @@ void ProiectMCQt::waitForMatch() {
         manager->get(request);
         });
 
-    matchTimer->start(2000); // Check every 2 seconds
-    /*
-    // Clear existing layout
-    QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
-    while (QLayoutItem* item = layout->takeAt(0)) {
-        delete item->widget();
-        delete item;
-    }
-
-    // Add waiting message
-    QLabel* waitingLabel = new QLabel("Waiting for other players...", this);
-    waitingLabel->setAlignment(Qt::AlignCenter);
-    layout->addWidget(waitingLabel, 0, 0);
-
-    // Create and start timer for polling match status
-    QTimer* matchTimer = new QTimer(this);
-    connect(matchTimer, &QTimer::timeout, this, [this]() {
-        QNetworkRequest request(QUrl(m_baseUrl + "/check_match?username=" + m_currentUsername));
-
-        QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-        connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
-            if (reply->error() == QNetworkReply::NoError) {
-                QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
-                QJsonObject obj = doc.object();
-
-                if (obj["match_found"].toBool()) {
-                    // Stop the timer
-                    QTimer* timer = qobject_cast<QTimer*>(sender()->parent());
-                    if (timer) {
-                        timer->stop();
-                        timer->deleteLater();
-                    }
-
-                    // Update game state and show game UI
-                    fetchMapData();
-                }
-            }
-            reply->deleteLater();
-            sender()->deleteLater();
-            });
-
-        manager->get(request);
-        });
-
-    matchTimer->start(2000); // Check every 2 seconds
-    */
+    matchTimer->start(2000);
 }
 
-void ProiectMCQt::updateMapDisplay(const QJsonObject& mapData) {
+void ProiectMCQt::UpdateMapDisplay(const QJsonObject& mapData) {
     QGridLayout* layout = qobject_cast<QGridLayout*>(centralWidget->layout());
 
-    // Clear existing layout
     while (QLayoutItem* item = layout->takeAt(0)) {
         delete item->widget();
         delete item;
@@ -700,19 +597,17 @@ void ProiectMCQt::updateMapDisplay(const QJsonObject& mapData) {
     int width = mapData["width"].toInt();
     QJsonArray mapArray = mapData["map"].toArray();
 
-    // Create and add tiles to the grid
     for (int i = 0; i < height; ++i) {
         QJsonArray row = mapArray[i].toArray();
         for (int j = 0; j < width; ++j) {
             int tileType = row[j].toInt();
             QLabel* tileLabel = new QLabel(this);
-            tileLabel->setFixedSize(30, 30); // Set tile size
-            colorTile(tileLabel, tileType);  // Your existing colorTile function
+            tileLabel->setFixedSize(30, 30);
+            ColorTile(tileLabel, tileType);
             layout->addWidget(tileLabel, i, j);
         }
     }
 
-    // Add walls from the walls array
     QJsonArray wallsArray = mapData["walls"].toArray();
     for (const QJsonValue& wallValue : wallsArray) {
         QJsonObject wall = wallValue.toObject();
@@ -720,17 +615,15 @@ void ProiectMCQt::updateMapDisplay(const QJsonObject& mapData) {
         int y = wall["y"].toInt();
         int type = wall["type"].toInt();
 
-        // Find the existing label at this position and update it
         QLayoutItem* item = layout->itemAtPosition(x, y);
         if (item && item->widget()) {
             QLabel* wallLabel = qobject_cast<QLabel*>(item->widget());
             if (wallLabel) {
-                colorTile(wallLabel, type);
+                ColorTile(wallLabel, type);
             }
         }
     }
 
-    // Make sure the grid cells are evenly spaced
     layout->setSpacing(1);
     layout->setContentsMargins(10, 10, 10, 10);
-}
+ }
