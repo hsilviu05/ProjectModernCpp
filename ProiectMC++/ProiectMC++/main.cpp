@@ -229,9 +229,12 @@ int main()
         crow::json::wvalue::list mapArray;
         crow::json::wvalue::list wallsArray;
 
-        for (size_t i = 0; i < map.GetHeight(); ++i) {
+        size_t mapHeight = map.GetHeight();
+        size_t mapWidth = map.GetWidth();
+
+        for (size_t i = 0; i < mapHeight; ++i) {
             crow::json::wvalue::list rowArray;
-            for (size_t j = 0; j < map.GetWidth(); ++j) {
+            for (size_t j = 0; j < mapWidth; ++j) {
                 TileType tile = map.GetTile({ i, j });
                 rowArray.push_back(static_cast<int>(tile));
 
