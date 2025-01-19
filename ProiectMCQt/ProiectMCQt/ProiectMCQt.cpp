@@ -280,6 +280,23 @@ void ProiectMCQt::sendShootRequest(const QString& username) {
 
 void ProiectMCQt::fetchBulletData()
 {
+    QNetworkRequest request(QUrl(m_baseUrl + "/get_bullet_data"));
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+
+    connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+            QJsonObject responseObj = jsonResponse.object();
+            // Process bullet data here
+        }
+        else {
+            handleNetworkError("Fetch Bullet Data", reply->errorString());
+        }
+        reply->deleteLater();
+        sender()->deleteLater();
+        });
+
+    manager->get(request);
 }
 
 void ProiectMCQt::upgradeBulletSpeed(const QString& username)
@@ -332,6 +349,28 @@ void ProiectMCQt::upgradeFireRate(const QString& username)
 
 void ProiectMCQt::fetchScoreAndPoints(const QString& username)
 {
+    QUrl url(m_baseUrl + "/get_total_score_and_points");
+    QUrlQuery query;
+    query.addQueryItem("username", username);
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+
+    connect(manager, &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
+            QJsonObject responseObj = jsonResponse.object();
+            // Process score and points data here
+        }
+        else {
+            handleNetworkError("Fetch Score and Points", reply->errorString());
+        }
+        reply->deleteLater();
+        sender()->deleteLater();
+        });
+
+    manager->get(request);
 }
 
 void ProiectMCQt::fetchMapData() {

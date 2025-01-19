@@ -6,12 +6,13 @@
 class PlayerManager
 {
 public:
+    PlayerManager() = default;
     std::array<std::shared_ptr<Player>, 4>& GetActivePlayers();
     void AddToLobby(std::shared_ptr<Player> player);
     const std::vector<std::shared_ptr<Player>>& GetLobbyPlayersConst() const;
     std::vector<std::shared_ptr<Player>>& GetLobbyPlayers();
+
 private:
-    PlayerManager() = default;
     std::vector<std::shared_ptr<Player>> m_lobbyPlayers;   
     std::array<std::shared_ptr<Player>,4>m_activePlayers; 
 };
