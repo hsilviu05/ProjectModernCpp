@@ -486,13 +486,12 @@ void ProiectMCQt::ColorTile(QLabel* label, int type)
         label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
     case 4:
-        label->setAutoFillBackground(true);
-        label->setPalette(QPalette(Qt::yellow));
+        pixmap = loadImage(":/images/poza12.png");
+        label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
     case 5:
-        label->setAutoFillBackground(true);
-        label->setPalette(QPalette(Qt::white));
-        label->setFixedSize(10, 10);
+        pixmap = loadImage(":/images/poza10.png");
+        label->setPixmap(pixmap.scaled(label->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         break;
     default:
         label->setAutoFillBackground(true);
