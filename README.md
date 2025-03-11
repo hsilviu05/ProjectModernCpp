@@ -82,4 +82,4 @@ Harta este generată aleatoriu la începutul fiecărei partide, cu dimensiuni va
 ### Proiect realizat de catre :
 ### - Dragomir Cezar-Andrei
 ### - Hermeneanu Silviu Ionut
-### - Iftimie Razvan
+### - Iftime Razvan
